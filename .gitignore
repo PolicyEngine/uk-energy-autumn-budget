@@ -11,3 +11,4 @@ node_modules/
 # policyengine downloads datasets here (some are private); never commit them
 /data/
 *.h5
+.env*
