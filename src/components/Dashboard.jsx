@@ -895,7 +895,9 @@ function MethodologySection() {
           electricity bill in Great Britain.
         </p>
         <p className="section-description">
-          Poverty is PolicyEngine's HBAI relative measure. HBAI income does not net off energy bills, so bill
+          Poverty is relative poverty: people in households below 60% of median equivalised HBAI income, the
+          DWP headline measure (PolicyEngine UK's relative poverty variables). Absolute poverty against a fixed
+          2024-25 line is also in the published data. HBAI income does not net off energy bills, so bill
           support counts only where it is treated as income. DWP counts the Warm Home Discount, although it is a
           bill credit, as miscellaneous income in HBAI.<Fn n={9} /> By scheme:
         </p>
@@ -910,9 +912,9 @@ function MethodologySection() {
         <p className="section-description">
           Microcosm matches official energy spending and household counts
           closely (£42.2bn on electricity and gas in 2025 against the ONS's £41.9bn; 29.0m households in 2024
-          against 28.6m), but puts relative poverty after housing costs at 15.3% of people and 19.1% of children
-          in 2024-25, against DWP's 20% and 27%. PolicyEngine's previous enhanced FRS dataset is closer on poverty
-          (20.5% and 29.8%) but overstates energy spending at £51bn. We report Microcosm's poverty rates as
+          against 28.6m), but puts relative poverty after housing costs at 18.3% of people and 23.4% of children
+          in 2024-25, against DWP's 20% and 27%. PolicyEngine's previous enhanced FRS dataset gives 21.2% and 31.0%
+          but overstates energy spending at £51bn. We report Microcosm's poverty rates as
           computed and do not use them to rank the options.
         </p>
       </div>

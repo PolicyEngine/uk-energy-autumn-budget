@@ -374,12 +374,23 @@ def _sim(year, elec, gas, params=None, extra_scenario=None):
 
 
 def _poverty(sim, year):
+    """Person-weighted poverty rates (%).
+
+    The main keys are relative poverty (below 60% of the median, the DWP HBAI
+    headline measure, ``in_relative_poverty_*``). ``absolute_*`` keys are
+    PolicyEngine UK's ``in_poverty_*``, which is absolute poverty against a
+    fixed FYE 2025 line.
+    """
     age = sim.calculate("age", year, map_to="person")
     out = {}
     for m in ("bhc", "ahc"):
-        pov = sim.calculate(f"in_poverty_{m}", year, map_to="person")
-        out[m] = round(float(pov.mean()) * 100, 2)
-        out[f"child_{m}"] = round(float(pov[age < 18].mean()) * 100, 2)
+        for prefix, var in (
+            ("", f"in_relative_poverty_{m}"),
+            ("absolute_", f"in_poverty_{m}"),
+        ):
+            pov = sim.calculate(var, year, map_to="person")
+            out[f"{prefix}{m}"] = round(float(pov.mean()) * 100, 2)
+            out[f"{prefix}child_{m}"] = round(float(pov[age < 18].mean()) * 100, 2)
     return out
 
 

@@ -266,6 +266,8 @@ def write_tables(r):
                 "poverty_bhc_pct": p["bhc"],
                 "poverty_ahc_pct": p["ahc"],
                 "child_poverty_ahc_pct": p["child_ahc"],
+                "absolute_poverty_ahc_pct": p["absolute_ahc"],
+                "absolute_child_poverty_ahc_pct": p["absolute_child_ahc"],
             }
         )
         for k, o in v["options"].items():
@@ -491,7 +493,7 @@ def build_notes(r):
         {
             "id": "poverty",
             "topic": "Poverty",
-            "detail": "PolicyEngine's HBAI relative poverty. DWP counts the Warm Home Discount, a bill credit, as HBAI income, so the top-up moves poverty; the RF discount is counted the same way by assumption. Price cuts (cap freeze, VAT, levies) lower bills rather than raise income, so they do not move HBAI poverty.",
+            "detail": "Relative poverty: people in households below 60% of median equivalised HBAI income (PolicyEngine UK in_relative_poverty_bhc/ahc, the DWP headline measure). Absolute poverty (in_poverty_*, a fixed FYE 2025 line) is also exported. DWP counts the Warm Home Discount, a bill credit, as HBAI income, so the top-up moves poverty; the RF discount is counted the same way by assumption. Price cuts (cap freeze, VAT, levies) lower bills rather than raise income, so they do not move HBAI poverty.",
             "link": "https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2025/households-below-average-income-background-information-and-methodology-report-fye-2025",
         },
         {

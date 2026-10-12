@@ -41,7 +41,7 @@ The first four are PolicyEngine reforms; the last three are price cuts costed fr
 - Every household is modelled on the capped variable tariff. Around 35% of households are on fixed tariffs and will not see the October 2026 cap rise ([Ofgem](https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026)); tariff type, payment method and contract expiry are not modelled, and no correction is inferred from the 35% share.
 - A static scenario: households keep the same kWh, and benefit uprating doesn't respond to higher inflation.
 - Forecasts after March 2027 come from suppliers only, with no electricity/gas split. No forecaster publishes January–March 2028.
-- Microcosm matches ONS energy spending but puts 2024-25 relative poverty after housing costs at 15.3% against DWP's 20%. Its implied national volumes (about 84 TWh electricity, 207 TWh gas) sit below DESNZ Energy Trends for FY2024-25 (93 TWh, 260 TWh) because calibration reweights households to the lower ONS spending total.
+- Microcosm matches ONS energy spending but puts 2024-25 relative poverty after housing costs at 18.3% of people and 23.4% of children, against DWP's 20% and 27% (enhanced FRS: 21.2% and 31.0%). Poverty outputs are relative poverty (`in_relative_poverty_*`); absolute poverty (`in_poverty_*`, fixed FYE 2025 line) is exported alongside. Its implied national volumes (about 84 TWh electricity, 207 TWh gas) sit below DESNZ Energy Trends for FY2024-25 (93 TWh, 260 TWh) because calibration reweights households to the lower ONS spending total.
 - Microcosm UK 2024-25 (release `microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68`) is not in the certified policyengine.py bundle; it runs with `allow_unmanaged=True`, pinned by revision and SHA-256. Its producer certification covers policyengine-uk 2.100.0, not the 2.125.1 runtime used here.
 - Households are grouped by type from the whole household: those with more than one benefit unit are "Multiple family units".
 - Northern Ireland uses GB prices as a proxy.
@@ -49,6 +49,10 @@ The first four are PolicyEngine reforms; the last three are price cuts costed fr
 ## Reproducibility
 
 `energy-budget` writes `reproducibility.json` at the repository root: the git commit (and whether the tree had uncommitted changes), the command, the timestamp, policyengine / policyengine-uk / policyengine-core versions, the dataset repository, revision, release and verified SHA-256, and the SHA-256 of every generated `src/data/*.json`.
+
+## Model/data compatibility
+
+The Microcosm release is certified for policyengine-uk 2.100.0 / core 3.32.5; this analysis runs 2.125.1 / 3.33.0. [`validation/compatibility_report.md`](validation/compatibility_report.md) re-runs the full pipeline under the certified pair and explains every difference: energy uprating that 2.100.0 would apply twice under the kWh method (policyengine-uk#1868), the absolute poverty line's move to FYE 2025 (#1889) and State Pension age (#1899, #1904, #1907).
 
 ## Run
 

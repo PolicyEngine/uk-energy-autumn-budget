@@ -24,9 +24,11 @@
   "kwh_basis_ofgem_cy2025_national__mean_extra_cost": 237,
   "kwh_basis_ofgem_cy2025_national__total_extra_cost_bn": 6.96,
   "note": "Every household is modelled on the capped variable tariff (Ofgem GB direct-debit averages). Around 35% of households are on fixed tariffs and will not see the October 2026 cap rise (Ofgem); tariff type, payment method and contract expiry are not modelled, so no correction for fixed tariffs is applied. Northern Ireland is costed on GB prices as a proxy.",
-  "poverty_bhc_pct": 11.53,
-  "poverty_ahc_pct": 15.23,
-  "child_poverty_ahc_pct": 18.77
+  "poverty_bhc_pct": 14.16,
+  "poverty_ahc_pct": 18.02,
+  "child_poverty_ahc_pct": 22.63,
+  "absolute_poverty_ahc_pct": 15.23,
+  "absolute_child_poverty_ahc_pct": 18.77
  },
  {
   "fy": "2027-28",
@@ -53,8 +55,10 @@
   "kwh_basis_ofgem_cy2025_national__mean_extra_cost": 372,
   "kwh_basis_ofgem_cy2025_national__total_extra_cost_bn": 10.97,
   "note": "Every household is modelled on the capped variable tariff (Ofgem GB direct-debit averages). Around 35% of households are on fixed tariffs and will not see the October 2026 cap rise (Ofgem); tariff type, payment method and contract expiry are not modelled, so no correction for fixed tariffs is applied. Northern Ireland is costed on GB prices as a proxy.",
-  "poverty_bhc_pct": 11.61,
-  "poverty_ahc_pct": 15.4,
-  "child_poverty_ahc_pct": 18.96
+  "poverty_bhc_pct": 14.27,
+  "poverty_ahc_pct": 18.18,
+  "child_poverty_ahc_pct": 22.8,
+  "absolute_poverty_ahc_pct": 15.4,
+  "absolute_child_poverty_ahc_pct": 18.96
  }
 ]
