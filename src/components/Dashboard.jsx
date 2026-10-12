@@ -702,7 +702,10 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
       <p className="section-description">
         The average gain from the selected reform against the {`${fy} baseline`}, by income decile, next to the
         forecast price rise it offsets: how much more the same household pays for the same electricity and gas at
-        the {fy} forecast prices than at April–June 2026 prices (see the price chart in Budget responses). Deciles are
+        the {fy} forecast prices than at April–June 2026 prices (see the price chart in Budget responses). The
+        comparison assumes April–June 2026 Ofgem cap rates would otherwise have stayed flat for the whole year: no
+        inflation trend or alternative price forecast is applied, and each household&apos;s energy use is the same in
+        both. Deciles are
         PolicyEngine&apos;s <a href={DECILE_LINK} target="_blank" rel="noopener noreferrer">household income decile</a>:
         households are ranked by equivalised household net income before housing costs, as in DWP&apos;s Households
         Below Average Income statistics, and split into ten groups with equal numbers of people (each household
