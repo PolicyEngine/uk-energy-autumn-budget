@@ -121,13 +121,13 @@ report is the revalidation evidence.
 
 ## Run
 
-- Certified pair: policyengine-uk 2.100.0, policyengine-core 3.32.5, Python 3.13.15, numpy 2.5.4, pandas 3.0.6; commit `59312a6`; dataset SHA-256 `aa31bdf67c977927ea2b325567d1cf7a79d94381239bc79918a0a0fc9c9588af` verified before the run.
-- Control: the harness under policyengine-uk 2.125.1 (commit `59312a6`) reproduces `src/data/results.json` on 700 of 700 compared outputs exactly, with 0 missing and 0 extra outputs.
+- Certified pair: policyengine-uk 2.100.0, policyengine-core 3.32.5, Python 3.13.15, numpy 2.5.4, pandas 3.0.6; commit `ee2d2ef`; dataset SHA-256 `aa31bdf67c977927ea2b325567d1cf7a79d94381239bc79918a0a0fc9c9588af` verified before the run.
+- Control: the harness under policyengine-uk 2.125.1 (commit `ee2d2ef`) reproduces `src/data/results.json` on 724 of 724 compared outputs exactly, with 0 missing and 0 extra outputs.
 - Source SHA-256 at both runs:
 
   - `src/energy_budget/baseline.py` `ff5ab0d5a1aa0778a269836d83907f4509cbc9d5d562a9ecc775d138044e0470`
   - `src/energy_budget/bills.py` `6ce380174b00bb9350dd2dcdc8f24539a242226890870a46e1cd8dbc42bffb08`
-  - `src/energy_budget/budget_options.py` `66f30edd793a980387d0ee2c785da11c13630a8dcb05f40ae49ababd257de6ff`
+  - `src/energy_budget/budget_options.py` `b9712914598970726bbe45fb6b0df1d94bec87960a60917af48663fefd2a476d`
   - `src/energy_budget/config.py` `93161074e67250bfb205c2d9ef121b39a3429e96829d213b9bd6ee7ff987561a`
   - `src/energy_budget/reforms/__init__.py` `3f50c511a95ae2c3df118b6f47538c1fb0727bad2b15f36fd3af550357c145ab`
   - `src/energy_budget/reforms/targeted_energy_discount/__init__.py` `4c8009e975c489919beabd9446b2dde7680b849bebff8c3f5702005c996b5299`
@@ -137,7 +137,7 @@ report is the revalidation evidence.
   - `validation/_provenance.py` `0c37bc0f86b5eb9240093ab8ac75ea96e22127ac1effc9e33a5075480c0edaa5`
   - `validation/run_certified_pair.py` `9f7bbd36d2302c65c88fd925a902d241398aa32e36e15bc6bb5e10728da85033`
 
-- Compared outputs: 700; flagged: 546 (|diff| > 0.5%, > £0.01bn for £bn values, > 0.05pp for rates and shares).
+- Compared outputs: 724; flagged: 570 (|diff| > 0.5%, > £0.01bn for £bn values, > 0.05pp for rates and shares).
 
 ## Headline outputs
 
@@ -391,6 +391,18 @@ Weighted totals from the unreformed baseline simulation (energy inputs as stored
 | 2026-27 | `baseline.bill_by_region.WALES` | 1,522 | 1,614 | 92.00 | 6.04 | **yes** |
 | 2026-27 | `baseline.bill_by_region.WEST_MIDLANDS` | 1,651 | 1,752 | 101 | 6.12 | **yes** |
 | 2026-27 | `baseline.bill_by_region.YORKSHIRE` | 1,627 | 1,728 | 101 | 6.21 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.EAST_MIDLANDS` | 261 | 280 | 19.00 | 7.28 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.EAST_OF_ENGLAND` | 234 | 250 | 16.00 | 6.84 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.LONDON` | 244 | 261 | 17.00 | 6.97 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.NORTHERN_IRELAND` | 359 | 383 | 24.00 | 6.69 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.NORTH_EAST` | 264 | 283 | 19.00 | 7.20 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.NORTH_WEST` | 267 | 286 | 19.00 | 7.12 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.SCOTLAND` | 212 | 228 | 16.00 | 7.55 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.SOUTH_EAST` | 263 | 282 | 19.00 | 7.22 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.SOUTH_WEST` | 197 | 212 | 15.00 | 7.61 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.WALES` | 221 | 237 | 16.00 | 7.24 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.WEST_MIDLANDS` | 248 | 266 | 18.00 | 7.26 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.YORKSHIRE` | 249 | 268 | 19.00 | 7.63 | **yes** |
 | 2026-27 | `rf_targeted_discount.cost_bn` | 2.14 | 2.09 | -0.05 | -2.34 | **yes** |
 | 2026-27 | `rf_targeted_discount.avg_per_household` | 73.00 | 71.00 | -2.00 | -2.74 | **yes** |
 | 2026-27 | `rf_targeted_discount.share_receiving_pct` | 41.70 | 40.70 | -1.00 | -2.40 | **yes** |
@@ -625,6 +637,18 @@ Weighted totals from the unreformed baseline simulation (energy inputs as stored
 | 2027-28 | `baseline.bill_by_region.WALES` | 1,650 | 1,752 | 102 | 6.18 | **yes** |
 | 2027-28 | `baseline.bill_by_region.WEST_MIDLANDS` | 1,792 | 1,903 | 111 | 6.19 | **yes** |
 | 2027-28 | `baseline.bill_by_region.YORKSHIRE` | 1,765 | 1,876 | 111 | 6.29 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.EAST_MIDLANDS` | 408 | 438 | 30.00 | 7.35 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.EAST_OF_ENGLAND` | 374 | 401 | 27.00 | 7.22 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.LONDON` | 382 | 409 | 27.00 | 7.07 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.NORTHERN_IRELAND` | 503 | 536 | 33.00 | 6.56 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.NORTH_EAST` | 404 | 434 | 30.00 | 7.43 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.NORTH_WEST` | 416 | 446 | 30.00 | 7.21 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.SCOTLAND` | 340 | 365 | 25.00 | 7.35 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.SOUTH_EAST` | 418 | 448 | 30.00 | 7.18 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.SOUTH_WEST` | 325 | 350 | 25.00 | 7.69 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.WALES` | 348 | 375 | 27.00 | 7.76 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.WEST_MIDLANDS` | 389 | 418 | 29.00 | 7.46 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.YORKSHIRE` | 387 | 416 | 29.00 | 7.49 | **yes** |
 | 2027-28 | `rf_targeted_discount.cost_bn` | 2.11 | 2.04 | -0.07 | -3.32 | **yes** |
 | 2027-28 | `rf_targeted_discount.avg_per_household` | 72.00 | 69.00 | -3.00 | -4.17 | **yes** |
 | 2027-28 | `rf_targeted_discount.share_receiving_pct` | 40.90 | 39.70 | -1.20 | -2.93 | **yes** |
@@ -954,6 +978,18 @@ Weighted totals from the unreformed baseline simulation (energy inputs as stored
 | 2026-27 | `baseline.bill_by_region.WALES` | 1,522 | 1,614 | 92.00 | 6.04 | **yes** |
 | 2026-27 | `baseline.bill_by_region.WEST_MIDLANDS` | 1,651 | 1,752 | 101 | 6.12 | **yes** |
 | 2026-27 | `baseline.bill_by_region.YORKSHIRE` | 1,627 | 1,728 | 101 | 6.21 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.EAST_MIDLANDS` | 261 | 280 | 19.00 | 7.28 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.EAST_OF_ENGLAND` | 234 | 250 | 16.00 | 6.84 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.LONDON` | 244 | 261 | 17.00 | 6.97 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.NORTHERN_IRELAND` | 359 | 383 | 24.00 | 6.69 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.NORTH_EAST` | 264 | 283 | 19.00 | 7.20 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.NORTH_WEST` | 267 | 286 | 19.00 | 7.12 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.SCOTLAND` | 212 | 228 | 16.00 | 7.55 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.SOUTH_EAST` | 263 | 282 | 19.00 | 7.22 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.SOUTH_WEST` | 197 | 212 | 15.00 | 7.61 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.WALES` | 221 | 237 | 16.00 | 7.24 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.WEST_MIDLANDS` | 248 | 266 | 18.00 | 7.26 | **yes** |
+| 2026-27 | `baseline.extra_cost_by_region.YORKSHIRE` | 249 | 268 | 19.00 | 7.63 | **yes** |
 | 2026-27 | `rf_targeted_discount.cost_bn` | 2.14 | 2.09 | -0.05 | -2.34 | **yes** |
 | 2026-27 | `rf_targeted_discount.avg_per_household` | 73.00 | 71.00 | -2.00 | -2.74 | **yes** |
 | 2026-27 | `rf_targeted_discount.share_receiving_pct` | 41.70 | 40.70 | -1.00 | -2.40 | **yes** |
@@ -1270,6 +1306,18 @@ Weighted totals from the unreformed baseline simulation (energy inputs as stored
 | 2027-28 | `baseline.bill_by_region.WALES` | 1,650 | 1,752 | 102 | 6.18 | **yes** |
 | 2027-28 | `baseline.bill_by_region.WEST_MIDLANDS` | 1,792 | 1,903 | 111 | 6.19 | **yes** |
 | 2027-28 | `baseline.bill_by_region.YORKSHIRE` | 1,765 | 1,876 | 111 | 6.29 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.EAST_MIDLANDS` | 408 | 438 | 30.00 | 7.35 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.EAST_OF_ENGLAND` | 374 | 401 | 27.00 | 7.22 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.LONDON` | 382 | 409 | 27.00 | 7.07 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.NORTHERN_IRELAND` | 503 | 536 | 33.00 | 6.56 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.NORTH_EAST` | 404 | 434 | 30.00 | 7.43 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.NORTH_WEST` | 416 | 446 | 30.00 | 7.21 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.SCOTLAND` | 340 | 365 | 25.00 | 7.35 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.SOUTH_EAST` | 418 | 448 | 30.00 | 7.18 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.SOUTH_WEST` | 325 | 350 | 25.00 | 7.69 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.WALES` | 348 | 375 | 27.00 | 7.76 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.WEST_MIDLANDS` | 389 | 418 | 29.00 | 7.46 | **yes** |
+| 2027-28 | `baseline.extra_cost_by_region.YORKSHIRE` | 387 | 416 | 29.00 | 7.49 | **yes** |
 | 2027-28 | `rf_targeted_discount.cost_bn` | 2.11 | 2.04 | -0.07 | -3.32 | **yes** |
 | 2027-28 | `rf_targeted_discount.avg_per_household` | 72.00 | 69.00 | -3.00 | -4.17 | **yes** |
 | 2027-28 | `rf_targeted_discount.share_receiving_pct` | 40.90 | 39.70 | -1.20 | -2.93 | **yes** |

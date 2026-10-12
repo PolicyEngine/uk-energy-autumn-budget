@@ -98,7 +98,9 @@ def select(results, year):
     y = results[year]
     out = {}
     for k in BASELINE_KEYS:
-        out.update(dict(flatten(y["baseline"][k], f"baseline.{k}")))
+        # A missing key is reported by compare() as a missing output, not a crash.
+        if k in y["baseline"]:
+            out.update(dict(flatten(y["baseline"][k], f"baseline.{k}")))
     base_pov = y["baseline"]["poverty"]
     for name, row in y["options"].items():
         for k in OPTION_KEYS:

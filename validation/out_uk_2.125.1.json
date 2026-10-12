@@ -66,6 +66,20 @@
     "SINGLE_PENSIONER": 178,
     "SINGLE_WORKING_AGE": 165
    },
+   "extra_cost_by_region": {
+    "EAST_MIDLANDS": 261,
+    "EAST_OF_ENGLAND": 234,
+    "LONDON": 244,
+    "NORTHERN_IRELAND": 359,
+    "NORTH_EAST": 264,
+    "NORTH_WEST": 267,
+    "SCOTLAND": 212,
+    "SOUTH_EAST": 263,
+    "SOUTH_WEST": 197,
+    "WALES": 221,
+    "WEST_MIDLANDS": 248,
+    "YORKSHIRE": 249
+   },
    "income_by_decile": [
     25916,
     39379,
@@ -479,6 +493,20 @@
     "MULTI_UNIT": 460,
     "SINGLE_PENSIONER": 278,
     "SINGLE_WORKING_AGE": 260
+   },
+   "extra_cost_by_region": {
+    "EAST_MIDLANDS": 408,
+    "EAST_OF_ENGLAND": 374,
+    "LONDON": 382,
+    "NORTHERN_IRELAND": 503,
+    "NORTH_EAST": 404,
+    "NORTH_WEST": 416,
+    "SCOTLAND": 340,
+    "SOUTH_EAST": 418,
+    "SOUTH_WEST": 325,
+    "WALES": 348,
+    "WEST_MIDLANDS": 389,
+    "YORKSHIRE": 387
    },
    "income_by_decile": [
     26033,
@@ -933,13 +961,13 @@
   "dataset_release": "microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68",
   "dataset_revision": "f9d1922cddab6b54a0dd37794a9bac74e3780c88",
   "dataset_sha256": "aa31bdf67c977927ea2b325567d1cf7a79d94381239bc79918a0a0fc9c9588af",
-  "runtime_s": 147.7,
-  "git_commit": "59312a612239714b470ab4d0609ff2d1d6dabd07",
+  "runtime_s": 90.9,
+  "git_commit": "ee2d2efc2771f2ac24ed5776e1336e21a5362a16",
   "git_dirty": false,
   "source_sha256": {
    "src/energy_budget/baseline.py": "ff5ab0d5a1aa0778a269836d83907f4509cbc9d5d562a9ecc775d138044e0470",
    "src/energy_budget/bills.py": "6ce380174b00bb9350dd2dcdc8f24539a242226890870a46e1cd8dbc42bffb08",
-   "src/energy_budget/budget_options.py": "66f30edd793a980387d0ee2c785da11c13630a8dcb05f40ae49ababd257de6ff",
+   "src/energy_budget/budget_options.py": "b9712914598970726bbe45fb6b0df1d94bec87960a60917af48663fefd2a476d",
    "src/energy_budget/config.py": "93161074e67250bfb205c2d9ef121b39a3429e96829d213b9bd6ee7ff987561a",
    "src/energy_budget/reforms/__init__.py": "3f50c511a95ae2c3df118b6f47538c1fb0727bad2b15f36fd3af550357c145ab",
    "src/energy_budget/reforms/targeted_energy_discount/__init__.py": "4c8009e975c489919beabd9446b2dde7680b849bebff8c3f5702005c996b5299",
