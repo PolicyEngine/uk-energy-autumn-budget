@@ -479,10 +479,14 @@ def build_notes(r):
                 "receives a listed means-tested benefit during the year. The scheme's actual "
                 "rules (qualifying date, participating supplier, account holder; core and "
                 "broader groups in Scotland) are not modelled. Modelled caseload "
-                f"{whd_text}, against about 6m in official estimates."
+                f"{whd_text}, against around 6 million households in England and Wales "
+                "(DESNZ, Continuing the Warm Home Discount Scheme: Government Response, January 2026)."
             ),
             "link": WHD_LINKS[0],
-            "links": WHD_LINKS,
+            "links": WHD_LINKS
+            + [
+                "https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf"
+            ],
         },
         {
             "id": "poverty",

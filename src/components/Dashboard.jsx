@@ -462,7 +462,7 @@ const POLICY_INFO = [
     id: "whd_top_up",
     name: "Warm Home +£100",
     summary: "Raises the discount to £250.",
-    eligibility: "Households receiving a means-tested benefit (the Warm Home Discount's qualifying list), about 6m households.",
+    eligibility: <>Households receiving a means-tested benefit (the Warm Home Discount's qualifying list): around 6 million households in England and Wales (<a href="https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf" target="_blank" rel="noopener noreferrer">DESNZ, January 2026</a>).</>,
     how: <>The <a href="https://www.gov.uk/the-warm-home-discount-scheme" target="_blank" rel="noopener noreferrer">Warm Home Discount</a> takes £150 off electricity bills each winter, funded by a levy on all bills. This adds £100, paid from taxation.</>,
     source: <>Reported as the Treasury's preferred option (<a href="https://www.ft.com/content/cfb7a7a9-90c2-4ed9-8b3b-e8477430d77f" target="_blank" rel="noopener noreferrer">Financial Times</a>, 11 October 2026: about £600m). <a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/more-than-a-third-of-brits-worried-about-affording-energy-bills-this-winter-warns-citizens-advice/" target="_blank" rel="noopener noreferrer">Citizens Advice</a> and <a href="https://www.energy-uk.org.uk/publications/economic-defence-tackling-energy-bills-in-winter-2026-27/" target="_blank" rel="noopener noreferrer">Energy UK</a> call for more support through the scheme.</>,
     // MODEL-DISCLOSURE (e): means-tested-household proxy for actual WHD recipients.
@@ -614,8 +614,11 @@ function BudgetSection({ fy, setFy, sel, setOpt }) {
     <div id="budget">
       <h2 className="section-heading">Budget responses: cost and reach</h2>
       <p className="section-description">
-        Each option is a <a href="https://pypi.org/project/policyengine/" target="_blank" rel="noopener noreferrer">PolicyEngine</a> reform against the {fy} baseline. Cost is the change in
-        household net income summed over all households; gains are the same change averaged per household.
+        Four options are payments simulated as <a href="https://pypi.org/project/policyengine/" target="_blank" rel="noopener noreferrer">PolicyEngine</a> reforms against the {fy} baseline
+        (targeted discount, Cost of Living Payment, Warm Home Discount top-up and £400 credit); their cost is the
+        change in household net income summed over all households. Three are price reductions calculated
+        directly from each household's bills (cap freeze, VAT extension and levy removal); their cost is the
+        total reduction in bills. Gains are averaged per household.
         The selected option is highlighted; select a column to change it.
       </p>
 
@@ -800,7 +803,7 @@ const REFERENCES = [
   ["Cornwall Insight, “16% price cap rise forecast in January”, 30 September 2026.", "https://www.cornwall-insight.com/press-releases/16-price-cap-rise-forecast-in-january/"],
   ["MoneySavingExpert, average of EDF, British Gas and E.ON Next price cap predictions, 6–7 October 2026.", "https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/"],
   ["Ofgem, “Review of typical domestic consumption values: decision”, 27 May 2026.", "https://www.ofgem.gov.uk/sites/default/files/2026-05/Review%20of%20typical%20domestic%20consumption%20values%20decision.pdf"],
-  ["The Value Added Tax (Reduced Rate) (Domestic Electricity) Order 2026, SI 2026/987.", "https://www.legislation.gov.uk/uksi/2026/987/made"],
+  ["The Value Added Tax (Supplies of Domestic Electricity) Order 2026, SI 2026/987.", "https://www.legislation.gov.uk/uksi/2026/987/made"],
   ["PolicyEngine Microcosm, issue #1113: the price basis of domestic electricity and gas spending.", "https://github.com/PolicyEngine/microcosm/issues/1113"],
   ["Resolution Foundation, “Billing me softly”, 10 August 2026.", "https://www.resolutionfoundation.org/publications/billing-me-softly/"],
   ["DWP, Households Below Average Income: background information and methodology report, FYE 2025.", "https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2025/households-below-average-income-background-information-and-methodology-report-fye-2025"],
@@ -861,9 +864,12 @@ function MethodologySection() {
           will pay.
         </p>
         <p className="section-description">
-          Each Budget option is a PolicyEngine reform run against that baseline on the same households. Its
-          cost is the change in household net income summed over all households; household gains are the same
-          change, averaged by income decile or household type. Income deciles are PolicyEngine's household
+          The four payment options (targeted discount, Cost of Living Payment, Warm Home Discount top-up and
+          £400 credit) are PolicyEngine reforms run against that baseline on the same households; their cost is
+          the change in household net income summed over all households. The three price reductions (cap
+          freeze, VAT extension and levy removal) are calculated directly from each household's modelled bills,
+          outside the PolicyEngine reform engine; their cost is the total reduction in bills. Household gains
+          are averaged by income decile or household type. Income deciles are PolicyEngine's household
           income decile:<Fn n={15} /> households ranked by equivalised net income before housing costs and split
           into tenths of people, with negative-income households left out. The Cost of Living Payment and £400
           payment use PolicyEngine UK's own parameters.
@@ -918,9 +924,10 @@ function MethodologySection() {
           at April–June 2026 prices, and none of the reforms changes how much they use. In practice households
           cut use when prices rise; PolicyEngine's energy price shock analysis estimates short-run price
           elasticities from −0.64 in income decile 1 to −0.11 in income decile 10,<Fn n={10} /> which we do not
-          apply. The cost of the cap freeze, the VAT extension and levy removal all scale with households' bills
-          or electricity use, so lower use would lower those costs in proportion: 10% less electricity spending
-          means 10% lower VAT-extension and levy-removal costs. The flat payments (£400 credit, Cost of Living
+          apply. The VAT extension and levy removal are proportional to electricity spending, so 10% less
+          electricity spending means 10% lower costs for both. The cap freeze depends on both use and standing
+          charges: its usage part falls with lower use, but the standing-charge part does not, so its cost falls
+          by less than in proportion. The flat payments (£400 credit, Cost of Living
           Payment, Warm Home Discount top-up and the targeted discount as modelled) do not depend on use. We do
           not treat the baseline bills as an upper bound, because tariff type and contract timing are not
           modelled.
