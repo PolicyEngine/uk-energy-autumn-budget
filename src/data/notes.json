@@ -62,7 +62,7 @@
  {
   "id": "whd",
   "topic": "Warm Home Discount top-up",
-  "detail": "Means-tested-household proxy: \u00a3100 to every GB household where any member receives a listed means-tested benefit during the year. The scheme's actual rules (qualifying date, participating supplier, account holder; core and broader groups in Scotland) are not modelled. Modelled caseload 7.8m in 2026-27, 7.8m in 2027-28, against around 6 million households in England and Wales (DESNZ, Continuing the Warm Home Discount Scheme: Government Response, January 2026).",
+  "detail": "Means-tested-household proxy: \u00a3100 to every GB household where any member receives a listed means-tested benefit during the year. The scheme's actual rules (qualifying date, participating supplier, account holder; core and broader groups in Scotland) are not modelled. Modelled caseload 7.8m in 2026-27, 7.8m in 2027-28. DESNZ estimates around 6 million recipient households across Great Britain in winter 2025/26 (DESNZ, Continuing the Warm Home Discount Scheme: Government Response, January 2026, p. 5).",
   "link": "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",
   "links": [
    "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",
@@ -73,7 +73,7 @@
  {
   "id": "poverty",
   "topic": "Poverty",
-  "detail": "Relative poverty: people in households below 60% of median equivalised HBAI income (PolicyEngine UK in_relative_poverty_bhc/ahc, the DWP headline measure). Absolute poverty (in_poverty_*, a fixed FYE 2025 line) is also exported. DWP counts the Warm Home Discount, a bill credit, as HBAI income, so the top-up moves poverty; the RF discount is counted the same way by assumption. Price cuts (cap freeze, VAT, levies) lower bills rather than raise income, so they do not move HBAI poverty.",
+  "detail": "Relative poverty: people in households below 60% of median equivalised HBAI income (PolicyEngine UK in_relative_poverty_bhc/ahc, the DWP headline measure). Absolute poverty (in_poverty_*, a fixed FYE 2025 line) is also exported. Child rates (child_*) are under-18 rates (age < 18), not DWP's dependent-child cohort, which includes some 16-19-year-olds in full-time non-advanced education. DWP counts the Warm Home Discount, a bill credit, as HBAI income, so the top-up moves poverty; the RF discount is counted the same way by assumption. Price cuts (cap freeze, VAT, levies) lower bills rather than raise income, so they do not move HBAI poverty.",
   "link": "https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2025/households-below-average-income-background-information-and-methodology-report-fye-2025"
  },
  {
