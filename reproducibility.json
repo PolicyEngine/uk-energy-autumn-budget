@@ -1,16 +1,11 @@
 {
- "generated_at": "2026-10-12T14:26:43+00:00",
+ "generated_at": "2026-10-12T14:31:27+00:00",
  "command": "HF_HUB_OFFLINE=1 .venv/bin/energy-budget",
  "git": {
-  "head": "ee2d2efc2771f2ac24ed5776e1336e21a5362a16",
+  "head": "e5ce26dd00aa95a20cf63efcee85b5556d6f0b42",
   "branch": "fix/publication-review-1",
-  "uncommitted_changes": true,
-  "uncommitted_paths": [
-   "M next-env.d.ts",
-   " M src/data/regions.json",
-   " M src/data/results.json",
-   " M validation/compare_2.100.0_vs_2.125.1.py"
-  ]
+  "uncommitted_changes": false,
+  "uncommitted_paths": []
  },
  "runtime": {
   "python": "3.13.15",
