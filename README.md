@@ -6,7 +6,7 @@ How much forecast gas and electricity prices add to UK household bills in 2026-2
 
 | Quarter | Source | Status |
 |---|---|---|
-| Apr–Jun 2026 | [Ofgem cap](https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges), £1,641 | Pre-conflict reference |
+| Apr–Jun 2026 | [Ofgem cap](https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges), £1,641 | Announced |
 | Jul–Sep 2026 | Ofgem cap, £1,663 | Announced |
 | Oct–Dec 2026 | [Ofgem cap](https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026), £1,723, electricity VAT-free | Announced |
 | Jan–Mar 2027 | [Cornwall Insight](https://www.cornwall-insight.com/press-releases/16-price-cap-rise-forecast-in-january/), £1,999 (30 Sep 2026) | Forecast |
@@ -27,7 +27,7 @@ How much forecast gas and electricity prices add to UK household bills in 2026-2
 | Option | Design |
 |---|---|
 | Targeted discount (RF, simplified) | A fixed-payment illustration of the [Resolution Foundation](https://www.resolutionfoundation.org/publications/billing-me-softly/) unit-rate discount: £175 to GB households on means-tested benefits or whose highest individual income is under £24,000. Assumes a flat £175 per eligible household (RF's average) rather than a unit-rate discount, an annual rather than three-month income test, and full take-up. Reform copied from [uk-energy-reforms](https://github.com/PolicyEngine/uk-energy-reforms) into `src/energy_budget/reforms`. |
-| Warm Home Discount top-up | Extra £100 to GB households where any member receives a listed means-tested benefit. A means-tested-household proxy: the scheme's own rules ([England and Wales](https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales), [Scotland](https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland)) are narrower, and the modelled caseload (about 7.8m households) exceeds the ~6m official figure.. The official caseload is around 6 million households in England and Wales ([DESNZ, January 2026](https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf)). |
+| Warm Home Discount top-up | Extra £100 to GB households where any member receives a listed means-tested benefit. A means-tested-household proxy: the scheme's own rules ([England and Wales](https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales), [Scotland](https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland)) are narrower, and the modelled caseload (about 7.8m households) exceeds the official caseload of around 6 million households in England and Wales ([DESNZ, January 2026](https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf)). |
 | Cost of Living Payment | £300 to households on means-tested benefits |
 | £400 to every household | The 2022 Energy Bills Support Scheme design |
 | Cap freeze | Electricity and gas unit rates and standing charges held at April–June 2026 levels. Each household's subsidy is its forecast bill minus its bill at April–June 2026 tariffs for the same kWh, floored at zero, costed directly from bills. A price restoration, outside HBAI income. |
