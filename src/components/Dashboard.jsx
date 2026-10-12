@@ -700,18 +700,12 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
     <div id="households">
       <h2 className="section-heading">Household effects</h2>
       <p className="section-description">
-        The average gain from the selected reform against the {`${fy} baseline`}, by income decile, next to the
-        forecast price rise it offsets: how much more the same household pays for the same electricity and gas at
-        the {fy} forecast prices than at April–June 2026 prices (see the price chart in Budget responses).{" "}
-        <u>The comparison assumes April–June 2026 Ofgem cap rates would otherwise have stayed flat for the whole
-        year: no inflation trend or alternative price forecast is applied, and each household&apos;s energy use is
-        the same in both.</u> Deciles are
-        PolicyEngine&apos;s <a href={DECILE_LINK} target="_blank" rel="noopener noreferrer">household income decile</a>:
-        households are ranked by equivalised household net income before housing costs, as in DWP&apos;s Households
-        Below Average Income statistics, and split into ten groups with equal numbers of people (each household
-        counts once per member). Households with negative income are left out of the ten deciles. Each column is
-        the average gain per household in that decile, weighting each household once: a household-weighted
-        average within person-weighted deciles.
+        Each reform&apos;s average gain in {fy}, by income decile, next to the forecast price rise: the extra cost
+        of each household&apos;s current energy use at {fy} forecast prices.{" "}
+        <u>The rise is measured against April–June 2026 cap rates held flat all year, with no inflation trend.</u>{" "}
+        Deciles are PolicyEngine&apos;s <a href={DECILE_LINK} target="_blank" rel="noopener noreferrer">household
+        income deciles</a>{" "}(equivalised net income before housing costs, as in DWP&apos;s HBAI); each column is the
+        average per household.
       </p>
 
       <div className="section-card">
