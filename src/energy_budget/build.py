@@ -139,7 +139,8 @@ def write_tables(r):
     LABEL = {
         "rf_targeted_discount": "Targeted discount (RF)",
         "cost_of_living_payment": "£300 Cost of Living Payment",
-        "whd_top_up": "Warm Home Discount +£150",
+        "whd_top_up": "Warm Home Discount +£100",
+        "remove_levies": "Remove remaining levies",
         "extend_vat_cut": "Extend electricity VAT cut",
         "flat_400": "£400 to every household",
         "cap_freeze": "Cap freeze at £1,641",

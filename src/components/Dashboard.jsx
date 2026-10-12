@@ -15,7 +15,13 @@ const YEAR_OPTIONS = [
 const ELEC = "#f59e0b";
 const GAS = "#3b82f6";
 // Reforms that cover Great Britain only (no Northern Ireland households).
-const GB_ONLY = ["rf_targeted_discount", "whd_top_up", "extend_vat_cut"];
+const GB_ONLY = ["rf_targeted_discount", "whd_top_up", "extend_vat_cut", "remove_levies"];
+const GB_ONLY_REASON = {
+  rf_targeted_discount: "it is designed around the Ofgem price cap, which does not cover Northern Ireland",
+  whd_top_up: "the Warm Home Discount is a Great Britain scheme with no Northern Ireland equivalent",
+  extend_vat_cut: "the 0% VAT order (SI 2026/987) covers Great Britain only",
+  remove_levies: "the Renewables Obligation and Feed-in Tariff levies are Great Britain schemes",
+};
 const SUPPORT = "#319795";
 
 const fmt = (v) => `£${Math.round(v).toLocaleString("en-GB")}`;
@@ -351,12 +357,21 @@ const POLICY_INFO = [
   },
   {
     id: "whd_top_up",
-    name: "Warm Home +£150",
-    summary: "Doubles the £150 discount.",
-    eligibility: "Households receiving a means-tested benefit (the Warm Home Discount's qualifying list).",
-    how: <>The <a href="https://www.gov.uk/the-warm-home-discount-scheme" target="_blank" rel="noopener noreferrer">Warm Home Discount</a> takes £150 off electricity bills each winter; this doubles it to £300.</>,
-    source: <><a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/more-than-a-third-of-brits-worried-about-affording-energy-bills-this-winter-warns-citizens-advice/" target="_blank" rel="noopener noreferrer">Citizens Advice</a> and <a href="https://www.energy-uk.org.uk/publications/economic-defence-tackling-energy-bills-in-winter-2026-27/" target="_blank" rel="noopener noreferrer">Energy UK</a> call for more support through or on top of the scheme.</>,
-    model: "PolicyEngine UK reform paying £150 to households on means-tested benefits.",
+    name: "Warm Home +£100",
+    summary: "Raises the discount to £250.",
+    eligibility: "Households receiving a means-tested benefit (the Warm Home Discount's qualifying list), about 6m households.",
+    how: <>The <a href="https://www.gov.uk/the-warm-home-discount-scheme" target="_blank" rel="noopener noreferrer">Warm Home Discount</a> takes £150 off electricity bills each winter, funded by a levy on all bills. This adds £100, paid from taxation.</>,
+    source: <>Reported as the Treasury's preferred option (<a href="https://www.ft.com/content/cfb7a7a9-90c2-4ed9-8b3b-e8477430d77f" target="_blank" rel="noopener noreferrer">Financial Times</a>, 11 October 2026: about £600m). <a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/more-than-a-third-of-brits-worried-about-affording-energy-bills-this-winter-warns-citizens-advice/" target="_blank" rel="noopener noreferrer">Citizens Advice</a> and <a href="https://www.energy-uk.org.uk/publications/economic-defence-tackling-energy-bills-in-winter-2026-27/" target="_blank" rel="noopener noreferrer">Energy UK</a> call for more support through the scheme.</>,
+    model: "PolicyEngine UK reform paying £100 to households on means-tested benefits; counted as HBAI income.",
+  },
+  {
+    id: "remove_levies",
+    name: "Remove levies",
+    summary: "£120 off a typical bill, all households.",
+    eligibility: "Every household in Great Britain that pays for electricity.",
+    how: "Moves the remaining policy costs on electricity bills (the last 25% of the Renewables Obligation and Feed-in Tariffs) to general taxation, cutting unit rates for everyone.",
+    source: <>Proposed by the energy secretary (<a href="https://www.ft.com/content/cfb7a7a9-90c2-4ed9-8b3b-e8477430d77f" target="_blank" rel="noopener noreferrer">Financial Times</a>, 11 October 2026; the Guardian, 6 October 2026), up to £120 off bills at up to £3.2bn. <a href="https://www.energy-uk.org.uk/publications/economic-defence-tackling-energy-bills-in-winter-2026-27/" target="_blank" rel="noopener noreferrer">Energy UK</a> also calls for it.</>,
+    model: "Costed from each household's electricity bill in Great Britain: a 12.6% cut, which takes £120 off the typical 2027-28 electricity bill. 2027-28 only.",
   },
   {
     id: "extend_vat_cut",
@@ -393,7 +408,7 @@ function PolicyOptionsSection({ opt, setOpt }) {
     <div id="policies">
       <h2 className="section-heading">The policy options</h2>
       <p className="section-description">
-        Six options drawn from published proposals and past support schemes. Click an option to see who is
+        Seven options drawn from published proposals, reported government plans and past support schemes. Click an option to see who is
         eligible, how it works and where it was proposed; the charts below follow the option you select.
       </p>
       <div className="policy-grid">
@@ -586,11 +601,15 @@ function HouseholdSection({ fy, setFy }) {
         </div>
         <p className="section-description" style={{ marginTop: 12 }}>
           Average gain over all households in each group, including those the reform does not reach.
-          {breakdown === "region" && GB_ONLY.includes(o.option_id) && (
-            <> {o.option} covers Great Britain only, so Northern Ireland shows £0.</>
-          )}
+
           {" "}Northern Ireland is outside the Ofgem cap, so GB prices are used as a proxy for its bills.
         </p>
+        {breakdown === "region" && GB_ONLY.includes(o.option_id) && (
+          <div className="policy-note" style={{ marginTop: 12 }}>
+            <strong>Great Britain only.</strong> {o.option} applies in England, Scotland and Wales, so Northern
+            Ireland shows £0: {GB_ONLY_REASON[o.option_id]}.
+          </div>
+        )}
       </div>
     </div>
   );
@@ -734,7 +753,7 @@ export default function Dashboard() {
           a reformed Warm Home Discount and debt relief (<a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/more-than-a-third-of-brits-worried-about-affording-energy-bills-this-winter-warns-citizens-advice/" target="_blank" rel="noopener noreferrer">Citizens Advice</a>, <a href="https://www.energy-uk.org.uk/publications/economic-defence-tackling-energy-bills-in-winter-2026-27/" target="_blank" rel="noopener noreferrer">Energy UK</a>, <a href="https://www.nea.org.uk/wp-content/uploads/2026/06/Clearing-the-Decks-Tackling-Energy-Debt-to-Lower-Bills-1.pdf" target="_blank" rel="noopener noreferrer">National Energy Action</a>),
           and the government's removal of VAT from electricity bills (<a href="https://www.gov.uk/government/news/new-pm-cuts-tax-on-household-electricity-bills-to-give-breathing-space-on-cost-of-living" target="_blank" rel="noopener noreferrer">UK Government</a>).
           The <strong>Budget responses</strong> tab shows baseline energy prices over time and the cost and
-          reach of six options; <strong>Household effects</strong> shows the
+          reach of seven options; <strong>Household effects</strong> shows the
           gain by income decile and household type; and <strong>Methodology</strong> explains the modelling,
           assumptions and sources.
         </p>

@@ -17,17 +17,17 @@
  {
   "fy": "2026-27",
   "option_id": "whd_top_up",
-  "option": "Warm Home Discount +\u00a3150",
-  "design": "Warm Home Discount top-up: extra \u00a3150 to households on means-tested benefits",
-  "cost_bn": 1.18,
-  "avg_per_household": 40,
+  "option": "Warm Home Discount +\u00a3100",
+  "design": "Warm Home Discount top-up: extra \u00a3100 to households on means-tested benefits, paid from taxation",
+  "cost_bn": 0.78,
+  "avg_per_household": 27,
   "share_receiving_pct": 26.7,
-  "share_of_shock_covered_pct": 15.9,
-  "poverty_ahc_change_pp": -0.31,
-  "child_poverty_ahc_change_pp": -0.55,
-  "poverty_bhc_change_pp": -0.1,
-  "decile_1_gain": 63,
-  "decile_10_gain": 5
+  "share_of_shock_covered_pct": 11.8,
+  "poverty_ahc_change_pp": -0.28,
+  "child_poverty_ahc_change_pp": -0.51,
+  "poverty_bhc_change_pp": -0.04,
+  "decile_1_gain": 42,
+  "decile_10_gain": 4
  },
  {
   "fy": "2026-27",
@@ -92,17 +92,17 @@
  {
   "fy": "2027-28",
   "option_id": "whd_top_up",
-  "option": "Warm Home Discount +\u00a3150",
-  "design": "Warm Home Discount top-up: extra \u00a3150 to households on means-tested benefits",
-  "cost_bn": 1.18,
-  "avg_per_household": 40,
+  "option": "Warm Home Discount +\u00a3100",
+  "design": "Warm Home Discount top-up: extra \u00a3100 to households on means-tested benefits, paid from taxation",
+  "cost_bn": 0.79,
+  "avg_per_household": 27,
   "share_receiving_pct": 26.7,
-  "share_of_shock_covered_pct": 9.4,
-  "poverty_ahc_change_pp": -0.15,
-  "child_poverty_ahc_change_pp": -0.21,
-  "poverty_bhc_change_pp": -0.07,
-  "decile_1_gain": 64,
-  "decile_10_gain": 6
+  "share_of_shock_covered_pct": 6.5,
+  "poverty_ahc_change_pp": -0.11,
+  "child_poverty_ahc_change_pp": -0.14,
+  "poverty_bhc_change_pp": -0.05,
+  "decile_1_gain": 43,
+  "decile_10_gain": 4
  },
  {
   "fy": "2027-28",
@@ -163,5 +163,20 @@
   "poverty_bhc_change_pp": null,
   "decile_1_gain": 43,
   "decile_10_gain": 56
+ },
+ {
+  "fy": "2027-28",
+  "option_id": "remove_levies",
+  "option": "Remove remaining levies",
+  "design": "Move remaining levies to taxation: \u00a3120 off a typical bill (12.6% of each electricity bill, GB)",
+  "cost_bn": 3.71,
+  "avg_per_household": 126,
+  "share_receiving_pct": 97.4,
+  "share_of_shock_covered_pct": 32.2,
+  "poverty_ahc_change_pp": null,
+  "child_poverty_ahc_change_pp": null,
+  "poverty_bhc_change_pp": null,
+  "decile_1_gain": 113,
+  "decile_10_gain": 147
  }
 ]

@@ -39,6 +39,13 @@ from .config import (
 )
 
 VAT = 0.05
+WHD_TOP_UP = 100
+# Moving the remaining policy levies (the last 25% of the Renewables
+# Obligation and Feed-in Tariffs) to taxation: "as much as £120" off a
+# typical bill, costing "as much as £3.2bn" (Guardian, 6 Oct 2026; FT,
+# 11 Oct 2026). Levies sit on electricity, so each household's electricity
+# bill falls by the share that takes £120 off the typical electricity bill.
+LEVY_SAVING_TYPICAL = 120
 NEW_TDCV = {"elec": 2_500, "gas": 9_500}
 
 # 2027-28 price path, post-July-2026 TDCVs, typical dual-fuel direct debit.
@@ -110,6 +117,12 @@ def _quarter_rates_2027_28(target, elec_vat_in_target=True):
     return {"elec": (e_unit, e_sc), "gas": (g_unit * g, g_sc * g)}
 
 
+def _typical_elec_bill(q):
+    """Typical electricity bill (£/yr, post-July TDCVs) for a 2027-28 quarter."""
+    unit, sc = _quarter_rates_2027_28(q["target"], q["elec_vat_in_target"])["elec"]
+    return (unit * NEW_TDCV["elec"] + sc * 365) / 100
+
+
 def _bill(rates, fuel):
     unit, sc = rates[fuel]
     kwh = TDCV_ELEC_KWH if fuel == "elec" else TDCV_GAS_KWH
@@ -155,13 +168,15 @@ def _policies(year):
             "scenario": scenario(PRESETS["rf_flat"]),
         },
         "whd_top_up": {
-            "label": "Warm Home Discount top-up: extra £150 to households on means-tested benefits",
+            # Reported Treasury plan: £150 to £250, taxpayer-funded, about
+            # £600m for 6m households (FT, 11 Oct 2026; Guardian, 6 Oct 2026).
+            "label": "Warm Home Discount top-up: extra £100 to households on means-tested benefits, paid from taxation",
             "params": {},
             "scenario": scenario(
                 {
                     **PRESETS["passport_only"],
-                    f"{tp}.amount[0].amount": 150,
-                    f"{tp}.amount[1].amount": 150,
+                    f"{tp}.amount[0].amount": WHD_TOP_UP,
+                    f"{tp}.amount[1].amount": WHD_TOP_UP,
                 }
             ),
         },
@@ -292,6 +307,15 @@ def run_budget_options(data):
             support = np.where(gb, elec * VAT / (1 + VAT), 0.0)
             rows["extend_vat_cut"] = summarise(
                 "Extend the 0% VAT on domestic electricity through 2027-28 (GB)",
+                support,
+                note="Price cut, costed from bills; not in HBAI income, so no poverty effect.",
+            )
+            typical_elec = np.mean([_typical_elec_bill(q) for q in FORECAST_2027_28])
+            levy_share = LEVY_SAVING_TYPICAL / typical_elec
+            support = np.where(gb, elec * levy_share, 0.0)
+            rows["remove_levies"] = summarise(
+                f"Move remaining levies to taxation: £{LEVY_SAVING_TYPICAL} off a typical bill "
+                f"({levy_share:.1%} of each electricity bill, GB)",
                 support,
                 note="Price cut, costed from bills; not in HBAI income, so no poverty effect.",
             )

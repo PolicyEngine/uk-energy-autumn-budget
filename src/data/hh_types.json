@@ -5,7 +5,7 @@
   "extra_cost": 191,
   "bill": 1505,
   "rf_targeted_discount": 29,
-  "whd_top_up": 10,
+  "whd_top_up": 6,
   "cost_of_living_payment": 20,
   "flat_400": 400,
   "cap_freeze": 221
@@ -16,7 +16,7 @@
   "extra_cost": 209,
   "bill": 1705,
   "rf_targeted_discount": 76,
-  "whd_top_up": 9,
+  "whd_top_up": 6,
   "cost_of_living_payment": 18,
   "flat_400": 400,
   "cap_freeze": 250
@@ -27,7 +27,7 @@
   "extra_cost": 235,
   "bill": 1842,
   "rf_targeted_discount": 40,
-  "whd_top_up": 28,
+  "whd_top_up": 19,
   "cost_of_living_payment": 58,
   "flat_400": 400,
   "cap_freeze": 270
@@ -38,7 +38,7 @@
   "extra_cost": 182,
   "bill": 1476,
   "rf_targeted_discount": 150,
-  "whd_top_up": 127,
+  "whd_top_up": 85,
   "cost_of_living_payment": 257,
   "flat_400": 400,
   "cap_freeze": 216
@@ -49,7 +49,7 @@
   "extra_cost": 152,
   "bill": 1215,
   "rf_targeted_discount": 108,
-  "whd_top_up": 52,
+  "whd_top_up": 35,
   "cost_of_living_payment": 107,
   "flat_400": 400,
   "cap_freeze": 178
@@ -60,7 +60,7 @@
   "extra_cost": 145,
   "bill": 1174,
   "rf_targeted_discount": 92,
-  "whd_top_up": 51,
+  "whd_top_up": 34,
   "cost_of_living_payment": 104,
   "flat_400": 400,
   "cap_freeze": 172
@@ -71,11 +71,12 @@
   "extra_cost": 382,
   "bill": 1696,
   "rf_targeted_discount": 26,
-  "whd_top_up": 9,
+  "whd_top_up": 6,
   "cost_of_living_payment": 20,
   "flat_400": 400,
   "cap_freeze": 423,
-  "extend_vat_cut": 46
+  "extend_vat_cut": 46,
+  "remove_levies": 121
  },
  {
   "fy": "2027-28",
@@ -83,11 +84,12 @@
   "extra_cost": 422,
   "bill": 1918,
   "rf_targeted_discount": 74,
-  "whd_top_up": 9,
+  "whd_top_up": 6,
   "cost_of_living_payment": 18,
   "flat_400": 400,
   "cap_freeze": 479,
-  "extend_vat_cut": 54
+  "extend_vat_cut": 54,
+  "remove_levies": 143
  },
  {
   "fy": "2027-28",
@@ -95,11 +97,12 @@
   "extra_cost": 470,
   "bill": 2077,
   "rf_targeted_discount": 39,
-  "whd_top_up": 28,
+  "whd_top_up": 19,
   "cost_of_living_payment": 58,
   "flat_400": 400,
   "cap_freeze": 518,
-  "extend_vat_cut": 55
+  "extend_vat_cut": 55,
+  "remove_levies": 146
  },
  {
   "fy": "2027-28",
@@ -107,11 +110,12 @@
   "extra_cost": 367,
   "bill": 1660,
   "rf_targeted_discount": 150,
-  "whd_top_up": 127,
+  "whd_top_up": 85,
   "cost_of_living_payment": 257,
   "flat_400": 400,
   "cap_freeze": 415,
-  "extend_vat_cut": 47
+  "extend_vat_cut": 47,
+  "remove_levies": 124
  },
  {
   "fy": "2027-28",
@@ -119,11 +123,12 @@
   "extra_cost": 305,
   "bill": 1368,
   "rf_targeted_discount": 107,
-  "whd_top_up": 51,
+  "whd_top_up": 34,
   "cost_of_living_payment": 105,
   "flat_400": 400,
   "cap_freeze": 342,
-  "extend_vat_cut": 38
+  "extend_vat_cut": 38,
+  "remove_levies": 99
  },
  {
   "fy": "2027-28",
@@ -131,10 +136,11 @@
   "extra_cost": 292,
   "bill": 1321,
   "rf_targeted_discount": 91,
-  "whd_top_up": 51,
+  "whd_top_up": 34,
   "cost_of_living_payment": 104,
   "flat_400": 400,
   "cap_freeze": 330,
-  "extend_vat_cut": 37
+  "extend_vat_cut": 37,
+  "remove_levies": 98
  }
 ]
