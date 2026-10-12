@@ -50,7 +50,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _provenance import git, source_hashes
+from _provenance import git, source_hashes, sources_dirty
 
 import energy_budget.baseline as baseline
 import energy_budget.budget_options as budget_options
@@ -201,7 +201,7 @@ def main():
         "dataset_sha256": baseline.DATASET_SHA256,
         "runtime_s": round(time.time() - t0, 1),
         "git_commit": git("rev-parse", "HEAD"),
-        "git_dirty": bool(git("status", "--porcelain", "--untracked-files=no")),
+        "git_dirty": sources_dirty(),
         "source_sha256": source_hashes(),
     }
     _write(results)  # keep the pipeline outputs even if the checks below fail

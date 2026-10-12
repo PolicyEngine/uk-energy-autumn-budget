@@ -36,3 +36,9 @@ def git(*args):
     return subprocess.run(
         ["git", *args], cwd=ROOT, capture_output=True, text=True, check=True
     ).stdout.strip()
+
+
+def sources_dirty():
+    """True if any source file differs from the committed version. Generated
+    outputs (``src/data``, ``validation/out_*``) do not count."""
+    return bool(git("status", "--porcelain", "--", *SOURCE_GLOBS))
