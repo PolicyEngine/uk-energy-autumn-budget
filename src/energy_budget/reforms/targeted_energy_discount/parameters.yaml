@@ -1,0 +1,175 @@
+description: >-
+  Targeted energy discount for households that receive a means-tested benefit or whose
+  highest-income member is below an income threshold (Resolution Foundation, "Billing me
+  softly", 10 August 2026). Support follows a schedule by the household's assessed income:
+  either a fixed amount per household or a discount on the household's gas and
+  electricity bill.
+metadata:
+  label: Targeted energy discount
+  reference:
+    - title: Resolution Foundation, Billing me softly (10 August 2026)
+      href: https://www.resolutionfoundation.org/publications/billing-me-softly/
+in_effect:
+  description: The targeted energy discount applies.
+  values:
+    2000-01-01: false
+  metadata:
+    unit: bool
+    label: Targeted energy discount in effect
+gb_only:
+  description: >-
+    Only households in Great Britain are eligible. Northern Ireland bills sit outside the
+    Ofgem price cap (RF footnote 1).
+  values:
+    2000-01-01: true
+  metadata:
+    unit: bool
+count_in_hbai_income:
+  description: >-
+    The discount counts as HBAI household income. DWP counts the Warm Home Discount, a bill
+    credit delivered through suppliers, as miscellaneous income (HBAI quality and
+    methodology report, FYE 2024). Set false to treat the discount as a price reduction,
+    as policyengine-uk treats the 2022 Energy Price Guarantee.
+  values:
+    2000-01-01: true
+  metadata:
+    unit: bool
+    reference:
+      - title: HBAI quality and methodology information report, FYE 2024
+        href: https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2024/households-below-average-income-series-quality-and-methodology-information-report-fye-2024
+passport:
+  in_effect:
+    description: Households receiving a passporting benefit are eligible regardless of income.
+    values:
+      2000-01-01: true
+    metadata:
+      unit: bool
+  benefits:
+    description: >-
+      Benefits whose receipt passports a household (the Warm Home Discount list, RF
+      footnote 2). Pension Credit counts whether or not it includes the Guarantee
+      Credit: RF's footnote lists Pension Credit without distinction, and since 2025-26
+      the Warm Home Discount's low-income group also takes awards of the Savings Credit
+      alone (about 151,000 claimants in March 2026), with no high-cost-to-heat test.
+    values:
+      2000-01-01:
+        - universal_credit
+        - pension_credit
+        - housing_benefit
+        - esa_income
+        - jsa_income
+        - income_support
+    metadata:
+      unit: list
+      reference:
+        - title: Resolution Foundation, Billing me softly (10 August 2026), footnote 2
+          href: https://www.resolutionfoundation.org/app/uploads/2026/08/Billing-me-softly.pdf
+        - title: DESNZ, Expanding the Warm Home Discount Scheme 2025/26 (February 2025), Core Group 2 qualifying benefits
+          href: https://assets.publishing.service.gov.uk/media/67bda7d4b0d253f92e213c25/expanding-the-warm-home-discount-scheme-2025-to-2026.pdf
+        - title: GOV.UK, Warm Home Discount Scheme, eligibility in England and Wales (winter 2026 to 2027)
+          href: https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales
+  assessed_income:
+    description: >-
+      Passported households are placed on the support schedule at the lower of their own
+      assessed income and this value. Zero places every passported household in the most
+      generous tier.
+    values:
+      2000-01-01: 0
+    metadata:
+      unit: currency-GBP
+income_test:
+  in_effect:
+    description: Households can qualify through the highest-individual-income test.
+    values:
+      2000-01-01: true
+    metadata:
+      unit: bool
+  sources:
+    description: >-
+      Person-level income components summed to give each person's income for the test.
+      RF uses taxable income (footnote 5): total_income adds earnings, pensions (including
+      the State Pension), property, savings, dividends and taxable benefits.
+    values:
+      2000-01-01:
+        - total_income
+    metadata:
+      unit: list
+  household_equivalised:
+    description: >-
+      The income test uses total household income divided by the BHC equivalisation
+      factor instead of the highest individual income. RF's comparator option uses this
+      with a 30,000 GBP threshold (Figure 3, footnote 5).
+    values:
+      2000-01-01: false
+    metadata:
+      unit: bool
+amount:
+  description: >-
+    Support per household by assessed income, in fixed-amount mode. The default is RF's
+    flat option (175 GBP below 24,000 GBP); RF's tiered option is 220 GBP below 18,000 GBP
+    and 85 GBP from 18,000 GBP to 24,000 GBP.
+  metadata:
+    type: single_amount
+    threshold_unit: currency-GBP
+    amount_unit: currency-GBP
+    label: Targeted energy discount amount
+  brackets:
+    - threshold:
+        values:
+          2000-01-01: 0
+      amount:
+        values:
+          2000-01-01: 175
+    - threshold:
+        values:
+          2000-01-01: 18_000
+      amount:
+        values:
+          2000-01-01: 175
+    - threshold:
+        values:
+          2000-01-01: 24_000
+      amount:
+        values:
+          2000-01-01: 0
+bill_share:
+  in_effect:
+    description: >-
+      Support is a share of the household's annual gas and electricity spend (a
+      bill-share discount) instead of a fixed amount. RF proposes a cut in unit prices
+      (pence per kWh); the microdata hold annual spend, not kWh, so this discounts spend,
+      standing charges included, and gives low-consumption households relatively more
+      than a per-kWh cut would.
+    values:
+      2000-01-01: false
+    metadata:
+      unit: bool
+  rate:
+    description: >-
+      Discount as a share of the annual gas and electricity bill, by assessed income.
+      Rates default to zero; calibrate.bill_share_changes derives rates that match a
+      fixed-amount schedule's averages, and each run's receipt records the rates used.
+    metadata:
+      type: single_amount
+      threshold_unit: currency-GBP
+      amount_unit: /1
+      label: Targeted energy discount rate
+    brackets:
+      - threshold:
+          values:
+            2000-01-01: 0
+        amount:
+          values:
+            2000-01-01: 0
+      - threshold:
+          values:
+            2000-01-01: 18_000
+        amount:
+          values:
+            2000-01-01: 0
+      - threshold:
+          values:
+            2000-01-01: 24_000
+        amount:
+          values:
+            2000-01-01: 0

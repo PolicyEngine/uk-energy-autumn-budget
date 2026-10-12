@@ -1,0 +1,34 @@
+[
+ {
+  "fy": "2026-27",
+  "elec_change_pct": 6.2,
+  "gas_change_pct": 29.7,
+  "typical_bill_1641_basis": 1923,
+  "mean_bill": 1550,
+  "total_bill_bn": 45.48,
+  "total_bill_2025_prices_bn": 42.3,
+  "households_m": 29.34,
+  "mean_extra_cost": 195,
+  "total_extra_cost_bn": 5.71,
+  "epg_subsidy_bn": 0.0,
+  "poverty_bhc_pct": 11.53,
+  "poverty_ahc_pct": 15.23,
+  "child_poverty_ahc_pct": 18.77
+ },
+ {
+  "fy": "2027-28",
+  "elec_change_pct": 16.0,
+  "gas_change_pct": 53.0,
+  "typical_bill_1641_basis": 2187,
+  "mean_bill": 1746,
+  "total_bill_bn": 51.42,
+  "total_bill_2025_prices_bn": 42.5,
+  "households_m": 29.45,
+  "mean_extra_cost": 390,
+  "total_extra_cost_bn": 11.5,
+  "epg_subsidy_bn": 0.0,
+  "poverty_bhc_pct": 11.61,
+  "poverty_ahc_pct": 15.4,
+  "child_poverty_ahc_pct": 18.96
+ }
+]

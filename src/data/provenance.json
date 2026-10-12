@@ -1,0 +1,15 @@
+{
+ "policyengine_version": "6.2.7",
+ "bundle_id": "uk-6.2.7",
+ "model_version": "2.125.1",
+ "dataset": "microcosm_uk_2024_25.h5",
+ "dataset_repo": "policyengine/populace-uk-private",
+ "dataset_release": "microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68",
+ "dataset_revision": "f9d1922cddab6b54a0dd37794a9bac74e3780c88",
+ "dataset_sha256": "aa31bdf67c977927ea2b325567d1cf7a79d94381239bc79918a0a0fc9c9588af",
+ "managed": false,
+ "price_rebase_cy2025_to_apr_jun_2026": {
+  "elec": 0.9696,
+  "gas": 0.8879
+ }
+}

@@ -1,0 +1,62 @@
+[
+ {
+  "id": "data",
+  "topic": "Data and model",
+  "detail": "PolicyEngine 6.2.4 (policyengine-uk 2.102.3) on Microcosm UK 2024-25, release microcosm-uk-2024-25-national-20261002T230158Z. The release is not yet in the certified bundle, so it is pinned by SHA-256.",
+  "link": "https://github.com/PolicyEngine/policyengine.py"
+ },
+ {
+  "id": "rebase",
+  "topic": "Price basis",
+  "detail": "Microcosm energy spending is calibrated to ONS 2025 spending, so electricity is multiplied by 0.970 and gas by 0.888 to reach April\u2013June 2026 prices, the start of the baseline.",
+  "link": "https://github.com/PolicyEngine/microcosm/issues/1113"
+ },
+ {
+  "id": "tdcv",
+  "topic": "Typical bills",
+  "detail": "Ofgem cut typical consumption on 1 Jul 2026, so published caps from July (\u00a31,663, \u00a31,723, \u00a31,999) can't be compared with \u00a31,641. Every quarter is re-costed from unit rates and standing charges at the old 2,700 / 11,500 kWh.",
+  "link": "https://www.ofgem.gov.uk/sites/default/files/2026-05/Review%20of%20typical%20domestic%20consumption%20values%20decision.pdf"
+ },
+ {
+  "id": "baseline",
+  "topic": "Baseline",
+  "detail": "Current law at forecast prices. Each household's electricity and gas spend rises by its fuel's price change and is loaded into PolicyEngine. The Energy Price Guarantee ended in April 2024, so it pays nothing.",
+  "link": "https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026"
+ },
+ {
+  "id": "vat",
+  "topic": "Electricity VAT",
+  "detail": "VAT on domestic electricity is 0% from 1 Oct 2026 to 31 Mar 2027 (SI 2026/987), then returns to 5%. The 2027-28 baseline includes the return.",
+  "link": "https://www.legislation.gov.uk/uksi/2026/987/made"
+ },
+ {
+  "id": "forecast2728",
+  "topic": "2027-28 prices",
+  "detail": "April\u2013September 2027 use the average of EDF, British Gas and E.ON Next forecasts; October\u2013December 2027 uses OVO's forecast, and January\u2013March 2028 holds that level. Forecasts give no fuel split, so Cornwall Insight's January unit rates are scaled to each total, with 5% VAT on electricity.",
+  "link": "https://www.eonnext.com/electricity-and-gas/price-cap/predictions"
+ },
+ {
+  "id": "poverty",
+  "topic": "Poverty",
+  "detail": "PolicyEngine's HBAI relative poverty. HBAI income excludes energy bills and energy bill support (bill credits, rebates, price guarantees), so only cash paid as income (Cost of Living Payment, targeted discount, Warm Home Discount) moves it.",
+  "link": "https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2024"
+ },
+ {
+  "id": "behaviour",
+  "topic": "Behaviour",
+  "detail": "Households keep using the same energy; no cut in use, no change to benefit uprating from higher inflation. Northern Ireland uses GB prices as a proxy.",
+  "link": "https://github.com/PolicyEngine/energy-price-shock"
+ },
+ {
+  "id": "rf",
+  "topic": "Targeted discount",
+  "detail": "Resolution Foundation design: \u00a3175 to households on means-tested benefits or whose highest individual income is under \u00a324,000.",
+  "link": "https://www.resolutionfoundation.org/publications/billing-me-softly/"
+ },
+ {
+  "id": "budget",
+  "topic": "Budget date",
+  "detail": "Autumn Budget and OBR forecast, Wednesday 28 October 2026. The OBR's March 2026 forecast closed before the conflict.",
+  "link": "https://obr.uk/autumn-2026-forecast-date-announced/"
+ }
+]

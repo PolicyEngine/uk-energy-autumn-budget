@@ -1,0 +1,140 @@
+[
+ {
+  "fy": "2026-27",
+  "hh_type": "Couple no children",
+  "extra_cost": 191,
+  "bill": 1505,
+  "rf_targeted_discount": 29,
+  "whd_top_up": 10,
+  "cost_of_living_payment": 20,
+  "flat_400": 400,
+  "cap_freeze": 221
+ },
+ {
+  "fy": "2026-27",
+  "hh_type": "Couple pensioner",
+  "extra_cost": 209,
+  "bill": 1705,
+  "rf_targeted_discount": 76,
+  "whd_top_up": 9,
+  "cost_of_living_payment": 18,
+  "flat_400": 400,
+  "cap_freeze": 250
+ },
+ {
+  "fy": "2026-27",
+  "hh_type": "Couple with children",
+  "extra_cost": 235,
+  "bill": 1842,
+  "rf_targeted_discount": 40,
+  "whd_top_up": 28,
+  "cost_of_living_payment": 58,
+  "flat_400": 400,
+  "cap_freeze": 270
+ },
+ {
+  "fy": "2026-27",
+  "hh_type": "Lone parent",
+  "extra_cost": 182,
+  "bill": 1476,
+  "rf_targeted_discount": 150,
+  "whd_top_up": 127,
+  "cost_of_living_payment": 257,
+  "flat_400": 400,
+  "cap_freeze": 216
+ },
+ {
+  "fy": "2026-27",
+  "hh_type": "Single pensioner",
+  "extra_cost": 152,
+  "bill": 1215,
+  "rf_targeted_discount": 108,
+  "whd_top_up": 52,
+  "cost_of_living_payment": 107,
+  "flat_400": 400,
+  "cap_freeze": 178
+ },
+ {
+  "fy": "2026-27",
+  "hh_type": "Single working age",
+  "extra_cost": 145,
+  "bill": 1174,
+  "rf_targeted_discount": 92,
+  "whd_top_up": 51,
+  "cost_of_living_payment": 104,
+  "flat_400": 400,
+  "cap_freeze": 172
+ },
+ {
+  "fy": "2027-28",
+  "hh_type": "Couple no children",
+  "extra_cost": 382,
+  "bill": 1696,
+  "rf_targeted_discount": 26,
+  "whd_top_up": 9,
+  "cost_of_living_payment": 20,
+  "flat_400": 400,
+  "cap_freeze": 423,
+  "extend_vat_cut": 46
+ },
+ {
+  "fy": "2027-28",
+  "hh_type": "Couple pensioner",
+  "extra_cost": 422,
+  "bill": 1918,
+  "rf_targeted_discount": 74,
+  "whd_top_up": 9,
+  "cost_of_living_payment": 18,
+  "flat_400": 400,
+  "cap_freeze": 479,
+  "extend_vat_cut": 54
+ },
+ {
+  "fy": "2027-28",
+  "hh_type": "Couple with children",
+  "extra_cost": 470,
+  "bill": 2077,
+  "rf_targeted_discount": 39,
+  "whd_top_up": 28,
+  "cost_of_living_payment": 58,
+  "flat_400": 400,
+  "cap_freeze": 518,
+  "extend_vat_cut": 55
+ },
+ {
+  "fy": "2027-28",
+  "hh_type": "Lone parent",
+  "extra_cost": 367,
+  "bill": 1660,
+  "rf_targeted_discount": 150,
+  "whd_top_up": 127,
+  "cost_of_living_payment": 257,
+  "flat_400": 400,
+  "cap_freeze": 415,
+  "extend_vat_cut": 47
+ },
+ {
+  "fy": "2027-28",
+  "hh_type": "Single pensioner",
+  "extra_cost": 305,
+  "bill": 1368,
+  "rf_targeted_discount": 107,
+  "whd_top_up": 51,
+  "cost_of_living_payment": 105,
+  "flat_400": 400,
+  "cap_freeze": 342,
+  "extend_vat_cut": 38
+ },
+ {
+  "fy": "2027-28",
+  "hh_type": "Single working age",
+  "extra_cost": 292,
+  "bill": 1321,
+  "rf_targeted_discount": 91,
+  "whd_top_up": 51,
+  "cost_of_living_payment": 104,
+  "flat_400": 400,
+  "cap_freeze": 330,
+  "extend_vat_cut": 37
+ }
+]

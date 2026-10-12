@@ -1,0 +1,716 @@
+{
+ "2026-27": {
+  "baseline": {
+   "elec_price_vs_apr_jun_2026_pct": 6.2,
+   "gas_price_vs_apr_jun_2026_pct": 29.7,
+   "typical_bill_old_tdcv": 1923,
+   "total_bill_2025_prices_bn": 42.3,
+   "households_m": 29.34,
+   "mean_bill": 1550,
+   "total_bill_bn": 45.48,
+   "bill_by_decile": [
+    1346,
+    1440,
+    1452,
+    1420,
+    1518,
+    1591,
+    1491,
+    1672,
+    1733,
+    1830
+   ],
+   "bill_by_hh_type": {
+    "COUPLE_NO_CHILDREN": 1505,
+    "COUPLE_PENSIONER": 1705,
+    "COUPLE_WITH_CHILDREN": 1842,
+    "LONE_PARENT": 1476,
+    "SINGLE_PENSIONER": 1215,
+    "SINGLE_WORKING_AGE": 1174
+   },
+   "bill_by_region": {
+    "EAST_MIDLANDS": 1576,
+    "EAST_OF_ENGLAND": 1533,
+    "LONDON": 1500,
+    "NORTHERN_IRELAND": 1788,
+    "NORTH_EAST": 1577,
+    "NORTH_WEST": 1606,
+    "SCOTLAND": 1427,
+    "SOUTH_EAST": 1682,
+    "SOUTH_WEST": 1456,
+    "WALES": 1457,
+    "WEST_MIDLANDS": 1548,
+    "YORKSHIRE": 1530
+   },
+   "mean_extra_cost": 195,
+   "total_extra_cost_bn": 5.71,
+   "extra_cost_by_hh_type": {
+    "COUPLE_NO_CHILDREN": 191,
+    "COUPLE_PENSIONER": 209,
+    "COUPLE_WITH_CHILDREN": 235,
+    "LONE_PARENT": 182,
+    "SINGLE_PENSIONER": 152,
+    "SINGLE_WORKING_AGE": 145
+   },
+   "income_by_decile": [
+    25916,
+    39379,
+    44222,
+    49378,
+    55907,
+    61038,
+    67192,
+    75738,
+    88084,
+    165723
+   ],
+   "extra_cost_by_decile": [
+    164,
+    184,
+    179,
+    179,
+    190,
+    198,
+    188,
+    215,
+    216,
+    234
+   ],
+   "epg_subsidy_bn": 0.0,
+   "poverty": {
+    "bhc": 11.53,
+    "child_bhc": 12.68,
+    "ahc": 15.23,
+    "child_ahc": 18.77
+   }
+  },
+  "options": {
+   "rf_targeted_discount": {
+    "label": "Resolution Foundation targeted discount: \u00a3175 if highest income < \u00a324k or on means-tested benefits",
+    "cost_bn": 2.14,
+    "avg_per_household": 73,
+    "share_receiving_pct": 41.7,
+    "share_of_shock_offset_pct": 26.9,
+    "deciles": [
+     160,
+     147,
+     120,
+     87,
+     63,
+     46,
+     34,
+     18,
+     17,
+     7
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 29,
+     "COUPLE_PENSIONER": 76,
+     "COUPLE_WITH_CHILDREN": 40,
+     "LONE_PARENT": 150,
+     "SINGLE_PENSIONER": 108,
+     "SINGLE_WORKING_AGE": 92
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 78,
+     "EAST_OF_ENGLAND": 66,
+     "LONDON": 65,
+     "NORTHERN_IRELAND": 0,
+     "NORTH_EAST": 98,
+     "NORTH_WEST": 80,
+     "SCOTLAND": 77,
+     "SOUTH_EAST": 65,
+     "SOUTH_WEST": 71,
+     "WALES": 83,
+     "WEST_MIDLANDS": 87,
+     "YORKSHIRE": 81
+    },
+    "poverty": {
+     "bhc": 11.32,
+     "child_bhc": 12.54,
+     "ahc": 14.81,
+     "child_ahc": 18.21
+    },
+    "note": null
+   },
+   "whd_top_up": {
+    "label": "Warm Home Discount top-up: extra \u00a3150 to households on means-tested benefits",
+    "cost_bn": 1.18,
+    "avg_per_household": 40,
+    "share_receiving_pct": 26.7,
+    "share_of_shock_offset_pct": 15.9,
+    "deciles": [
+     63,
+     69,
+     66,
+     52,
+     43,
+     36,
+     28,
+     16,
+     14,
+     5
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 10,
+     "COUPLE_PENSIONER": 9,
+     "COUPLE_WITH_CHILDREN": 28,
+     "LONE_PARENT": 127,
+     "SINGLE_PENSIONER": 52,
+     "SINGLE_WORKING_AGE": 51
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 38,
+     "EAST_OF_ENGLAND": 35,
+     "LONDON": 47,
+     "NORTHERN_IRELAND": 0,
+     "NORTH_EAST": 60,
+     "NORTH_WEST": 46,
+     "SCOTLAND": 36,
+     "SOUTH_EAST": 33,
+     "SOUTH_WEST": 34,
+     "WALES": 45,
+     "WEST_MIDLANDS": 48,
+     "YORKSHIRE": 44
+    },
+    "poverty": {
+     "bhc": 11.43,
+     "child_bhc": 12.58,
+     "ahc": 14.92,
+     "child_ahc": 18.22
+    },
+    "note": null
+   },
+   "cost_of_living_payment": {
+    "label": "\u00a3300 Cost of Living Payment to households on means-tested benefits",
+    "cost_bn": 2.43,
+    "avg_per_household": 83,
+    "share_receiving_pct": 27.6,
+    "share_of_shock_offset_pct": 23.2,
+    "deciles": [
+     131,
+     142,
+     136,
+     107,
+     90,
+     75,
+     59,
+     32,
+     29,
+     11
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 20,
+     "COUPLE_PENSIONER": 18,
+     "COUPLE_WITH_CHILDREN": 58,
+     "LONE_PARENT": 257,
+     "SINGLE_PENSIONER": 107,
+     "SINGLE_WORKING_AGE": 104
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 77,
+     "EAST_OF_ENGLAND": 70,
+     "LONDON": 94,
+     "NORTHERN_IRELAND": 99,
+     "NORTH_EAST": 120,
+     "NORTH_WEST": 91,
+     "SCOTLAND": 71,
+     "SOUTH_EAST": 66,
+     "SOUTH_WEST": 69,
+     "WALES": 89,
+     "WEST_MIDLANDS": 96,
+     "YORKSHIRE": 88
+    },
+    "poverty": {
+     "bhc": 11.37,
+     "child_bhc": 12.46,
+     "ahc": 14.77,
+     "child_ahc": 18.05
+    },
+    "note": null
+   },
+   "flat_400": {
+    "label": "\u00a3400 to every household (2022 EBSS design)",
+    "cost_bn": 11.74,
+    "avg_per_household": 400,
+    "share_receiving_pct": 100.0,
+    "share_of_shock_offset_pct": 93.5,
+    "deciles": [
+     400,
+     400,
+     400,
+     400,
+     400,
+     400,
+     400,
+     400,
+     400,
+     400
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 400,
+     "COUPLE_PENSIONER": 400,
+     "COUPLE_WITH_CHILDREN": 400,
+     "LONE_PARENT": 400,
+     "SINGLE_PENSIONER": 400,
+     "SINGLE_WORKING_AGE": 400
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 400,
+     "EAST_OF_ENGLAND": 400,
+     "LONDON": 400,
+     "NORTHERN_IRELAND": 400,
+     "NORTH_EAST": 400,
+     "NORTH_WEST": 400,
+     "SCOTLAND": 400,
+     "SOUTH_EAST": 400,
+     "SOUTH_WEST": 400,
+     "WALES": 400,
+     "WEST_MIDLANDS": 400,
+     "YORKSHIRE": 400
+    },
+    "poverty": {
+     "bhc": 11.53,
+     "child_bhc": 12.68,
+     "ahc": 15.23,
+     "child_ahc": 18.77
+    },
+    "note": null
+   },
+   "cap_freeze": {
+    "label": "Energy Price Guarantee holds bills at \u00a31,641, the April\u2013June 2026 cap",
+    "cost_bn": 6.67,
+    "avg_per_household": 227,
+    "share_receiving_pct": 100.0,
+    "share_of_shock_offset_pct": 95.2,
+    "deciles": [
+     197,
+     211,
+     213,
+     208,
+     223,
+     233,
+     219,
+     245,
+     254,
+     268
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 221,
+     "COUPLE_PENSIONER": 250,
+     "COUPLE_WITH_CHILDREN": 270,
+     "LONE_PARENT": 216,
+     "SINGLE_PENSIONER": 178,
+     "SINGLE_WORKING_AGE": 172
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 231,
+     "EAST_OF_ENGLAND": 225,
+     "LONDON": 220,
+     "NORTHERN_IRELAND": 262,
+     "NORTH_EAST": 231,
+     "NORTH_WEST": 235,
+     "SCOTLAND": 209,
+     "SOUTH_EAST": 247,
+     "SOUTH_WEST": 214,
+     "WALES": 214,
+     "WEST_MIDLANDS": 227,
+     "YORKSHIRE": 224
+    },
+    "poverty": {
+     "bhc": 11.53,
+     "child_bhc": 12.68,
+     "ahc": 15.23,
+     "child_ahc": 18.77
+    },
+    "note": null
+   }
+  }
+ },
+ "2027-28": {
+  "baseline": {
+   "elec_price_vs_apr_jun_2026_pct": 16.0,
+   "gas_price_vs_apr_jun_2026_pct": 53.0,
+   "typical_bill_old_tdcv": 2187,
+   "total_bill_2025_prices_bn": 42.5,
+   "households_m": 29.45,
+   "mean_bill": 1746,
+   "total_bill_bn": 51.42,
+   "bill_by_decile": [
+    1504,
+    1629,
+    1636,
+    1610,
+    1698,
+    1794,
+    1669,
+    1882,
+    1951,
+    2071
+   ],
+   "bill_by_hh_type": {
+    "COUPLE_NO_CHILDREN": 1696,
+    "COUPLE_PENSIONER": 1918,
+    "COUPLE_WITH_CHILDREN": 2077,
+    "LONE_PARENT": 1660,
+    "SINGLE_PENSIONER": 1368,
+    "SINGLE_WORKING_AGE": 1321
+   },
+   "bill_by_region": {
+    "EAST_MIDLANDS": 1777,
+    "EAST_OF_ENGLAND": 1723,
+    "LONDON": 1691,
+    "NORTHERN_IRELAND": 2028,
+    "NORTH_EAST": 1784,
+    "NORTH_WEST": 1812,
+    "SCOTLAND": 1603,
+    "SOUTH_EAST": 1892,
+    "SOUTH_WEST": 1630,
+    "WALES": 1640,
+    "WEST_MIDLANDS": 1744,
+    "YORKSHIRE": 1727
+   },
+   "mean_extra_cost": 390,
+   "total_extra_cost_bn": 11.5,
+   "extra_cost_by_hh_type": {
+    "COUPLE_NO_CHILDREN": 382,
+    "COUPLE_PENSIONER": 422,
+    "COUPLE_WITH_CHILDREN": 470,
+    "LONE_PARENT": 367,
+    "SINGLE_PENSIONER": 305,
+    "SINGLE_WORKING_AGE": 292
+   },
+   "income_by_decile": [
+    26033,
+    39734,
+    44848,
+    50252,
+    56917,
+    61761,
+    68901,
+    76395,
+    89407,
+    169736
+   ],
+   "extra_cost_by_decile": [
+    329,
+    367,
+    362,
+    361,
+    380,
+    399,
+    374,
+    428,
+    434,
+    470
+   ],
+   "epg_subsidy_bn": 0.0,
+   "poverty": {
+    "bhc": 11.61,
+    "child_bhc": 12.54,
+    "ahc": 15.4,
+    "child_ahc": 18.96
+   }
+  },
+  "options": {
+   "rf_targeted_discount": {
+    "label": "Resolution Foundation targeted discount: \u00a3175 if highest income < \u00a324k or on means-tested benefits",
+    "cost_bn": 2.11,
+    "avg_per_household": 72,
+    "share_receiving_pct": 40.9,
+    "share_of_shock_offset_pct": 16.2,
+    "deciles": [
+     159,
+     145,
+     115,
+     83,
+     61,
+     45,
+     34,
+     19,
+     17,
+     7
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 26,
+     "COUPLE_PENSIONER": 74,
+     "COUPLE_WITH_CHILDREN": 39,
+     "LONE_PARENT": 150,
+     "SINGLE_PENSIONER": 107,
+     "SINGLE_WORKING_AGE": 91
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 76,
+     "EAST_OF_ENGLAND": 65,
+     "LONDON": 64,
+     "NORTHERN_IRELAND": 0,
+     "NORTH_EAST": 96,
+     "NORTH_WEST": 79,
+     "SCOTLAND": 75,
+     "SOUTH_EAST": 62,
+     "SOUTH_WEST": 70,
+     "WALES": 82,
+     "WEST_MIDLANDS": 86,
+     "YORKSHIRE": 79
+    },
+    "poverty": {
+     "bhc": 11.41,
+     "child_bhc": 12.4,
+     "ahc": 15.15,
+     "child_ahc": 18.75
+    },
+    "note": null
+   },
+   "whd_top_up": {
+    "label": "Warm Home Discount top-up: extra \u00a3150 to households on means-tested benefits",
+    "cost_bn": 1.18,
+    "avg_per_household": 40,
+    "share_receiving_pct": 26.7,
+    "share_of_shock_offset_pct": 9.4,
+    "deciles": [
+     64,
+     67,
+     66,
+     52,
+     42,
+     36,
+     29,
+     16,
+     14,
+     6
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 9,
+     "COUPLE_PENSIONER": 9,
+     "COUPLE_WITH_CHILDREN": 28,
+     "LONE_PARENT": 127,
+     "SINGLE_PENSIONER": 51,
+     "SINGLE_WORKING_AGE": 51
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 38,
+     "EAST_OF_ENGLAND": 35,
+     "LONDON": 47,
+     "NORTHERN_IRELAND": 0,
+     "NORTH_EAST": 60,
+     "NORTH_WEST": 45,
+     "SCOTLAND": 36,
+     "SOUTH_EAST": 32,
+     "SOUTH_WEST": 34,
+     "WALES": 45,
+     "WEST_MIDLANDS": 48,
+     "YORKSHIRE": 44
+    },
+    "poverty": {
+     "bhc": 11.54,
+     "child_bhc": 12.45,
+     "ahc": 15.25,
+     "child_ahc": 18.75
+    },
+    "note": null
+   },
+   "cost_of_living_payment": {
+    "label": "\u00a3300 Cost of Living Payment to households on means-tested benefits",
+    "cost_bn": 2.43,
+    "avg_per_household": 83,
+    "share_receiving_pct": 27.5,
+    "share_of_shock_offset_pct": 16.7,
+    "deciles": [
+     132,
+     139,
+     136,
+     107,
+     88,
+     75,
+     59,
+     33,
+     29,
+     11
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 20,
+     "COUPLE_PENSIONER": 18,
+     "COUPLE_WITH_CHILDREN": 58,
+     "LONE_PARENT": 257,
+     "SINGLE_PENSIONER": 105,
+     "SINGLE_WORKING_AGE": 104
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 77,
+     "EAST_OF_ENGLAND": 70,
+     "LONDON": 94,
+     "NORTHERN_IRELAND": 99,
+     "NORTH_EAST": 121,
+     "NORTH_WEST": 91,
+     "SCOTLAND": 71,
+     "SOUTH_EAST": 65,
+     "SOUTH_WEST": 69,
+     "WALES": 89,
+     "WEST_MIDLANDS": 96,
+     "YORKSHIRE": 87
+    },
+    "poverty": {
+     "bhc": 11.41,
+     "child_bhc": 12.23,
+     "ahc": 15.1,
+     "child_ahc": 18.5
+    },
+    "note": null
+   },
+   "flat_400": {
+    "label": "\u00a3400 to every household (2022 EBSS design)",
+    "cost_bn": 11.78,
+    "avg_per_household": 400,
+    "share_receiving_pct": 100.0,
+    "share_of_shock_offset_pct": 73.3,
+    "deciles": [
+     400,
+     400,
+     400,
+     400,
+     400,
+     400,
+     400,
+     400,
+     400,
+     400
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 400,
+     "COUPLE_PENSIONER": 400,
+     "COUPLE_WITH_CHILDREN": 400,
+     "LONE_PARENT": 400,
+     "SINGLE_PENSIONER": 400,
+     "SINGLE_WORKING_AGE": 400
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 400,
+     "EAST_OF_ENGLAND": 400,
+     "LONDON": 400,
+     "NORTHERN_IRELAND": 400,
+     "NORTH_EAST": 400,
+     "NORTH_WEST": 400,
+     "SCOTLAND": 400,
+     "SOUTH_EAST": 400,
+     "SOUTH_WEST": 400,
+     "WALES": 400,
+     "WEST_MIDLANDS": 400,
+     "YORKSHIRE": 400
+    },
+    "poverty": {
+     "bhc": 11.61,
+     "child_bhc": 12.54,
+     "ahc": 15.4,
+     "child_ahc": 18.96
+    },
+    "note": null
+   },
+   "cap_freeze": {
+    "label": "Energy Price Guarantee holds bills at \u00a31,641, the April\u2013June 2026 cap",
+    "cost_bn": 12.84,
+    "avg_per_household": 436,
+    "share_receiving_pct": 100.0,
+    "share_of_shock_offset_pct": 96.7,
+    "deciles": [
+     376,
+     407,
+     408,
+     402,
+     424,
+     448,
+     417,
+     470,
+     487,
+     517
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 423,
+     "COUPLE_PENSIONER": 479,
+     "COUPLE_WITH_CHILDREN": 518,
+     "LONE_PARENT": 415,
+     "SINGLE_PENSIONER": 342,
+     "SINGLE_WORKING_AGE": 330
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 444,
+     "EAST_OF_ENGLAND": 430,
+     "LONDON": 422,
+     "NORTHERN_IRELAND": 506,
+     "NORTH_EAST": 445,
+     "NORTH_WEST": 452,
+     "SCOTLAND": 400,
+     "SOUTH_EAST": 472,
+     "SOUTH_WEST": 407,
+     "WALES": 409,
+     "WEST_MIDLANDS": 436,
+     "YORKSHIRE": 431
+    },
+    "poverty": {
+     "bhc": 11.61,
+     "child_bhc": 12.54,
+     "ahc": 15.4,
+     "child_ahc": 18.96
+    },
+    "note": null
+   },
+   "extend_vat_cut": {
+    "label": "Extend the 0% VAT on domestic electricity through 2027-28 (GB)",
+    "cost_bn": 1.4,
+    "avg_per_household": 48,
+    "share_receiving_pct": 97.4,
+    "share_of_shock_offset_pct": 12.2,
+    "deciles": [
+     43,
+     44,
+     45,
+     43,
+     46,
+     49,
+     46,
+     50,
+     54,
+     56
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 46,
+     "COUPLE_PENSIONER": 54,
+     "COUPLE_WITH_CHILDREN": 55,
+     "LONE_PARENT": 47,
+     "SINGLE_PENSIONER": 38,
+     "SINGLE_WORKING_AGE": 37
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 48,
+     "EAST_OF_ENGLAND": 51,
+     "LONDON": 46,
+     "NORTHERN_IRELAND": 0,
+     "NORTH_EAST": 46,
+     "NORTH_WEST": 48,
+     "SCOTLAND": 48,
+     "SOUTH_EAST": 54,
+     "SOUTH_WEST": 52,
+     "WALES": 47,
+     "WEST_MIDLANDS": 48,
+     "YORKSHIRE": 46
+    },
+    "poverty": null,
+    "note": "Price cut, costed from bills; not in HBAI income, so no poverty effect."
+   }
+  }
+ },
+ "provenance": {
+  "policyengine_version": "6.2.7",
+  "bundle_id": "uk-6.2.7",
+  "model_version": "2.125.1",
+  "dataset": "microcosm_uk_2024_25.h5",
+  "dataset_repo": "policyengine/populace-uk-private",
+  "dataset_release": "microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68",
+  "dataset_revision": "f9d1922cddab6b54a0dd37794a9bac74e3780c88",
+  "dataset_sha256": "aa31bdf67c977927ea2b325567d1cf7a79d94381239bc79918a0a0fc9c9588af",
+  "managed": false,
+  "price_rebase_cy2025_to_apr_jun_2026": {
+   "elec": 0.9696,
+   "gas": 0.8879
+  }
+ }
+}
