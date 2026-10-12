@@ -1,11 +1,13 @@
 {
- "generated_at": "2026-10-12T10:25:25+00:00",
+ "generated_at": "2026-10-12T11:11:07+00:00",
  "command": "HF_HUB_OFFLINE=1 .venv/bin/energy-budget",
  "git": {
-  "head": "f01a5e150658959a62abeecf2c59f7114a45b32d",
+  "head": "d7f3e671e178448fe848677cbe939fd1b040bbc5",
   "branch": "fix/publication-review-1",
-  "uncommitted_changes": false,
-  "uncommitted_paths": []
+  "uncommitted_changes": true,
+  "uncommitted_paths": [
+   "M reproducibility.json"
+  ]
  },
  "runtime": {
   "python": "3.13.15",
@@ -30,12 +32,12 @@
  "outputs": {
   "src/data/deciles.json": "71edcf80182742e11b95bbf8d780a7f2a001425c5b4d2f363172cb2894920b50",
   "src/data/hh_types.json": "08bb323244384c4a337b6a87480bd22ab01a80468ac945cabf77de5ee0d9aba2",
-  "src/data/notes.json": "e8cbfb74b581a56306d1a2c01602bf912995d31b1e9251914178f9f5230f8758",
-  "src/data/options.json": "3f21e05ad458b9d7f1c8c019f56edf50bab8bd229ef433017d0e9d48156756bf",
+  "src/data/notes.json": "4008c2abc5327e96afa099dcd7dad50e79b0fec4635a0a1023993292819f4654",
+  "src/data/options.json": "c047f33a2af9bfe3e6e872a2cbe76a45e173bb74b53d1ef332af4de896213cba",
   "src/data/price_path.json": "efe98f12f96a2bf8000e5d9775bfdbfecd1dec94552e102c01ea275b0aaaa5a8",
   "src/data/provenance.json": "e820c6d21508f26bf877c1fd06290d54a0785500dfd83dd4cf5a1897d059e0ad",
   "src/data/regions.json": "28f88f05b9e94119980b7d18f5b6a1c894ac569b91cf0f506fb328afd20deae5",
-  "src/data/results.json": "beb95d03f0267cbbce5a39fef66dc82061ab4c4891ffcd91044cad3693fc2b2f",
-  "src/data/years.json": "b70a8088532592fad1473c9a4e2fadcf66d2e5ddcbffa153cf9ae36401d25a90"
+  "src/data/results.json": "e98fff94df9d0bf6711042c6c777bff33ceed36996d39cb9847bb8844070358f",
+  "src/data/years.json": "138a17f941e49c538d7dd1ccc9cdf5e6e746ce11834b453a4657773e86d1df19"
  }
 }
