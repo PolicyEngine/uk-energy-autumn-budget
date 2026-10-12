@@ -24,6 +24,8 @@ const GB_ONLY_REASON = {
   remove_levies: "the Renewables Obligation and Feed-in Tariff levies are Great Britain schemes",
 };
 const SUPPORT = "#319795";
+const PRICE_RISE = "#DD6B20";
+const RISE_LABEL = "Forecast price rise";
 
 const fmt = (v) => `£${Math.round(v).toLocaleString("en-GB")}`;
 
@@ -81,6 +83,12 @@ function niceTicks(maxValue, count = 5) {
   }
   return ticks;
 }
+
+const Legend = ({ series }) => (
+  <div className="col-chart-legend">
+    {series.map((s) => <span key={s.key}><span className="col-chart-legend-dot" style={{ background: s.color }} />{s.label}</span>)}
+  </div>
+);
 
 /** Column chart in the template's style, with one or two series per column. */
 function ColumnChart({ data, series, maxValue, formatValue, yLabel, xLabel, onSelect, wrapLabels }) {
@@ -671,24 +679,30 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
   const id = o.option_id;
   const info = POLICY_INFO.find((p) => p.id === id);
   const MEASURES = {
-    gbp: { label: "£ per year", fmt: (v) => fmt(v), exact: (v) => fmt(v), y: "£/yr per household", val: (d) => d[id] },
-    income: { label: "% of net income", fmt: (v) => `${v.toFixed(2)}%`, exact: (v) => `${v.toFixed(2)}%`, y: "% of household net income", val: (d) => (d[id] / d.net_income) * 100 },
-    bill: { label: "% of energy bill", fmt: (v) => `${v.toFixed(0)}%`, exact: (v) => `${v.toFixed(1)}%`, y: "% of baseline energy bill", val: (d) => (d[id] / d.bill) * 100 },
+    gbp: { label: "£ per year", fmt: (v) => fmt(v), exact: (v) => fmt(v), y: "£/yr per household", val: (d, k = id) => d[k] },
+    income: { label: "% of net income", fmt: (v) => `${v.toFixed(2)}%`, exact: (v) => `${v.toFixed(2)}%`, y: "% of household net income", val: (d, k = id) => (d[k] / d.net_income) * 100 },
+    bill: { label: "% of energy bill", fmt: (v) => `${v.toFixed(0)}%`, exact: (v) => `${v.toFixed(1)}%`, y: "% of baseline energy bill", val: (d, k = id) => (d[k] / d.bill) * 100 },
   };
   const ms = MEASURES[measure];
   const decRows = deciles.filter((d) => d.fy === fy);
-  const dec = decRows.map((d) => ({ label: `${d.decile}`, gain: ms.val(d), raw: d }));
+  const dec = decRows.map((d) => ({ label: `${d.decile}`, gain: ms.val(d), rise: ms.val(d, "extra_cost"), raw: d }));
+  const seriesPair = [
+    { key: "rise", label: `${RISE_LABEL} (baseline)`, color: PRICE_RISE },
+    { key: "gain", label: o.option, color: SUPPORT },
+  ];
   const groups = (breakdown === "region" ? regions.map((r) => ({ ...r, name: r.region })) : hhTypes.map((h) => ({ ...h, name: h.hh_type })))
     .filter((h) => h.fy === fy)
     .sort((a, b) => b[id] - a[id]);
-  const maxVal = Math.max(...dec.map((d) => d.gain)) * 1.15 || 1;
+  const maxVal = Math.max(...dec.flatMap((d) => [d.gain, d.rise])) * 1.15 || 1;
   const notCovered = (h) => h.name === "Northern Ireland" && GB_ONLY.includes(id);
 
   return (
     <div id="households">
       <h2 className="section-heading">Household effects</h2>
       <p className="section-description">
-        The average gain from the selected reform against the {`${fy} baseline`}, by income decile. Deciles are
+        The average gain from the selected reform against the {`${fy} baseline`}, by income decile, next to the
+        forecast price rise it offsets: how much more the same household pays for the same electricity and gas at
+        the {fy} forecast prices than at April–June 2026 prices (see the price chart in Budget responses). Deciles are
         PolicyEngine&apos;s <a href={DECILE_LINK} target="_blank" rel="noopener noreferrer">household income decile</a>:
         households are ranked by equivalised household net income before housing costs, as in DWP&apos;s Households
         Below Average Income statistics, and split into ten groups with equal numbers of people (each household
@@ -720,9 +734,10 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
           </div>
         )}
         <div className="chart-wrapper">
+          <Legend series={seriesPair} />
           <ColumnChart
             data={dec}
-            series={[{ key: "gain", label: o.option, color: SUPPORT }]}
+            series={seriesPair}
             maxValue={maxVal}
             formatValue={ms.fmt}
             yLabel={ms.y}
@@ -733,6 +748,7 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
             rows={dec}
             columns={[
               { label: "Income decile", value: (d) => d.label },
+              { label: "Price rise, £/yr", value: (d) => fmt(d.raw.extra_cost) },
               { label: "Gain, £/yr", value: (d) => fmt(d.raw[id]) },
               { label: "% of net income", value: (d) => MEASURES.income.exact(MEASURES.income.val(d.raw)) },
               { label: "% of energy bill", value: (d) => MEASURES.bill.exact(MEASURES.bill.val(d.raw)) },
@@ -752,16 +768,18 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
           />
         </div>
         <div className="chart-wrapper">
+          <Legend series={seriesPair} />
           <ColumnChart
             data={groups.map((h) => ({
               label: h.name,
               gain: h[id],
+              rise: h.extra_cost,
               tooltip: notCovered(h)
-                ? `Not covered: ${o.option} applies in Great Britain only`
-                : `${fmt(h[id])} a year, ${((h[id] / h.bill) * 100).toFixed(0)}% of a ${fmt(h.bill)} baseline energy bill`,
+                ? `Price rise ${fmt(h.extra_cost)} a year; not covered: ${o.option} applies in Great Britain only`
+                : `Price rise ${fmt(h.extra_cost)} a year; gain ${fmt(h[id])} a year, ${((h[id] / h.bill) * 100).toFixed(0)}% of a ${fmt(h.bill)} baseline energy bill`,
             }))}
-            series={[{ key: "gain", label: o.option, color: SUPPORT }]}
-            maxValue={Math.max(...groups.map((h) => h[id])) * 1.15 || 1}
+            series={seriesPair}
+            maxValue={Math.max(...groups.flatMap((h) => [h[id], h.extra_cost])) * 1.15 || 1}
             formatValue={(v) => fmt(v)}
             yLabel="£/yr per household"
             xLabel={breakdown === "region" ? "Region" : "Household type"}
@@ -772,6 +790,7 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
             rows={groups}
             columns={[
               { label: breakdown === "region" ? "Region" : "Household type", value: (h) => h.name },
+              { label: "Price rise, £/yr", value: (h) => fmt(h.extra_cost) },
               { label: "Gain, £/yr", value: (h) => (notCovered(h) ? "£0 (not covered)" : fmt(h[id])) },
               { label: "Baseline bill", value: (h) => fmt(h.bill) },
               { label: "% of bill", value: (h) => `${((h[id] / h.bill) * 100).toFixed(1)}%` },
@@ -779,7 +798,7 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
           />
         </div>
         <p className="section-description" style={{ marginTop: 12 }}>
-          Average gain over all households in each group, including those the reform does not reach.
+          Average price rise and gain over all households in each group, including those the reform does not reach.
 
           {" "}Northern Ireland is outside the Ofgem cap, so GB prices are used as a proxy for its bills.
         </p>

@@ -317,7 +317,12 @@ def write_tables(r):
                 row[k] = o["deciles"][d]
             dec.append(row)
         for reg, val in b["bill_by_region"].items():
-            row = {"fy": fy, "region": REGION_LABELS.get(reg, reg), "bill": val}
+            row = {
+                "fy": fy,
+                "region": REGION_LABELS.get(reg, reg),
+                "extra_cost": b["extra_cost_by_region"][reg],
+                "bill": val,
+            }
             for k, o in v["options"].items():
                 row[k] = o["by_region"][reg]
             regs.append(row)

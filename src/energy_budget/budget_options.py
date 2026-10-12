@@ -561,6 +561,7 @@ def run_budget_options(data):
                 "mean_extra_cost": round(weighted_mean(hit, w)),
                 "total_extra_cost_bn": _bn(hit, w),
                 "extra_cost_by_hh_type": by_type(hit),
+                "extra_cost_by_region": by_region(hit),
                 "income_by_decile": [
                     round(weighted_mean(base_net, w, decile == d)) for d in range(1, 11)
                 ],

@@ -67,6 +67,7 @@ BASELINE_KEYS = [
     "bill_by_hh_type",
     "extra_cost_by_hh_type",
     "bill_by_region",
+    "extra_cost_by_region",
 ]
 OPTION_KEYS = [
     "cost_bn",
