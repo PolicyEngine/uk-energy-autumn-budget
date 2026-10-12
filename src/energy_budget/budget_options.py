@@ -379,7 +379,8 @@ def _poverty(sim, year):
     The main keys are relative poverty (below 60% of the median, the DWP HBAI
     headline measure, ``in_relative_poverty_*``). ``absolute_*`` keys are
     PolicyEngine UK's ``in_poverty_*``, which is absolute poverty against a
-    fixed FYE 2025 line.
+    fixed FYE 2025 line. ``child_*`` keys are under-18 rates (``age < 18``),
+    not DWP's HBAI dependent-child cohort.
     """
     age = sim.calculate("age", year, map_to="person")
     out = {}

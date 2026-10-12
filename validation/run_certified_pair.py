@@ -33,7 +33,10 @@ the output must match ``src/data/results.json`` exactly, which shows that this
 direct-construction path is equivalent to the managed one.
 
 Writes ``validation/out_uk_<policyengine-uk version>.json``; never touches
-``src/data``.
+``src/data``. Each output records the git commit, whether the tree was dirty,
+and the SHA-256 of every source file that determines the results
+(``_provenance.SOURCE_GLOBS``); the comparator rejects outputs whose hashes do
+not match the current sources. Run from a clean tree.
 """
 
 from __future__ import annotations
@@ -45,6 +48,9 @@ from importlib.metadata import version
 from pathlib import Path
 
 import numpy as np
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _provenance import git, source_hashes
 
 import energy_budget.baseline as baseline
 import energy_budget.budget_options as budget_options
@@ -119,7 +125,12 @@ BENUNIT_VARS = [
     "child_tax_credit",
     "tax_credits",
 ]
-PERSON_VARS = ["in_poverty_bhc", "in_poverty_ahc"]
+PERSON_VARS = [
+    "in_relative_poverty_bhc",
+    "in_relative_poverty_ahc",
+    "in_poverty_bhc",
+    "in_poverty_ahc",
+]
 
 
 def _vals(s):
@@ -189,6 +200,9 @@ def main():
         "dataset_revision": baseline.DATASET_REVISION,
         "dataset_sha256": baseline.DATASET_SHA256,
         "runtime_s": round(time.time() - t0, 1),
+        "git_commit": git("rev-parse", "HEAD"),
+        "git_dirty": bool(git("status", "--porcelain", "--untracked-files=no")),
+        "source_sha256": source_hashes(),
     }
     _write(results)  # keep the pipeline outputs even if the checks below fail
     results["population_checks"] = population_checks(data["sim"])

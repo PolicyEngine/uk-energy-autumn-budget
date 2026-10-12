@@ -462,7 +462,7 @@ const POLICY_INFO = [
     id: "whd_top_up",
     name: "Warm Home +£100",
     summary: "Raises the discount to £250.",
-    eligibility: <>Households receiving a means-tested benefit (the Warm Home Discount's qualifying list): around 6 million households in England and Wales (<a href="https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf" target="_blank" rel="noopener noreferrer">DESNZ, January 2026</a>).</>,
+    eligibility: <>Households receiving a means-tested benefit (the Warm Home Discount's qualifying list): DESNZ estimates around 6 million recipient households across Great Britain in winter 2025/26 (<a href="https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf#page=5" target="_blank" rel="noopener noreferrer">DESNZ, January 2026</a>); our 2026-27 proxy reaches about 7.8 million.</>,
     how: <>The <a href="https://www.gov.uk/the-warm-home-discount-scheme" target="_blank" rel="noopener noreferrer">Warm Home Discount</a> takes £150 off electricity bills each winter, funded by a levy on all bills. This adds £100, paid from taxation.</>,
     source: <>Reported as the Treasury's preferred option (<a href="https://www.ft.com/content/cfb7a7a9-90c2-4ed9-8b3b-e8477430d77f" target="_blank" rel="noopener noreferrer">Financial Times</a>, 11 October 2026: about £600m). <a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/more-than-a-third-of-brits-worried-about-affording-energy-bills-this-winter-warns-citizens-advice/" target="_blank" rel="noopener noreferrer">Citizens Advice</a> and <a href="https://www.energy-uk.org.uk/publications/economic-defence-tackling-energy-bills-in-winter-2026-27/" target="_blank" rel="noopener noreferrer">Energy UK</a> call for more support through the scheme.</>,
     // MODEL-DISCLOSURE (e): means-tested-household proxy for actual WHD recipients.
@@ -912,8 +912,10 @@ function MethodologySection() {
         <p className="section-description">
           Microcosm matches official energy spending and household counts
           closely (£42.2bn on electricity and gas in 2025 against the ONS's £41.9bn; 29.0m households in 2024
-          against 28.6m), but puts relative poverty after housing costs at 18.3% of people and 23.4% of children
-          in 2024-25, against DWP's 20% and 27%. PolicyEngine's previous enhanced FRS dataset gives 21.2% and 31.0%
+          against 28.6m), but puts relative poverty after housing costs at 18.3% of people and 23.4% of people under 18
+          in 2024-25, against DWP's 20% of people and 27% of children. DWP's child count covers dependent children,
+          including some 16–19-year-olds in full-time education, so our under-18 rate is not directly comparable
+          with its child headline. PolicyEngine's previous enhanced FRS dataset gives 21.2% and 31.0% (under 18)
           but overstates energy spending at £51bn. We report Microcosm's poverty rates as
           computed and do not use them to rank the options.
         </p>
@@ -927,9 +929,10 @@ function MethodologySection() {
           cut use when prices rise; PolicyEngine's energy price shock analysis estimates short-run price
           elasticities from −0.64 in income decile 1 to −0.11 in income decile 10,<Fn n={10} /> which we do not
           apply. The VAT extension and levy removal are proportional to electricity spending, so 10% less
-          electricity spending means 10% lower costs for both. The cap freeze depends on both use and standing
-          charges: its usage part falls with lower use, but the standing-charge part does not, so its cost falls
-          by less than in proportion. The flat payments (£400 credit, Cost of Living
+          electricity spending means 10% lower costs for both. The cap freeze has two parts: a usage part that
+          falls in proportion to use, and the change in standing charges, which does not depend on use and can be
+          positive or negative. How its cost responds to lower use therefore depends on each household's use, the
+          sign of its standing-charge difference and the zero floor. The flat payments (£400 credit, Cost of Living
           Payment, Warm Home Discount top-up and the targeted discount as modelled) do not depend on use. We do
           not treat the baseline bills as an upper bound, because tariff type and contract timing are not
           modelled.

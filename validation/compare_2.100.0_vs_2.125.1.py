@@ -7,10 +7,17 @@ Inputs:
 * ``validation/out_uk_2.100.0.json``: ``run_certified_pair.py`` under the
   release manifest's declared pair, policyengine-uk 2.100.0 /
   policyengine-core 3.32.5.
-* ``validation/out_uk_2.125.1.json`` (optional control): the same harness under
-  2.125.1. It must equal ``results.json``, showing the harness's direct
-  ``Microsimulation`` construction matches the managed one; it also supplies
-  2.125.1 population checks.
+* ``validation/out_uk_2.125.1.json`` (required control): the same harness under
+  2.125.1. It must equal ``results.json`` on every compared output, with no
+  missing or extra keys, showing the harness's direct ``Microsimulation``
+  construction matches the managed one; it also supplies 2.125.1 population
+  checks.
+
+Gate: both harness outputs must come from a clean tree whose source hashes
+equal the current sources (``_provenance.SOURCE_GLOBS``), the certified run must
+contain every published output, and the control must match exactly. If any
+check fails, the report states the failure, makes no equivalence claim, and
+the script exits with status 1.
 
 Writes ``validation/compatibility_report.md``. A difference is flagged when
 |diff| > 0.5% of the published value, or > £0.01bn for values in £bn, or
@@ -27,7 +34,11 @@ from __future__ import annotations
 
 import json
 import math
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _provenance import source_hashes
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
@@ -113,6 +124,11 @@ def flag(key, a, b):
     return abs(d / a) > 0.005
 
 
+def extra_keys(pub, alt):
+    """Outputs present in ``alt`` but not in the published results."""
+    return [(y, k) for y in YEARS for k in select(alt, y) if k not in select(pub, y)]
+
+
 def compare(pub, alt):
     rows = []
     for year in YEARS:
@@ -159,6 +175,9 @@ HEADLINE = [
     "baseline.poverty.ahc",
     "baseline.poverty.child_bhc",
     "baseline.poverty.child_ahc",
+    "baseline.poverty.absolute_bhc",
+    "baseline.poverty.absolute_ahc",
+    "baseline.poverty.absolute_child_ahc",
     "baseline.hh_type_share_pct.SINGLE_PENSIONER",
     "baseline.hh_type_share_pct.COUPLE_PENSIONER",
 ]
@@ -177,6 +196,7 @@ for opt in (
             f"{opt}.poverty_change_pp.bhc",
             f"{opt}.poverty_change_pp.ahc",
             f"{opt}.poverty_change_pp.child_ahc",
+            f"{opt}.poverty_change_pp.absolute_ahc",
         ]
 
 
@@ -204,6 +224,10 @@ POP_KEYS = [
     "income_support_caseload_m",
     "tax_credits_total_bn",
     "tax_credits_caseload_m",
+    "in_relative_poverty_bhc_rate_pct",
+    "in_relative_poverty_ahc_rate_pct",
+    "in_relative_poverty_bhc_child_rate_pct",
+    "in_relative_poverty_ahc_child_rate_pct",
     "in_poverty_bhc_rate_pct",
     "in_poverty_ahc_rate_pct",
     "in_poverty_bhc_child_rate_pct",
@@ -228,13 +252,70 @@ def pop_table(new, old):
     return "\n".join(lines)
 
 
+def provenance_errors(name, run, current):
+    prov = run.get("provenance", {})
+    errs = []
+    if prov.get("git_dirty", True):
+        errs.append(f"{name}: run from a dirty tree or without provenance")
+    recorded = prov.get("source_sha256")
+    if recorded is None:
+        errs.append(f"{name}: no source hashes recorded (stale artifact)")
+    elif recorded != current:
+        changed = sorted(
+            k for k in set(recorded) | set(current) if recorded.get(k) != current.get(k)
+        )
+        errs.append(f"{name}: sources changed since the run: {', '.join(changed)}")
+    return errs
+
+
 def main():
     pub = json.loads(PUBLISHED.read_text())
     cert = json.loads(CERTIFIED.read_text())
+    current = source_hashes()
+    errors = provenance_errors("certified run", cert, current)
+
     rows = compare(pub, cert)
+    missing = [r for r in rows if math.isnan(r[3])]
+    if missing:
+        errors.append(f"certified run: {len(missing)} published outputs missing")
     by_key = {(r[0], r[1]): r for r in rows}
     head = [by_key[(y, k)] for y in YEARS for k in HEADLINE if (y, k) in by_key]
     flagged = [r for r in rows if r[6]]
+
+    if not CONTROL.exists():
+        ctrl = None
+        errors.append("control run not found (validation/out_uk_2.125.1.json)")
+        control_note = "Control run not found."
+    else:
+        ctrl = json.loads(CONTROL.read_text())
+        errors += provenance_errors("control run", ctrl, current)
+        crow = compare(pub, ctrl)
+        cmissing = [r for r in crow if math.isnan(r[3])]
+        cextra = extra_keys(pub, ctrl)
+        mism = [r for r in crow if not math.isnan(r[3]) and r[4] != 0]
+        if cmissing or cextra or mism:
+            errors.append(
+                f"control run: {len(mism)} values differ, {len(cmissing)} published "
+                f"outputs missing, {len(cextra)} extra outputs"
+                + (
+                    " (largest: "
+                    + ", ".join(
+                        f"`{r[1]}` {fmt(r[4])}"
+                        for r in sorted(mism, key=lambda r: -abs(r[4]))[:5]
+                    )
+                    + ")"
+                    if mism
+                    else ""
+                )
+            )
+        control_note = (
+            f"Control: the harness under policyengine-uk "
+            f"{ctrl['provenance']['policyengine_uk']} (commit "
+            f"`{ctrl['provenance'].get('git_commit', 'unknown')[:7]}`) reproduces "
+            f"`src/data/results.json` on {len(crow) - len(mism) - len(cmissing)} of "
+            f"{len(crow)} compared outputs exactly, with {len(cmissing)} missing and "
+            f"{len(cextra)} extra outputs."
+        )
 
     parts = [
         "# Compatibility: Microcosm release vs policyengine-uk 2.125.1",
@@ -243,53 +324,60 @@ def main():
         "tables by hand; rerun the harness and this script.",
         "",
     ]
-
-    control_note = "Control run not found (`validation/out_uk_2.125.1.json`)."
-    if CONTROL.exists():
-        ctrl = json.loads(CONTROL.read_text())
-        crow = compare(pub, ctrl)
-        mism = [r for r in crow if r[4] != 0]
-        control_note = (
-            f"Control: the harness under policyengine-uk "
-            f"{ctrl['provenance']['policyengine_uk']} reproduces "
-            f"`src/data/results.json` on {len(crow) - len(mism)} of {len(crow)} "
-            f"compared outputs exactly"
-            + (
-                "."
-                if not mism
-                else f"; {len(mism)} differ (largest: "
-                + ", ".join(f"`{r[1]}` {fmt(r[4])}" for r in sorted(mism, key=lambda r: -abs(r[4]))[:5])
-                + ")."
-            )
-            + " The direct `policyengine_uk.Microsimulation` construction is "
-            "therefore equivalent to `pe.uk.managed_microsimulation`, and the "
-            "differences below are model-version differences only."
-        )
+    if errors:
+        parts += [
+            "## Status: FAILED",
+            "",
+            "The checks below failed, so this report makes no equivalence claim. "
+            "Rerun both harnesses from a clean tree at the current sources.",
+            "",
+            *[f"- {e}" for e in errors],
+            "",
+        ]
+    else:
+        parts += [
+            "## Status: passed",
+            "",
+            "Both harness outputs were produced from a clean tree at the current "
+            "source hashes; the certified run contains every published output; and "
+            "the 2.125.1 control reproduces every published output exactly, so the "
+            "direct `policyengine_uk.Microsimulation` construction is equivalent to "
+            "`pe.uk.managed_microsimulation` and the differences below are "
+            "model-version differences only.",
+            "",
+        ]
 
     if NARRATIVE.exists():
         parts += [NARRATIVE.read_text().strip(), ""]
 
+    cp = cert["provenance"]
     parts += [
         "## Run",
         "",
-        f"- Certified pair: policyengine-uk {cert['provenance']['policyengine_uk']}, "
-        f"policyengine-core {cert['provenance']['policyengine_core']}, Python "
-        f"{cert['provenance']['python']}, numpy {cert['provenance']['numpy']}, pandas "
-        f"{cert['provenance']['pandas']}; dataset SHA-256 "
-        f"`{cert['provenance']['dataset_sha256']}` verified before the run.",
+        f"- Certified pair: policyengine-uk {cp['policyengine_uk']}, "
+        f"policyengine-core {cp['policyengine_core']}, Python {cp['python']}, numpy "
+        f"{cp['numpy']}, pandas {cp['pandas']}; commit "
+        f"`{cp.get('git_commit', 'unknown')[:7]}`; dataset SHA-256 "
+        f"`{cp['dataset_sha256']}` verified before the run.",
         f"- {control_note}",
+        "- Source SHA-256 at both runs:",
+        "",
+        *[f"  - `{k}` `{v}`" for k, v in sorted(current.items())],
+        "",
         f"- Compared outputs: {len(rows)}; flagged: {len(flagged)} "
-        f"(|diff| > 0.5%, > £0.01bn for £bn values, > 0.05pp for rates and shares).",
+        "(|diff| > 0.5%, > £0.01bn for £bn values, > 0.05pp for rates and shares).",
         "",
         "## Headline outputs",
         "",
-        "Poverty is the absolute (HBAI) measure, % of people. "
+        "`poverty.bhc`/`ahc` are relative poverty (below 60% of the median, "
+        "`in_relative_poverty_*`); `absolute_*` are absolute poverty "
+        "(`in_poverty_*`). `child_*` are under-18 rates. % of people. "
         "`poverty_change_pp` is option minus baseline.",
         "",
         table(head),
         "",
     ]
-    if CONTROL.exists() and "population_checks" in ctrl and "population_checks" in cert:
+    if ctrl is not None and "population_checks" in ctrl and "population_checks" in cert:
         parts += [
             "## Population and interaction checks",
             "",
@@ -317,6 +405,11 @@ def main():
     ]
     REPORT.write_text("\n".join(parts))
     print(f"wrote {REPORT}: {len(rows)} outputs, {len(flagged)} flagged")
+    if errors:
+        for e in errors:
+            print(f"FAILED: {e}", file=sys.stderr)
+        sys.exit(1)
+    print("passed: control matches published outputs exactly")
 
 
 if __name__ == "__main__":
