@@ -497,10 +497,10 @@ const POLICY_INFO = [
   },
   {
     id: "cap_freeze",
-    name: "Cap freeze at £1,641",
-    summary: "Typical bill held at £1,641.",
+    name: "Cap freeze",
+    summary: "April–June 2026 tariffs restored.",
     eligibility: "Every household on a capped or comparable tariff.",
-    how: "The government pays suppliers the difference between forecast prices and April–June 2026 prices, when the typical bill was £1,641.",
+    how: "Electricity and gas unit rates and standing charges go back to their April–June 2026 levels, when the typical bill was £1,641; the government pays suppliers the difference.",
     source: <>Like the 2022-24 <a href="https://www.gov.uk/government/publications/energy-bills-support/energy-price-guarantee-up-until-30-june-2023" target="_blank" rel="noopener noreferrer">Energy Price Guarantee</a> (set at £2,500). <a href="https://ippr-org.files.svdcdn.com/production/Downloads/Price_caps_and_economic_stability_May26.pdf" target="_blank" rel="noopener noreferrer">IPPR</a> proposes a cap that switches on at £2,000.</>,
     // MODEL-DISCLOSURE (b): unit rates and standing charges held at April–June 2026 levels.
     model: <>Electricity and gas unit rates and standing charges held at their April–June 2026 levels (<a href="https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener noreferrer">Ofgem</a>), with the government paying the difference. All households are treated as on capped tariffs.</>,
@@ -685,12 +685,13 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
     <div id="households">
       <h2 className="section-heading">Household effects</h2>
       <p className="section-description">
-        The average gain from the selected reform against the {fy} baseline, by income decile. Deciles are
+        The average gain from the selected reform against the {`${fy} baseline`}, by income decile. Deciles are
         PolicyEngine&apos;s <a href={DECILE_LINK} target="_blank" rel="noopener noreferrer">household income decile</a>:
         households are ranked by equivalised household net income before housing costs, as in DWP&apos;s Households
         Below Average Income statistics, and split into ten groups with equal numbers of people (each household
         counts once per member). Households with negative income are left out of the ten deciles. Each column is
-        the average gain per household in that decile.
+        the average gain per household in that decile, weighting each household once: a household-weighted
+        average within person-weighted deciles.
       </p>
 
       <div className="section-card">
@@ -815,7 +816,6 @@ const REFERENCES = [
  * (PolicyEngine/uk-energy-autumn-budget#1). Edit them in one place if the model's final method differs. */
 function MethodologySection() {
   const pv = provenance;
-  const rebase = pv.price_rebase_cy2025_to_apr_jun_2026;
   return (
     <div className="tab-content">
       <div className="section-card">
@@ -824,13 +824,9 @@ function MethodologySection() {
           We use policyengine.py {pv.policyengine_version} (policyengine-uk {pv.model_version})<Fn n={12} /> on
           Microcosm UK 2024-25, PolicyEngine's calibrated household dataset of 29.3m UK households. The release
           we use ({pv.dataset_release}) is not yet in the policyengine.py certified bundle, so we pin it by its
-          SHA-256 hash. Microcosm sets each household's electricity and gas spending to match ONS 2025
-          spending.<Fn n={7} />
-          {rebase?.elec != null && rebase?.gas != null && (
-            <> We first move it to April–June 2026 prices: electricity is multiplied
-            by {rebase.elec.toFixed(3)} and gas by {rebase.gas.toFixed(3)}, the change in Ofgem's typical bill for
-            each fuel between calendar 2025 and April–June 2026.<Fn n={1} /></>
-          )}
+          SHA-256 hash. Microcosm prices each household's energy use at DESNZ Quarterly Energy Prices for 2024-25
+          (regional unit cost plus standing charge), then calibrates household weights to ONS 2025 spending,
+          so each household's spending implies its annual kWh.<Fn n={7} />
         </p>
         <p className="section-description">
           The baseline is current law at forecast prices. Ofgem's announced caps set prices to December
@@ -848,11 +844,13 @@ function MethodologySection() {
           {/* MODEL-DISCLOSURE (a): kWh conversion, separate standing charges, seasonal profile. */}
           A bill is a unit rate per kWh plus a fixed daily standing charge, so a price rise changes small and
           large users' bills by different percentages.<Fn n={1} /> We therefore convert each household's
-          electricity and gas spending into annual kWh, net of standing charges, at April–June 2026 prices,
-          then re-cost that consumption at each quarter's unit rates, adding each quarter's standing charges
+          electricity and gas spending into annual kWh, net of standing charges, at the 2024-25 prices Microcosm
+          used, then re-cost that consumption at each quarter's unit rates, adding each quarter's standing charges
           separately. Consumption is spread across quarters with a seasonal demand profile, so winter quarters,
           when gas use and prices are highest, carry more weight; the profile follows Ofgem's published winter
-          shares of annual demand.<Fn n={14} />
+          shares of annual demand.<Fn n={14} /> About 10% of households have electricity spending equal to the
+          standing charge in Microcosm, so they have no measured use and only their standing charges change;
+          this understates their bill change.
         </p>
         <p className="section-description">
           {/* MODEL-DISCLOSURE (d): all households on capped variable tariffs. */}

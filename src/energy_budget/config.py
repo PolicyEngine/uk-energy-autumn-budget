@@ -45,6 +45,13 @@ TDCV_GAS_KWH = 11_500
 # Electricity is VAT-free from 1 Oct 2026 to 31 Mar 2027 (Ofgem: without
 # that change the October rise would have been ~£45 higher), so the
 # October and January electricity rates already include the VAT removal.
+# The zero rate covers supplies "in England, Wales or Scotland" made from
+# 1 Oct 2026 to 31 Mar 2027; Northern Ireland keeps the reduced rate (The
+# Value Added Tax (Supplies of Domestic Electricity) Order 2026, SI 2026/987,
+# art. 1(2), new Group 24 of Sch. 8 and art. 4). Northern Ireland households,
+# costed on these GB rates as a proxy, therefore have 5% VAT put back on
+# electricity in those two quarters (``NI_VAT_RESTORED`` in budget_options).
+#   https://www.legislation.gov.uk/uksi/2026/987/made
 # Sources:
 #   Apr-Jun 2026, Jul-Sep 2026, Oct-Dec 2026: Ofgem, "Energy price cap unit
 #     rates and standing charges"
@@ -54,7 +61,7 @@ TDCV_GAS_KWH = 11_500
 #     Figure 2 (£1,999.28 on the new TDCVs: £959.44 elec + £1,039.84 gas)
 #     https://www.cornwall-insight.com/predictions-and-insights-into-the-default-tariff-cap/
 TARIFFS = {
-    # Calendar 2025, used only to rebase the dataset (see PRICE_REBASE).
+    # Calendar 2025, used only for the KWH_BASIS="ofgem_cy2025_national" sensitivity.
     # Source: Ofgem quarterly cap announcements; each re-costs to the
     # published cap (£1,738 / £1,849 / £1,720 / £1,755) at the old TDCVs.
     #   https://www.ofgem.gov.uk/news/changes-energy-price-cap-between-1-april-and-30-june-2025
@@ -79,86 +86,113 @@ def fuel_bill(period, fuel, kwh=None):
     return (unit_p * kwh + standing_p * 365) / 100
 
 
-def _fuel_pcts(periods):
-    """Electricity and gas price changes vs April-June 2026, averaging the
-    annual bill over the listed periods (each held for an equal share)."""
-    out = {}
-    for fuel in ("elec", "gas"):
-        base = fuel_bill("apr_jun_2026", fuel)
-        new = sum(fuel_bill(p, fuel) for p in periods) / len(periods)
-        out[fuel] = new / base - 1
-    return out
-
-
-def _scenario(label, periods, published_cap, source, kind):
-    pcts = _fuel_pcts(periods)
-    old_basis = sum(
-        sum(fuel_bill(p, f) for p in periods) / len(periods) for f in ("elec", "gas")
-    )
-    return {
-        "label": label,
-        "elec_pct": pcts["elec"],
-        "gas_pct": pcts["gas"],
-        # Typical bill re-costed on the pre-July TDCVs (comparable to £1,641).
-        "new_cap": round(old_basis),
-        # Figure as published on the post-July TDCVs, where one exists.
-        "published_cap": published_cap,
-        "source": source,
-        "kind": kind,
-    }
-
-
 CY2025_PERIODS = ["jan_mar_2025", "apr_jun_2025", "jul_sep_2025", "oct_dec_2025"]
+
+# Financial-year quarters, in order: Apr-Jun, Jul-Sep, Oct-Dec, Jan-Mar.
+FY_2026_27_PERIODS = [
+    "apr_jun_2026",
+    "jul_sep_2026",
+    "oct_dec_2026",
+    "jan_mar_2027_cornwall",
+]
+
+# ── Seasonal consumption profile ────────────────────────────────────────
+#
+# Central estimate: Ofgem's published winter shares of annual consumption,
+# 75% of gas and 57% of electricity in October-March (Ofgem, "Appendix 4 -
+# Wholesale costs", November 2018, physical page 6):
+#   https://www.ofgem.gov.uk/sites/default/files/docs/2018/11/appendix_4_-_wholesale_costs.pdf#page=6
+# Each half-year's share is split equally between its two quarters. Standing
+# charges are paid per day, so each quarter carries a quarter of the year's
+# days (365/4, not the calendar count, so that the published illustrations
+# reproduce to the penny). The equal-weight profile (25% of use in every
+# quarter) is reported as a sensitivity.
+WINTER_SHARE = {"elec": 0.57, "gas": 0.75}
+CONSUMPTION_PROFILE = "seasonal"  # or "equal"
+
+
+def quarter_shares(fuel, profile=CONSUMPTION_PROFILE):
+    """Share of a fuel's annual kWh used in each financial-year quarter."""
+    if profile == "equal":
+        return (0.25, 0.25, 0.25, 0.25)
+    if profile != "seasonal":
+        raise ValueError(f"Unknown consumption profile {profile!r}")
+    winter = WINTER_SHARE[fuel]
+    return ((1 - winter) / 2, (1 - winter) / 2, winter / 2, winter / 2)
+
 
 # ── Dataset price basis ─────────────────────────────────────────────────
 #
-# Microcosm UK binds electricity_consumption and gas_consumption to ONS
-# Consumer Trends COICOP 04.5.1 / 04.5.2 for calendar 2025 (£26.52bn /
-# £15.34bn) and does not uprate them by year (PolicyEngine/microcosm#1113),
-# so the dataset's bills are at CY2025 prices. The analysis baseline is
-# April-June 2026 prices, so each fuel is rebased by the ratio of its
-# typical bill in April-June 2026 to its CY2025 average.
-PRICE_REBASE = {
-    fuel: fuel_bill("apr_jun_2026", fuel)
-    / (sum(fuel_bill(p, fuel) for p in CY2025_PERIODS) / len(CY2025_PERIODS))
-    for fuel in ("elec", "gas")
-}
+# Microcosm UK builds each household's electricity and gas spending as
+# annual kWh (DESNZ Energy Trends domestic volumes for the four FY2024-25
+# quarters, raked to NEED margins) priced at DESNZ Quarterly Energy Prices
+# (QEP) FY2024-25 regional average unit costs plus the regional fixed cost,
+# including VAT, all payment methods (stage ``price_domestic_energy`` in the
+# build record of release microcosm-uk-2024-25-national-20261002T230158Z-
+# 5c6b3f68, policyengine/populace-uk-private@f9d1922c, files
+# staged/uk-frs-calibration-attempt-20261002T230158Z-5c6b3f68/build_record.json
+# and releases/microcosm-uk-2024-25-national/spine_gates.json). Calibration
+# then reweights households so weighted spending matches ONS Consumer
+# Trends CY2025 (COICOP 04.5.1 / 04.5.2); it changes weights, not each
+# household's spend. So each household's spend is on the QEP FY2024-25
+# regional basis: in every GB region the lowest electricity spend equals
+# that region's QEP fixed cost. See PolicyEngine/microcosm#1113.
+#
+# Each household's annual kWh is therefore recovered exactly as
+#   kWh = max(0, spend - fixed cost) / unit rate
+# and every scenario is costed from those kWh. Households with zero spend on
+# a fuel have no connection for it and pay no standing charge. A connected
+# household whose spend is below the fixed cost is kept as connected with
+# zero kWh (it pays the standing charge only); on the QEP basis this binds
+# only through floating-point rounding.
+#
+# KWH_BASIS switches the reference tariff:
+#   "qep_fy2024_25_regional" (default; what the build used), or
+#   "ofgem_cy2025_national": the four CY2025 Ofgem cap quarters (GB average,
+#     direct debit), unit rates weighted by the seasonal profile. Kept as a
+#     sensitivity; it was this repository's original (incorrect) assumption.
+KWH_BASIS = "qep_fy2024_25_regional"
 
-# Price scenarios. Each is held for a full year: the model's period is a
-# year, so "Oct-Dec 2026" means "a year at October-December 2026 prices".
-# The 2026-27 average weights the four quarters equally; gas use is
-# concentrated in October-March, so an equal-weight average understates the
-# gas cost of the year.
-PRICE_SCENARIOS = {
-    "Jul-Sep 2026 (Ofgem)": _scenario(
-        "Jul-Sep 2026 (Ofgem)",
-        ["jul_sep_2026"],
-        1_663,
-        "Ofgem cap, Jul-Sep 2026",
-        "outturn",
-    ),
-    "Oct-Dec 2026 (Ofgem)": _scenario(
-        "Oct-Dec 2026 (Ofgem)",
-        ["oct_dec_2026"],
-        1_723,
-        "Ofgem cap, announced 26 Aug 2026",
-        "outturn",
-    ),
-    "2026-27 average": _scenario(
-        "2026-27 average",
-        ["apr_jun_2026", "jul_sep_2026", "oct_dec_2026", "jan_mar_2027_cornwall"],
-        None,
-        "Ofgem caps Apr-Dec 2026 + Cornwall Insight Jan-Mar 2027, equal weights",
-        "path",
-    ),
-    "Jan-Mar 2027 (Cornwall Insight)": _scenario(
-        "Jan-Mar 2027 (Cornwall Insight)",
-        ["jan_mar_2027_cornwall"],
-        1_999,
-        "Cornwall Insight forecast, 30 Sep 2026",
-        "forecast",
-    ),
-}
+# QEP FY2024-25 regional prices, as used by the build: unit rate (p/kWh) and
+# fixed cost (£/yr), VAT included. FRS regions map to QEP regions as in the
+# build (Scotland -> south_scotland, Wales -> south_wales, East of England ->
+# eastern). Northern Ireland: QEP publishes no electricity fixed cost (0),
+# and gas is priced at the UK average.
+QEP_FY2024_25 = {
+    "EAST_MIDLANDS": {"elec": (23.975425353649914, 206.19892348861137), "gas": (6.121185915305579, 114.63475437474918)},
+    "EAST_OF_ENGLAND": {"elec": (25.433401818323404, 184.75570497558127), "gas": (6.189902929736283, 114.66524644556283)},
+    "LONDON": {"elec": (25.695029958424957, 153.84198551021262), "gas": (6.319403551432788, 118.04131810499113)},
+    "NORTHERN_IRELAND": {"elec": (30.69783821469067, 0.0), "gas": (6.2310725604795225, 113.12698361893374)},
+    "NORTH_EAST": {"elec": (23.387452050534694, 259.99949391627337), "gas": (6.201645024344041, 115.68085068413619)},
+    "NORTH_WEST": {"elec": (24.958336465763903, 189.69303157506977), "gas": (6.143483988396162, 115.54964406237428)},
+    "SCOTLAND": {"elec": (24.07873330442262, 232.97332300802108), "gas": (6.172288897645929, 115.54058124854232)},
+    "SOUTH_EAST": {"elec": (25.362880086372137, 205.8995779598325), "gas": (6.167387887020088, 113.51623692620075)},
+    "SOUTH_WEST": {"elec": (24.246541563525536, 242.83158453310014), "gas": (6.407245693067759, 110.40783503988152)},
+    "WALES": {"elec": (24.436750400826238, 228.7377582586279), "gas": (6.317265828101576, 113.12600630737884)},
+    "WEST_MIDLANDS": {"elec": (24.04622652441871, 229.98795369188866), "gas": (6.12714395248696, 113.02514947990299)},
+    "YORKSHIRE": {"elec": (23.59230294674964, 246.22442968964552), "gas": (6.109505359504377, 113.10595798118004)},
+}  # fmt: skip
+# UK average, for any household whose region is missing.
+QEP_FY2024_25_UK = {"elec": (24.809458249743663, 209.38599214492953), "gas": (6.2310725604795225, 113.12698361893374)}  # fmt: skip
+
+
+def _ofgem_cy2025_reference():
+    """CY2025 Ofgem cap reference tariff: (unit p/kWh, fixed £/yr) per fuel.
+
+    CY2025 runs Jan-Mar (winter), Apr-Jun, Jul-Sep, Oct-Dec (winter); unit
+    rates are weighted by the seasonal profile, standing charges by time.
+    """
+    out = {}
+    for fuel in ("elec", "gas"):
+        s = quarter_shares(fuel)  # Apr, Jul, Oct, Jan
+        shares = (s[3], s[0], s[1], s[2])  # CY order: Jan, Apr, Jul, Oct
+        unit = sum(w * TARIFFS[p][fuel][0] for w, p in zip(shares, CY2025_PERIODS))
+        standing = sum(TARIFFS[p][fuel][1] for p in CY2025_PERIODS) / 4
+        out[fuel] = (unit, standing * 365 / 100)
+    return out
+
+
+OFGEM_CY2025_REFERENCE = _ofgem_cy2025_reference()
 
 # Context only — these do not enter any calculation.
 #
@@ -228,7 +262,7 @@ NEG_ELEC_SPEND = NEG_ELEC_KWH * ELEC_RATE
 # ── Data ────────────────────────────────────────────────────────────────
 #
 # Microcosm UK 2024-25, run through policyengine.py's managed surface with
-# allow_unmanaged=True: policyengine 6.2.4 certifies only
+# allow_unmanaged=True: the pinned policyengine release certifies only
 # enhanced_frs_2024_25 and populace_uk_2023 for the UK, not this build.
 # The file is pinned by repository revision and content hash instead.
 DATASET_REPO = "policyengine/populace-uk-private"

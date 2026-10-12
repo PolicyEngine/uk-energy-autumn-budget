@@ -31,10 +31,10 @@ def test_2026_quarters_match_ofgem_and_cornwall():
 
 
 @pytest.mark.parametrize(
-    "period,cap", zip(CY2025_PERIODS, [1_738, 1_849, 1_720, 1_755])
+    "period,cap", list(zip(CY2025_PERIODS, [1_738, 1_849, 1_720, 1_755]))
 )
 def test_2025_quarters_match_ofgem(period, cap):
-    # The dataset rebase from CY2025 prices rests on these.
+    # The KWH_BASIS="ofgem_cy2025_national" sensitivity rests on these.
     assert abs(_typical(period) - cap) < 1
 
 
