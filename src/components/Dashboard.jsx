@@ -702,7 +702,7 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
       <p className="section-description">
         Each reform&apos;s average gain in {fy}, by income decile, next to the forecast price rise: the extra cost
         of each household&apos;s current energy use at {fy} forecast prices.{" "}
-        <u>The rise is measured against April–June 2026 cap rates held flat all year, with no inflation trend.</u>{" "}
+        <u>The rise is the extra cost compared with today&apos;s prices: April–June 2026 cap rates, the latest Ofgem has set.</u>{" "}
         Deciles are PolicyEngine&apos;s <a href={DECILE_LINK} target="_blank" rel="noopener noreferrer">household
         income deciles</a>{" "}(equivalised net income before housing costs, as in DWP&apos;s HBAI); each column is the
         average per household.
