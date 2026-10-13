@@ -2,265 +2,289 @@
  {
   "fy": "2026-27",
   "region": "East Midlands",
-  "bill": 1576,
+  "extra_cost": 261,
+  "bill": 1710,
   "rf_targeted_discount": 78,
   "whd_top_up": 26,
   "cost_of_living_payment": 77,
   "flat_400": 400,
-  "cap_freeze": 231
+  "cap_freeze": 261
  },
  {
   "fy": "2026-27",
   "region": "East of England",
-  "bill": 1533,
+  "extra_cost": 234,
+  "bill": 1631,
   "rf_targeted_discount": 66,
   "whd_top_up": 23,
   "cost_of_living_payment": 70,
   "flat_400": 400,
-  "cap_freeze": 225
+  "cap_freeze": 234
  },
  {
   "fy": "2026-27",
   "region": "London",
-  "bill": 1500,
+  "extra_cost": 244,
+  "bill": 1613,
   "rf_targeted_discount": 65,
   "whd_top_up": 31,
   "cost_of_living_payment": 94,
   "flat_400": 400,
-  "cap_freeze": 220
+  "cap_freeze": 244
  },
  {
   "fy": "2026-27",
   "region": "Northern Ireland",
-  "bill": 1788,
+  "extra_cost": 359,
+  "bill": 1961,
   "rf_targeted_discount": 0,
   "whd_top_up": 0,
   "cost_of_living_payment": 99,
   "flat_400": 400,
-  "cap_freeze": 262
+  "cap_freeze": 359
  },
  {
   "fy": "2026-27",
   "region": "North East",
-  "bill": 1577,
+  "extra_cost": 264,
+  "bill": 1658,
   "rf_targeted_discount": 98,
   "whd_top_up": 40,
   "cost_of_living_payment": 120,
   "flat_400": 400,
-  "cap_freeze": 231
+  "cap_freeze": 264
  },
  {
   "fy": "2026-27",
   "region": "North West",
-  "bill": 1606,
+  "extra_cost": 267,
+  "bill": 1727,
   "rf_targeted_discount": 80,
   "whd_top_up": 30,
   "cost_of_living_payment": 91,
   "flat_400": 400,
-  "cap_freeze": 235
+  "cap_freeze": 267
  },
  {
   "fy": "2026-27",
   "region": "Scotland",
-  "bill": 1427,
+  "extra_cost": 212,
+  "bill": 1506,
   "rf_targeted_discount": 77,
   "whd_top_up": 24,
   "cost_of_living_payment": 71,
   "flat_400": 400,
-  "cap_freeze": 209
+  "cap_freeze": 212
  },
  {
   "fy": "2026-27",
   "region": "South East",
-  "bill": 1682,
+  "extra_cost": 263,
+  "bill": 1774,
   "rf_targeted_discount": 65,
   "whd_top_up": 22,
   "cost_of_living_payment": 66,
   "flat_400": 400,
-  "cap_freeze": 247
+  "cap_freeze": 263
  },
  {
   "fy": "2026-27",
   "region": "South West",
-  "bill": 1456,
+  "extra_cost": 197,
+  "bill": 1505,
   "rf_targeted_discount": 71,
   "whd_top_up": 23,
   "cost_of_living_payment": 69,
   "flat_400": 400,
-  "cap_freeze": 214
+  "cap_freeze": 197
  },
  {
   "fy": "2026-27",
   "region": "Wales",
-  "bill": 1457,
+  "extra_cost": 221,
+  "bill": 1522,
   "rf_targeted_discount": 83,
   "whd_top_up": 30,
   "cost_of_living_payment": 89,
   "flat_400": 400,
-  "cap_freeze": 214
+  "cap_freeze": 221
  },
  {
   "fy": "2026-27",
   "region": "West Midlands",
-  "bill": 1548,
+  "extra_cost": 248,
+  "bill": 1651,
   "rf_targeted_discount": 87,
   "whd_top_up": 32,
   "cost_of_living_payment": 96,
   "flat_400": 400,
-  "cap_freeze": 227
+  "cap_freeze": 248
  },
  {
   "fy": "2026-27",
   "region": "Yorkshire and the Humber",
-  "bill": 1530,
+  "extra_cost": 249,
+  "bill": 1627,
   "rf_targeted_discount": 81,
   "whd_top_up": 29,
   "cost_of_living_payment": 88,
   "flat_400": 400,
-  "cap_freeze": 224
+  "cap_freeze": 249
  },
  {
   "fy": "2027-28",
   "region": "East Midlands",
-  "bill": 1777,
+  "extra_cost": 408,
+  "bill": 1858,
   "rf_targeted_discount": 76,
   "whd_top_up": 26,
   "cost_of_living_payment": 77,
   "flat_400": 400,
-  "cap_freeze": 444,
-  "extend_vat_cut": 48,
-  "remove_levies": 127
+  "cap_freeze": 408,
+  "extend_vat_cut": 51,
+  "remove_levies": 135
  },
  {
   "fy": "2027-28",
   "region": "East of England",
-  "bill": 1723,
+  "extra_cost": 374,
+  "bill": 1771,
   "rf_targeted_discount": 65,
   "whd_top_up": 23,
   "cost_of_living_payment": 70,
   "flat_400": 400,
-  "cap_freeze": 430,
-  "extend_vat_cut": 51,
-  "remove_levies": 134
+  "cap_freeze": 374,
+  "extend_vat_cut": 52,
+  "remove_levies": 138
  },
  {
   "fy": "2027-28",
   "region": "London",
-  "bill": 1691,
+  "extra_cost": 382,
+  "bill": 1751,
   "rf_targeted_discount": 64,
   "whd_top_up": 31,
   "cost_of_living_payment": 94,
   "flat_400": 400,
-  "cap_freeze": 422,
-  "extend_vat_cut": 46,
-  "remove_levies": 121
+  "cap_freeze": 382,
+  "extend_vat_cut": 49,
+  "remove_levies": 129
  },
  {
   "fy": "2027-28",
   "region": "Northern Ireland",
-  "bill": 2028,
+  "extra_cost": 503,
+  "bill": 2104,
   "rf_targeted_discount": 0,
   "whd_top_up": 0,
   "cost_of_living_payment": 99,
   "flat_400": 400,
-  "cap_freeze": 506,
+  "cap_freeze": 503,
   "extend_vat_cut": 0,
   "remove_levies": 0
  },
  {
   "fy": "2027-28",
   "region": "North East",
-  "bill": 1784,
+  "extra_cost": 404,
+  "bill": 1798,
   "rf_targeted_discount": 96,
   "whd_top_up": 40,
   "cost_of_living_payment": 121,
   "flat_400": 400,
-  "cap_freeze": 445,
+  "cap_freeze": 404,
   "extend_vat_cut": 46,
-  "remove_levies": 120
+  "remove_levies": 121
  },
  {
   "fy": "2027-28",
   "region": "North West",
-  "bill": 1812,
+  "extra_cost": 416,
+  "bill": 1876,
   "rf_targeted_discount": 79,
   "whd_top_up": 30,
   "cost_of_living_payment": 91,
   "flat_400": 400,
-  "cap_freeze": 452,
-  "extend_vat_cut": 48,
-  "remove_levies": 127
+  "cap_freeze": 416,
+  "extend_vat_cut": 50,
+  "remove_levies": 133
  },
  {
   "fy": "2027-28",
   "region": "Scotland",
-  "bill": 1603,
+  "extra_cost": 340,
+  "bill": 1634,
   "rf_targeted_discount": 75,
   "whd_top_up": 24,
   "cost_of_living_payment": 71,
   "flat_400": 400,
-  "cap_freeze": 400,
-  "extend_vat_cut": 48,
-  "remove_levies": 126
+  "cap_freeze": 340,
+  "extend_vat_cut": 49,
+  "remove_levies": 129
  },
  {
   "fy": "2027-28",
   "region": "South East",
-  "bill": 1892,
+  "extra_cost": 418,
+  "bill": 1929,
   "rf_targeted_discount": 62,
   "whd_top_up": 22,
   "cost_of_living_payment": 65,
   "flat_400": 400,
-  "cap_freeze": 472,
-  "extend_vat_cut": 54,
-  "remove_levies": 144
+  "cap_freeze": 418,
+  "extend_vat_cut": 55,
+  "remove_levies": 146
  },
  {
   "fy": "2027-28",
   "region": "South West",
-  "bill": 1630,
+  "extra_cost": 325,
+  "bill": 1634,
   "rf_targeted_discount": 70,
   "whd_top_up": 23,
   "cost_of_living_payment": 69,
   "flat_400": 400,
-  "cap_freeze": 407,
+  "cap_freeze": 326,
   "extend_vat_cut": 52,
-  "remove_levies": 137
+  "remove_levies": 139
  },
  {
   "fy": "2027-28",
   "region": "Wales",
-  "bill": 1640,
+  "extra_cost": 348,
+  "bill": 1650,
   "rf_targeted_discount": 82,
   "whd_top_up": 30,
   "cost_of_living_payment": 89,
   "flat_400": 400,
-  "cap_freeze": 409,
+  "cap_freeze": 349,
   "extend_vat_cut": 47,
-  "remove_levies": 123
+  "remove_levies": 125
  },
  {
   "fy": "2027-28",
   "region": "West Midlands",
-  "bill": 1744,
+  "extra_cost": 389,
+  "bill": 1792,
   "rf_targeted_discount": 86,
   "whd_top_up": 32,
   "cost_of_living_payment": 96,
   "flat_400": 400,
-  "cap_freeze": 436,
-  "extend_vat_cut": 48,
-  "remove_levies": 128
+  "cap_freeze": 389,
+  "extend_vat_cut": 50,
+  "remove_levies": 132
  },
  {
   "fy": "2027-28",
   "region": "Yorkshire and the Humber",
-  "bill": 1727,
+  "extra_cost": 387,
+  "bill": 1765,
   "rf_targeted_discount": 79,
   "whd_top_up": 29,
   "cost_of_living_payment": 87,
   "flat_400": 400,
-  "cap_freeze": 431,
-  "extend_vat_cut": 46,
-  "remove_levies": 123
+  "cap_freeze": 387,
+  "extend_vat_cut": 47,
+  "remove_levies": 125
  }
 ]

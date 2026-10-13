@@ -1,8 +1,9 @@
 """Shared baseline: run the microsimulation once, extract all household arrays.
 
-Energy is defined as electricity_consumption + gas_consumption throughout,
-rebased from the dataset's CY2025 prices to April-June 2026 prices
-(``PRICE_REBASE``).
+Energy is electricity_consumption + gas_consumption. Each household's spend
+is converted to annual kWh at the dataset's reference tariff (``KWH_BASIS``,
+QEP FY2024-25 regional unit rate + fixed cost by default) and re-costed at
+April-June 2026 Ofgem cap tariffs, the start of the analysis baseline.
 
 Runs on Microcosm UK through ``policyengine.py``'s managed
 ``pe.uk.managed_microsimulation``. The dataset is outside the release
@@ -23,13 +24,16 @@ import pandas as pd
 # (``weighted_mean``, ``decile_means``, ``filter_by_country``) cheap to
 # import for the unit tests.
 from .config import (
+    CONSUMPTION_PROFILE,
     DATASET_FILE,
     DATASET_RELEASE,
     DATASET_REPO,
     DATASET_REVISION,
     DATASET_SHA256,
-    PRICE_REBASE,
+    KWH_BASIS,
     REGION_TO_COUNTRY,
+    TARIFFS,
+    WINTER_SHARE,
     YEAR,
 )
 
@@ -77,9 +81,19 @@ def provenance(sim) -> dict:
         "dataset_revision": DATASET_REVISION,
         "dataset_sha256": DATASET_SHA256,
         "managed": False,
-        "price_rebase_cy2025_to_apr_jun_2026": {
-            k: round(v, 4) for k, v in PRICE_REBASE.items()
-        },
+        "kwh_basis": KWH_BASIS,
+        "kwh_basis_source": (
+            "Microcosm build stage price_domestic_energy: DESNZ QEP FY2024-25 "
+            "regional unit cost + fixed cost, incl. VAT, all payment methods "
+            "(PolicyEngine/microcosm#1113)"
+        ),
+        "consumption_profile": CONSUMPTION_PROFILE,
+        "winter_share_oct_mar": dict(WINTER_SHARE),
+        "tariff_coverage": (
+            "All households on capped variable tariffs (Ofgem GB direct-debit "
+            "averages); fixed tariffs, payment method and contract expiry not "
+            "modelled. Northern Ireland on GB prices as a proxy."
+        ),
     }
 
 
@@ -106,28 +120,40 @@ def _weights(sim) -> np.ndarray:
 
 
 def run_baseline():
-    """Run baseline simulation and return dict of household-level arrays."""
+    """Run baseline simulation and return dict of household-level arrays.
+
+    ``elec`` and ``gas`` are each household's annual bill at April-June 2026
+    tariffs for its kWh; ``elec_kwh``/``gas_kwh`` and ``has_elec``/
+    ``has_gas`` carry the usage and connection used to cost every scenario.
+    """
+    from .bills import annual_bill, household_kwh
+
     sim = _build_simulation()
 
-    elec = _hh_array(sim, "electricity_consumption") * PRICE_REBASE["elec"]
-    gas = _hh_array(sim, "gas_consumption") * PRICE_REBASE["gas"]
+    region = _hh_array(sim, "region")
+    region_str = pd.Series(region).astype(str).to_numpy()
+    elec_spend = _hh_array(sim, "electricity_consumption")
+    gas_spend = _hh_array(sim, "gas_consumption")
+    elec_kwh, has_elec = household_kwh(elec_spend, region_str, "elec")
+    gas_kwh, has_gas = household_kwh(gas_spend, region_str, "gas")
+    elec = annual_bill(
+        elec_kwh, has_elec, [TARIFFS["apr_jun_2026"]["elec"]] * 4, (0.25,) * 4
+    )
+    gas = annual_bill(
+        gas_kwh, has_gas, [TARIFFS["apr_jun_2026"]["gas"]] * 4, (0.25,) * 4
+    )
     energy = elec + gas
 
     income = _hh_array(sim, "household_net_income")
     weights = _weights(sim)
     decile = _hh_array(sim, "household_income_decile")
-    region = _hh_array(sim, "region")
     tenure = _hh_array(sim, "tenure_type")
     accomm = _hh_array(sim, "accommodation_type")
 
     hh_type = _build_household_type(sim)
 
     country_arr = (
-        pd.Series(region)
-        .astype(str)
-        .map(REGION_TO_COUNTRY)
-        .fillna("UNKNOWN")
-        .to_numpy()
+        pd.Series(region_str).map(REGION_TO_COUNTRY).fillna("UNKNOWN").to_numpy()
     )
 
     return {
@@ -135,6 +161,12 @@ def run_baseline():
         "elec": elec,
         "gas": gas,
         "energy": energy,
+        "elec_spend": elec_spend,
+        "gas_spend": gas_spend,
+        "elec_kwh": elec_kwh,
+        "gas_kwh": gas_kwh,
+        "has_elec": has_elec,
+        "has_gas": has_gas,
         "income": income,
         "weights": weights,
         "decile": decile,
@@ -146,44 +178,89 @@ def run_baseline():
     }
 
 
-def _build_household_type(sim) -> np.ndarray:
-    """Classify each household into type based on family_type + pensioner status.
+def classify_household_types(
+    household_ids, benunit_household_ids, family_types, person_household_ids, is_sp_age
+):
+    """Household type from the whole household, independent of row order.
 
-    ``family_type`` is held at benunit level; ``is_SP_age`` at person
-    level. Aggregate both up to the household via pandas groupby, keeping
-    the household frame's row order.
+    A household with more than one benefit unit is ``MULTI_UNIT`` (for
+    example, adult children or sharers living with a family). A single-unit
+    household takes its unit's family type, split by whether anyone in the
+    household is at State Pension age:
+
+    SINGLE -> SINGLE_PENSIONER / SINGLE_WORKING_AGE; COUPLE_NO_CHILDREN ->
+    COUPLE_PENSIONER / COUPLE_NO_CHILDREN; COUPLE_WITH_CHILDREN and
+    LONE_PARENT unchanged; anything else OTHER.
     """
-    hh_ids = _hh_array(sim, "household_id")
-
-    # First benunit's family_type per household.
-    bu_frame = pd.DataFrame(
+    bu = pd.DataFrame(
         {
-            "household_id": _benunit_array(sim, "household_id"),
-            "family_type": _benunit_array(sim, "family_type").astype(str),
+            "household_id": np.asarray(benunit_household_ids),
+            "family_type": np.asarray(family_types).astype(str),
         }
     )
-    first_ft = bu_frame.groupby("household_id")["family_type"].first()
+    grouped = bu.groupby("household_id")["family_type"]
+    n_units = grouped.size()
+    # With one unit, min == max == that unit's type, whatever the row order.
+    only_ft = grouped.min().where(n_units == 1, "MULTI_UNIT")
 
-    # Any person at SP age → pensioner household.
-    person_frame = pd.DataFrame(
+    person = pd.DataFrame(
         {
-            "household_id": _person_array(sim, "household_id"),
-            "is_sp": _person_array(sim, "is_SP_age").astype(bool),
+            "household_id": np.asarray(person_household_ids),
+            "is_sp": np.asarray(is_sp_age).astype(bool),
         }
     )
-    any_sp = person_frame.groupby("household_id")["is_sp"].any()
+    any_sp = person.groupby("household_id")["is_sp"].any()
 
-    ft = pd.Series(hh_ids).map(first_ft).fillna("UNKNOWN").astype(str).to_numpy()
-    is_pen = pd.Series(hh_ids).map(any_sp).fillna(False).astype(bool).to_numpy()
+    hh = pd.Series(np.asarray(household_ids))
+    ft = hh.map(only_ft).fillna("UNKNOWN").astype(str).to_numpy()
+    is_pen = hh.map(any_sp).fillna(False).astype(bool).to_numpy()
 
-    categories = np.full(len(hh_ids), "OTHER", dtype=object)
+    categories = np.full(len(hh), "OTHER", dtype=object)
     categories[(ft == "SINGLE") & is_pen] = "SINGLE_PENSIONER"
     categories[(ft == "COUPLE_NO_CHILDREN") & is_pen] = "COUPLE_PENSIONER"
     categories[(ft == "SINGLE") & ~is_pen] = "SINGLE_WORKING_AGE"
     categories[(ft == "COUPLE_NO_CHILDREN") & ~is_pen] = "COUPLE_NO_CHILDREN"
     categories[ft == "COUPLE_WITH_CHILDREN"] = "COUPLE_WITH_CHILDREN"
     categories[ft == "LONE_PARENT"] = "LONE_PARENT"
+    categories[ft == "MULTI_UNIT"] = "MULTI_UNIT"
     return categories.astype(str)
+
+
+def benunit_households(benunit_ids, person_benunit_ids, person_household_ids):
+    """Household of each benefit unit, from the person table.
+
+    ``sim.calculate("household_id", map_to="benunit")`` does not return the
+    household of each unit on this dataset (it averages person values, giving
+    ids such as 1.5), so the link is taken from persons, who each carry both
+    ids.
+    """
+    link = (
+        pd.DataFrame(
+            {
+                "benunit_id": np.asarray(person_benunit_ids),
+                "household_id": np.asarray(person_household_ids),
+            }
+        )
+        .drop_duplicates("benunit_id")
+        .set_index("benunit_id")["household_id"]
+    )
+    return pd.Series(np.asarray(benunit_ids)).map(link).to_numpy()
+
+
+def _build_household_type(sim) -> np.ndarray:
+    """Household type for every household in the simulation's row order."""
+    person_hh = _person_array(sim, "household_id")
+    return classify_household_types(
+        _hh_array(sim, "household_id"),
+        benunit_households(
+            _benunit_array(sim, "benunit_id"),
+            _person_array(sim, "benunit_id"),
+            person_hh,
+        ),
+        _benunit_array(sim, "family_type"),
+        person_hh,
+        _person_array(sim, "is_SP_age"),
+    )
 
 
 def build_reform_simulation(reform: dict):
@@ -236,6 +313,12 @@ def filter_by_country(data, country):
         "elec",
         "gas",
         "energy",
+        "elec_spend",
+        "gas_spend",
+        "elec_kwh",
+        "gas_kwh",
+        "has_elec",
+        "has_gas",
         "income",
         "weights",
         "decile",
