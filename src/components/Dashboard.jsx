@@ -674,6 +674,7 @@ const DECILE_LINK = "https://github.com/PolicyEngine/policyengine-uk/blob/2.125.
 function HouseholdSection({ fy, setFy, sel, setOpt }) {
   const [measure, setMeasure] = useState("gbp");
   const [breakdown, setBreakdown] = useState("hh_type");
+  const [show, setShow] = useState("both");
   const rows = options.filter((o) => o.fy === fy);
   const o = rows.find((r) => r.option_id === sel.id) || rows[0];
   const id = o.option_id;
@@ -689,11 +690,16 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
   const seriesPair = [
     { key: "rise", label: `${RISE_LABEL} (baseline)`, color: PRICE_RISE },
     { key: "gain", label: o.option, color: SUPPORT },
+  ].filter((x) => show === "both" || x.key === show);
+  const SHOW_OPTIONS = [
+    { key: "both", label: "Both" },
+    { key: "gain", label: "Reform gain" },
+    { key: "rise", label: RISE_LABEL },
   ];
   const groups = (breakdown === "region" ? regions.map((r) => ({ ...r, name: r.region })) : hhTypes.map((h) => ({ ...h, name: h.hh_type })))
     .filter((h) => h.fy === fy)
     .sort((a, b) => b[id] - a[id]);
-  const maxVal = Math.max(...dec.flatMap((d) => [d.gain, d.rise])) * 1.15 || 1;
+  const maxVal = Math.max(...dec.flatMap((d) => seriesPair.map((x) => d[x.key]))) * 1.15 || 1;
   const notCovered = (h) => h.name === "Northern Ireland" && GB_ONLY.includes(id);
 
   return (
@@ -702,7 +708,7 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
       <p className="section-description">
         Each reform&apos;s average gain in {fy}, by income decile, next to the forecast price rise: the extra cost
         of each household&apos;s current energy use at {fy} forecast prices.{" "}
-        <u>The rise is measured against April–June 2026 cap rates held flat all year, with no inflation trend.</u>{" "}
+        <u>The rise is the extra cost compared with today&apos;s prices: April–June 2026 cap rates, the latest Ofgem has set.</u>{" "}
         Deciles are PolicyEngine&apos;s <a href={DECILE_LINK} target="_blank" rel="noopener noreferrer">household
         income deciles</a>{" "}(equivalised net income before housing costs, as in DWP&apos;s HBAI); each column is the
         average per household.
@@ -723,6 +729,7 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
             value={measure}
             onChange={setMeasure}
           />
+          <ExpandablePillRow label="SHOW" options={SHOW_OPTIONS} value={show} onChange={setShow} />
         </div>
         <FallbackNote sel={sel} fy={fy} setFy={setFy} />
         {info && (
@@ -776,7 +783,7 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
                 : `Price rise ${fmt(h.extra_cost)} a year; gain ${fmt(h[id])} a year, ${((h[id] / h.bill) * 100).toFixed(0)}% of a ${fmt(h.bill)} baseline energy bill`,
             }))}
             series={seriesPair}
-            maxValue={Math.max(...groups.flatMap((h) => [h[id], h.extra_cost])) * 1.15 || 1}
+            maxValue={Math.max(...groups.flatMap((h) => seriesPair.map((x) => (x.key === "gain" ? h[id] : h.extra_cost)))) * 1.15 || 1}
             formatValue={(v) => fmt(v)}
             yLabel="£/yr per household"
             xLabel={breakdown === "region" ? "Region" : "Household type"}
