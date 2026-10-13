@@ -1,0 +1,126 @@
+{
+ "comparison": "jan_mar_2027_cornwall vs oct_dec_2026, Great Britain",
+ "typical_bill_new_tdcv": {
+  "oct_dec_2026": 1723.61,
+  "jan_mar_2027_cornwall": 1998.1,
+  "rise": 274.49
+ },
+ "mean_extra_cost_annual": 242,
+ "mean_extra_cost_jan_mar": 80,
+ "households_gb_m": 28.57,
+ "deciles": [
+  {
+   "decile": 1,
+   "extra_cost_annual": 201,
+   "share_of_income_pct": 0.78,
+   "extra_cost_jan_mar": 66,
+   "share_of_quarter_income_pct": 1.02,
+   "mean_net_income": 25833
+  },
+  {
+   "decile": 2,
+   "extra_cost_annual": 223,
+   "share_of_income_pct": 0.57,
+   "extra_cost_jan_mar": 74,
+   "share_of_quarter_income_pct": 0.75,
+   "mean_net_income": 39380
+  },
+  {
+   "decile": 3,
+   "extra_cost_annual": 220,
+   "share_of_income_pct": 0.5,
+   "extra_cost_jan_mar": 72,
+   "share_of_quarter_income_pct": 0.66,
+   "mean_net_income": 44039
+  },
+  {
+   "decile": 4,
+   "extra_cost_annual": 218,
+   "share_of_income_pct": 0.44,
+   "extra_cost_jan_mar": 72,
+   "share_of_quarter_income_pct": 0.59,
+   "mean_net_income": 49275
+  },
+  {
+   "decile": 5,
+   "extra_cost_annual": 235,
+   "share_of_income_pct": 0.42,
+   "extra_cost_jan_mar": 78,
+   "share_of_quarter_income_pct": 0.55,
+   "mean_net_income": 56018
+  },
+  {
+   "decile": 6,
+   "extra_cost_annual": 249,
+   "share_of_income_pct": 0.41,
+   "extra_cost_jan_mar": 82,
+   "share_of_quarter_income_pct": 0.54,
+   "mean_net_income": 61030
+  },
+  {
+   "decile": 7,
+   "extra_cost_annual": 231,
+   "share_of_income_pct": 0.35,
+   "extra_cost_jan_mar": 77,
+   "share_of_quarter_income_pct": 0.46,
+   "mean_net_income": 67078
+  },
+  {
+   "decile": 8,
+   "extra_cost_annual": 268,
+   "share_of_income_pct": 0.35,
+   "extra_cost_jan_mar": 89,
+   "share_of_quarter_income_pct": 0.47,
+   "mean_net_income": 75712
+  },
+  {
+   "decile": 9,
+   "extra_cost_annual": 278,
+   "share_of_income_pct": 0.32,
+   "extra_cost_jan_mar": 92,
+   "share_of_quarter_income_pct": 0.42,
+   "mean_net_income": 88111
+  },
+  {
+   "decile": 10,
+   "extra_cost_annual": 298,
+   "share_of_income_pct": 0.18,
+   "extra_cost_jan_mar": 99,
+   "share_of_quarter_income_pct": 0.24,
+   "mean_net_income": 166119
+  }
+ ],
+ "illustrative_poverty": {
+  "bhc": {
+   "line_equivalised_gbp": 25409,
+   "baseline_rate_pct": 14.16,
+   "newly_below_m": 0.225,
+   "newly_below_under_18_m": 0.044
+  },
+  "ahc": {
+   "line_equivalised_gbp": 22097,
+   "baseline_rate_pct": 18.02,
+   "newly_below_m": 0.292,
+   "newly_below_under_18_m": 0.045
+  }
+ },
+ "provenance": {
+  "policyengine_version": "6.2.7",
+  "bundle_id": "uk-6.2.7",
+  "model_version": "2.125.1",
+  "dataset": "microcosm_uk_2024_25.h5",
+  "dataset_repo": "policyengine/populace-uk-private",
+  "dataset_release": "microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68",
+  "dataset_revision": "f9d1922cddab6b54a0dd37794a9bac74e3780c88",
+  "dataset_sha256": "aa31bdf67c977927ea2b325567d1cf7a79d94381239bc79918a0a0fc9c9588af",
+  "managed": false,
+  "kwh_basis": "qep_fy2024_25_regional",
+  "kwh_basis_source": "Microcosm build stage price_domestic_energy: DESNZ QEP FY2024-25 regional unit cost + fixed cost, incl. VAT, all payment methods (PolicyEngine/microcosm#1113)",
+  "consumption_profile": "seasonal",
+  "winter_share_oct_mar": {
+   "elec": 0.57,
+   "gas": 0.75
+  },
+  "tariff_coverage": "All households on capped variable tariffs (Ofgem GB direct-debit averages); fixed tariffs, payment method and contract expiry not modelled. Northern Ireland on GB prices as a proxy."
+ }
+}
