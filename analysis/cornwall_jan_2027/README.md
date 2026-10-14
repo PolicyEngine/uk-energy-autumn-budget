@@ -29,20 +29,20 @@ Great Britain only (28.6 million households). Northern Ireland is outside the Of
 
 | Decile | Extra cost a year | Share of net income | Extra cost, Jan–Mar only | Share of that quarter's income |
 |---|---|---|---|---|
-| 1 | £201 | 0.8% | £66 | 1.0% |
-| 2 | £223 | 0.6% | £74 | 0.8% |
-| 3 | £220 | 0.5% | £72 | 0.7% |
-| 4 | £218 | 0.4% | £72 | 0.6% |
-| 5 | £235 | 0.4% | £78 | 0.6% |
-| 6 | £249 | 0.4% | £82 | 0.5% |
-| 7 | £231 | 0.3% | £77 | 0.5% |
-| 8 | £268 | 0.3% | £89 | 0.5% |
-| 9 | £278 | 0.3% | £92 | 0.4% |
-| 10 | £298 | 0.2% | £99 | 0.2% |
+| 1 | £201 | 1.3% | £66 | 1.7% |
+| 2 | £223 | 0.8% | £74 | 1.1% |
+| 3 | £220 | 0.7% | £72 | 0.9% |
+| 4 | £218 | 0.6% | £72 | 0.8% |
+| 5 | £235 | 0.5% | £78 | 0.7% |
+| 6 | £249 | 0.5% | £82 | 0.7% |
+| 7 | £231 | 0.4% | £77 | 0.5% |
+| 8 | £268 | 0.4% | £89 | 0.6% |
+| 9 | £278 | 0.4% | £92 | 0.5% |
+| 10 | £298 | 0.2% | £99 | 0.3% |
 | All GB households | £242 | | £80 | |
 
 - **Deciles:** PolicyEngine's household income deciles (`household_income_decile`), ranking people by equivalised household net income before housing costs, as in DWP's HBAI.
-- **Share of income:** the decile's mean extra cost divided by its mean household net income (a ratio of means). Averaging each household's own share instead gives a steeper gradient, because it puts more weight on households with very low incomes.
+- **Share of income:** the decile's mean extra cost divided by its mean HBAI household net income (DWP's definition, before housing costs), a ratio of means. PolicyEngine's broader `household_net_income` puts decile 1 at £25,800 and would understate its share (0.8% instead of 1.3%). On HBAI income, decile 1 averages £15,900, close to ONS's FYE 2024 bottom-decile disposable income of [£14,298](https://www.ons.gov.uk/peoplepopulationandcommunity/personalandhouseholdfinances/incomeandwealth/datasets/theeffectsoftaxesandbenefitsonhouseholdincomefinancialyearending2014) uprated to 2026-27 (about £16,700).
 - **Why the average (£242) is below the typical-bill rise (£274):** Microcosm households use less energy on average than Ofgem's typical consumption values. Each household's kWh is recovered from its spending in the dataset; see the dashboard's methodology.
 
 ## Poverty
@@ -63,6 +63,14 @@ The reply rounds this to "around a quarter of a million". Reasons not to quote i
 - Microcosm's baseline relative poverty is below DWP's (18% after housing costs, against DWP's 20% in 2024-25 ([HBAI](https://www.gov.uk/government/collections/households-below-average-income-hbai--2))), so levels near the line are uncertain.
 - Under-18 counts are by age, not DWP's dependent-child definition.
 - The poverty line is recovered as the cut-point between people in and out of poverty, because policyengine-uk computes the relative line inside `in_relative_poverty_*`. An independent check found it within £1 of the exact line, with identical counts.
+
+## Benchmarks
+
+- **Typical bill:** Cornwall's rates re-cost to £1,998 at Ofgem's typical consumption, and October–December's to £1,724, so a typical household pays £274 more a year (Cornwall: £276).
+- **Average household (£242):** below the typical figure. Microcosm's gas use is lower than other surveys show (see [microcosm#1113](https://github.com/PolicyEngine/microcosm/issues/1113)), so this may understate the average by 10–20%.
+- **Bottom-decile income and energy share:** decile 1's HBAI income (£15,900) matches ONS uprated (about £16,700). Its energy bill is 7.7% of that income, against 1.2% for decile 10; ONS's Household Costs Indices give energy a 6% weight for the bottom decile and 3% for the top ([ONS](https://www.ons.gov.uk/peoplepopulationandcommunity/personalandhouseholdfinances/expenditure/adhocs/3195householddisposableincomeandenergyexpenditureofukhouseholdsbydifferenthouseholdcharacteristicsfinancialyearending2024)).
+- **Absolute poverty:** DWP's absolute line rises with a CPI measure that includes energy. Electricity, gas and other fuels have a 3.2% CPI weight in 2026 ([ONS CJVF](https://www.ons.gov.uk/economy/inflationandpriceindices/timeseries/cjvf/mm23)), so the January rise adds about 0.5 points to the price level. Only one quarter falls in 2026-27, so the line moves about 0.1% that year and the official absolute poverty effect is small. Relative poverty does not move.
+- **No published comparator:** we found no other estimate of people pushed below the poverty line by the January 2027 rise. Fuel poverty counts measure something different.
 
 ## Assumptions
 

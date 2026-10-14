@@ -82,7 +82,10 @@ def main():
     sim, w = d["sim"], d["weights"]
     gb = pd.Series(d["region"]).astype(str).to_numpy() != "NORTHERN_IRELAND"
     annual, quarter = extra_costs(d, gb)
-    income, decile = d["income"], d["decile"]
+    # HBAI household net income (DWP's definition), not PolicyEngine's broader
+    # household_net_income, so shares compare with ONS and DWP figures.
+    income = np.asarray(sim.calculate("hbai_household_net_income", YEAR).values)
+    decile = d["decile"]
 
     deciles = []
     for k in range(1, 11):
