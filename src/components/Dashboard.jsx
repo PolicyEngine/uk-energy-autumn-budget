@@ -672,7 +672,7 @@ function BudgetSection({ fy, setFy, sel, setOpt }) {
 
       <div className="section-card">
         <div className="pill-rows">
-          <YearOptionPills fy={fy} setFy={setFy} sel={sel} setOpt={setOpt} />
+          <ExpandablePillRow label="FINANCIAL YEAR" options={YEAR_OPTIONS} value={fy} onChange={setFy} />
           <ExpandablePillRow
             label="COMPARE OPTIONS BY"
             options={Object.entries(METRICS).map(([k, v]) => ({ key: k, label: v.label }))}
