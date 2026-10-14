@@ -56,6 +56,8 @@ body {
    their own link colours. */
 .app-shell a {
   color: var(--pe-color-primary-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
   transition: opacity 150ms ease;
 }
 
@@ -66,4 +68,49 @@ body {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* Compact the shared PolicyEngine site footer (from @policyengine/ui-kit's
+   PolicyEngineShell): logo, links in one row, copyright on the right. */
+footer.w-full {
+  padding: 20px 32px !important;
+}
+footer.w-full img[alt="PolicyEngine"] {
+  height: 28px;
+}
+footer.w-full > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 32px;
+}
+footer.w-full > div > .grid {
+  display: contents;
+}
+footer.w-full .flex.flex-col.items-start {
+  flex: 1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+footer.w-full .flex.flex-col.gap-1 {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+}
+footer.w-full .flex.flex-col.gap-1 a {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+footer.w-full .flex.flex-col.gap-1 a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* Let the PolicyEngine site navigation scroll away; only the dashboard title bar stays pinned. */
+body > .min-h-screen > div:first-child {
+  position: relative !important;
 }

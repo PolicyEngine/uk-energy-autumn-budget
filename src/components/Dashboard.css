@@ -26,8 +26,8 @@
 /* ============ Sticky Header ============ */
 .title-row {
   position: sticky;
-  /* Sit directly below PolicyEngine's sticky site navigation (58px). */
-  top: 58px;
+  /* The site navigation scrolls away (globals.css), so the title bar pins to the top. */
+  top: 0;
   z-index: 100;
   width: 100%;
   background: color-mix(in srgb, var(--pe-color-primary-700) 94%, transparent);
@@ -721,12 +721,7 @@ ol.ref-list li a {
 
 a:has(sup) {
   color: var(--pe-color-primary-600);
-  text-decoration: none;
   cursor: pointer;
-}
-
-a:has(sup):hover {
-  text-decoration: underline;
 }
 
 /* ============ Footer ============ */
@@ -961,3 +956,109 @@ a:has(sup):hover {
 @media (max-width: 560px) {
   .col-chart.wrap-labels .col-chart-x-label { margin-top: 84px; }
 }
+
+/* ============ Slack review, Oct 2026 ============ */
+/* One-line summaries stay visible; longer text sits behind "More detail". */
+.more-detail { margin: 6px 0 28px; }
+.more-detail > summary {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--pe-color-primary-600);
+}
+.more-detail-body { margin-top: 12px; }
+
+
+@media (max-width: 720px) {
+        }
+.method-table { width: 100%; margin: 0 0 16px; }
+.method-table th, .method-table td,
+.method-table td:last-child, .method-table th:last-child { text-align: left; padding: 8px 14px; }
+.method-table td { font-weight: 400; }
+
+.box-intro { margin: 4px 0 16px; font-size: 0.9rem; }
+.sources-card > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; margin: 0; }
+.sources-card > summary::-webkit-details-marker { display: none; }
+.sources-card > summary::before { content: "▸"; color: var(--pe-color-gray-500); transition: transform 0.2s ease; display: inline-block; }
+.sources-card[open] > summary::before { transform: rotate(90deg); }
+.sources-card[open] > summary { margin-bottom: 12px; }
+
+/* Methodology: label / text rows inside each box */
+.method-grid { margin: 4px 0 0; }
+.method-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--pe-color-gray-100);
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+.method-row:first-child { border-top: none; padding-top: 4px; }
+.method-row dt { font-weight: 600; color: var(--pe-color-primary-700); }
+.method-row dd { margin: 0; color: var(--pe-color-gray-700); }
+.method-table + .method-grid, .chart-values-scroll + .method-grid { margin-top: 8px; }
+.tab-content > .section-card .section-heading {
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid var(--pe-color-primary-100);
+}
+@media (max-width: 640px) {
+  .method-row { grid-template-columns: 1fr; gap: 2px; }
+}
+.intro-text + .more-detail { margin-top: 14px; }
+
+.chart-sentence {
+  margin: 16px 0 0;
+  padding: 12px 16px;
+  border-left: 4px solid #DD6B20;
+  border-radius: 8px;
+  background: #FFFAF0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--pe-color-gray-700);
+}
+/* Selector labels removed: the pill values are self-explanatory. */
+.pill-row-label { display: none; }
+.chart-sentence strong { color: #C05621; font-weight: 700; }
+.options-method td:first-child { font-weight: 600; white-space: nowrap; vertical-align: top; width: 1%; }
+.options-method td { vertical-align: top; line-height: 1.55; }
+.options-method tr.group-row td {
+  white-space: normal;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--pe-color-primary-700);
+  background: var(--pe-color-primary-50);
+  width: auto;
+}
+.options-method tbody tr.group-row:hover { background: none; }
+@media (max-width: 640px) { .options-method td:first-child { white-space: normal; width: 35%; } }
+
+/* Methodology: option cards */
+.model-group { margin-top: 8px; }
+.model-group + .model-group { margin-top: 24px; }
+.model-group-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 12px; }
+.model-group-title { font-size: 1rem; font-weight: 700; color: var(--pe-color-gray-900); }
+.model-group-meta { font-size: 0.85rem; color: var(--pe-color-gray-500); }
+.model-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.model-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--pe-color-border-light);
+  border-top: 3px solid var(--pe-color-primary-400);
+  border-radius: 12px;
+  background: var(--pe-color-gray-50);
+}
+.model-card-name { font-weight: 700; font-size: 0.95rem; color: var(--pe-color-gray-900); }
+.model-card p { margin: 0; flex: 1; font-size: 0.86rem; line-height: 1.55; color: var(--pe-color-gray-700); }
+.model-tag {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.model-tag.yes { color: var(--pe-color-primary-800); background: var(--pe-color-primary-100); }
+.model-tag.no { color: var(--pe-color-gray-700); background: var(--pe-color-gray-200); }
+.model-group + .box-intro { margin-top: 16px; margin-bottom: 0; }
