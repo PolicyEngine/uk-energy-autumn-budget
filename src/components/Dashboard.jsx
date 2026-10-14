@@ -5,6 +5,7 @@ import deciles from "../data/deciles.json";
 import hhTypes from "../data/hh_types.json";
 import regions from "../data/regions.json";
 import provenance from "../data/provenance.json";
+import years from "../data/years.json";
 import { resolvePolicySelection, yearsForOption } from "../lib/policySelection";
 import "./Dashboard.css";
 
@@ -64,6 +65,16 @@ function ExpandablePillRow({ label, options, value, onChange }) {
         </div>
       )}
     </div>
+  );
+}
+
+/** A one-line summary stays visible; the longer explanation sits behind "More detail". */
+function MoreDetail({ label = "More detail", children }) {
+  return (
+    <details className="expandable-references more-detail">
+      <summary>{label}</summary>
+      <div className="more-detail-body">{children}</div>
+    </details>
   );
 }
 
@@ -302,11 +313,13 @@ function PriceLineChart({ rows, series, formatValue, yLabel }) {
             <g key={r.period}>
               <text aria-hidden="true" x={x(i)} y={H - mb + 18} textAnchor="middle" fontSize={fs} fill="#344054" fontWeight="600">{a}</text>
               <text aria-hidden="true" x={x(i)} y={H - mb + 34} textAnchor="middle" fontSize={fs} fill="#4B5563">{b}</text>
-              {!narrow && (
+              {!narrow && (r.link ? (
                 <a href={r.link} target="_blank" rel="noopener noreferrer">
                   <text x={x(i)} y={H - mb + 56} textAnchor="middle" fontSize="11.5" fill={KIND_BANDS[r.kind].text} textDecoration="underline">{shortSource(r)}</text>
                 </a>
-              )}
+              ) : (
+                <text x={x(i)} y={H - mb + 56} textAnchor="middle" fontSize="11.5" fill={KIND_BANDS[r.kind].text}>Our assumption</text>
+              ))}
               <rect
                 className="price-chart-hit"
                 x={x(i) - colW / 2} y={mt - 28} width={colW} height={H - mb - mt + 28} fill="transparent"
@@ -394,19 +407,26 @@ function PriceSection() {
     <div id="baseline">
       <h2 className="section-heading">Baseline: energy prices over time</h2>
       <p className="section-description">
+        The <strong>typical bill</strong> rises from £1,477 in April–June 2026 to a forecast of about £2,000 in January–March 2027. The
+        typical bill is Ofgem&apos;s headline cap figure: the annual bill of a dual-fuel direct-debit household using{" "}
+        <a href="https://www.ofgem.gov.uk/sites/default/files/2026-05/Review%20of%20typical%20domestic%20consumption%20values%20decision.pdf" target="_blank" rel="noopener noreferrer">typical consumption</a>{" "}
+        (2,500 kWh electricity, 9,500 kWh gas).
+      </p>
+      <MoreDetail label="Where each quarter's prices come from">
+      <p className="section-description">
         The baseline is current law at forecast prices. <a href="https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026" target="_blank" rel="noopener noreferrer">Ofgem has announced the cap</a> to December 2026
         (<a href="https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener noreferrer">unit rates and standing charges</a>); <a href="https://www.cornwall-insight.com/press-releases/16-price-cap-rise-forecast-in-january/" target="_blank" rel="noopener noreferrer">Cornwall Insight forecasts</a> January–March 2027,
         the <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener noreferrer">average of EDF, British Gas and E.ON Next forecasts</a> covers April–September 2027,
         and <a href="https://www.ovoenergy.com/price-cap" target="_blank" rel="noopener noreferrer">OVO's forecast</a> covers October–December 2027. No forecaster publishes January–March 2028,
-        so it is held at the October level. OVO quotes £1,846 with electricity VAT-free; under current law VAT returns
-        to 5% in April 2027, which takes the bill to £1,890. Typical bills are on Ofgem's{" "}
-        <a href="https://www.ofgem.gov.uk/sites/default/files/2026-05/Review%20of%20typical%20domestic%20consumption%20values%20decision.pdf" target="_blank" rel="noopener noreferrer">current typical consumption</a> (2,500 kWh electricity, 9,500 kWh gas).
+        so we hold it at the October–December level: that quarter is our assumption, not a forecast. OVO quotes £1,846 with
+        electricity VAT-free; under current law VAT returns to 5% in April 2027, which takes the bill to £1,890.
       </p>
+      </MoreDetail>
 
       <div className="section-card">
         <div className="pill-rows">
           <ExpandablePillRow
-            label="SHOW"
+            label="PRICE MEASURE"
             options={Object.entries(METRICS).map(([k, v]) => ({ key: k, label: v.label }))}
             value={metric}
             onChange={setMetric}
@@ -436,7 +456,7 @@ function PriceSection() {
               { label: "Quarter", value: (r) => r.period },
               ...m.series.map((s) => ({ label: s.label, value: (r) => (m.exact || m.fmt)(r[s.key]) })),
               { label: "Status", text: true, value: (r) => r.kind },
-              { label: "Source", text: true, value: (r) => <a href={r.link} target="_blank" rel="noopener noreferrer">{r.source}</a> },
+              { label: "Source", text: true, value: (r) => (r.link ? <a href={r.link} target="_blank" rel="noopener noreferrer">{r.source}</a> : r.source) },
             ]}
           />
         </div>
@@ -543,9 +563,9 @@ function PolicyOptionsSection({ sel, setOpt, fy }) {
     <div id="policies">
       <h2 className="section-heading">The policy options</h2>
       <p className="section-description">
-        Seven options drawn from published proposals, reported government plans and past support schemes. Click an option to see who is
-        eligible, how it works and where it was proposed; the charts below and on the Household effects tab follow the option you select.
-        {anyUnavailable && <> Options marked with a year are modelled for that year only, so cannot be selected for {fy}.</>}
+        Seven options from published proposals, reported government plans and past schemes. Select one to see its details; the
+        charts follow your choice, which you can also change from the bar at the top.
+        {anyUnavailable && <> Options marked with a year are modelled for that year only.</>}
       </p>
       <div className="policy-grid">
         {POLICY_INFO.map((p) => {
@@ -588,7 +608,7 @@ function BudgetSection({ fy, setFy, sel, setOpt }) {
   const rows = options.filter((o) => o.fy === fy);
   const METRICS = {
     cost: {
-      label: "Cost to the Exchequer",
+      label: "Cost to government",
       y: "£bn a year",
       series: [{ key: "cost_bn", label: "Cost" }],
       fmt: (v) => `£${Number(v).toFixed(v < 10 && v % 1 ? 1 : 0)}bn`,
@@ -622,19 +642,24 @@ function BudgetSection({ fy, setFy, sel, setOpt }) {
     <div id="budget">
       <h2 className="section-heading">Budget responses: cost and reach</h2>
       <p className="section-description">
+        What each option would cost the government in {fy}, the average gain per household and the share of households it reaches.
+        The selected option is highlighted; select a column to change it.
+      </p>
+      <MoreDetail label="How costs are calculated">
+      <p className="section-description">
         Four options are payments simulated as <a href="https://pypi.org/project/policyengine/" target="_blank" rel="noopener noreferrer">PolicyEngine</a> reforms against the {fy} baseline
         (targeted discount, Cost of Living Payment, Warm Home Discount top-up and £400 credit); their cost is the
         change in household net income summed over all households. Three are price reductions calculated
         directly from each household's bills (cap freeze, VAT extension and levy removal); their cost is the
         total reduction in bills. Gains are averaged per household.
-        The selected option is highlighted; select a column to change it.
       </p>
+      </MoreDetail>
 
       <div className="section-card">
         <div className="pill-rows">
           <ExpandablePillRow label="FINANCIAL YEAR" options={YEAR_OPTIONS} value={fy} onChange={setFy} />
           <ExpandablePillRow
-            label="SHOW"
+            label="COMPARE OPTIONS BY"
             options={Object.entries(METRICS).map(([k, v]) => ({ key: k, label: v.label }))}
             value={metric}
             onChange={setMetric}
@@ -692,7 +717,7 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
     { key: "gain", label: o.option, color: SUPPORT },
   ].filter((x) => show === "both" || x.key === show);
   const SHOW_OPTIONS = [
-    { key: "both", label: "Both" },
+    { key: "both", label: "Price rise and reform gain" },
     { key: "gain", label: "Reform gain" },
     { key: "rise", label: RISE_LABEL },
   ];
@@ -706,13 +731,16 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
     <div id="households">
       <h2 className="section-heading">Household effects</h2>
       <p className="section-description">
-        Each reform&apos;s average gain in {fy}, by income decile, next to the forecast price rise: the extra cost
-        of each household&apos;s current energy use at {fy} forecast prices.{" "}
-        <u>The rise is the extra cost compared with today&apos;s prices: April–June 2026 cap rates, the latest Ofgem has set.</u>{" "}
-        Deciles are PolicyEngine&apos;s <a href={DECILE_LINK} target="_blank" rel="noopener noreferrer">household
+        Each option&apos;s average gain in {fy} by income decile, next to the forecast price rise.{" "}
+        <u>The rise is the extra cost compared with April–June 2026 cap rates.</u>
+      </p>
+      <MoreDetail>
+      <p className="section-description">
+        The price rise is the extra cost of each household&apos;s current energy use at {fy} forecast prices. Deciles are PolicyEngine&apos;s <a href={DECILE_LINK} target="_blank" rel="noopener noreferrer">household
         income deciles</a>{" "}(equivalised net income before housing costs, as in DWP&apos;s HBAI); each column is the
         average per household.
       </p>
+      </MoreDetail>
 
       <div className="section-card">
         <div className="pill-rows">
@@ -729,7 +757,7 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
             value={measure}
             onChange={setMeasure}
           />
-          <ExpandablePillRow label="SHOW" options={SHOW_OPTIONS} value={show} onChange={setShow} />
+          <ExpandablePillRow label="BARS SHOWN" options={SHOW_OPTIONS} value={show} onChange={setShow} />
         </div>
         <FallbackNote sel={sel} fy={fy} setFy={setFy} />
         {info && (
@@ -844,6 +872,21 @@ function MethodologySection() {
   const pv = provenance;
   return (
     <div className="tab-content">
+      <div className="section-card">
+        <h2 className="section-heading">Core assumptions</h2>
+        <ul className="section-description method-list core-assumptions">
+          <li><strong>Prices:</strong> Ofgem&apos;s announced caps to December 2026,<Fn n={2} /> Cornwall Insight&apos;s forecast for
+            January–March 2027,<Fn n={3} /> supplier forecasts for April–December 2027,<Fn n={4} /><sup>,</sup><Fn n={13} /> and January–March 2028
+            held at the October–December 2027 level, which is our assumption.</li>
+          <li><strong>Price rise:</strong> the extra cost of each household&apos;s current energy use compared with April–June 2026 cap rates.<Fn n={1} /></li>
+          <li><strong>Households:</strong> every household is on the capped variable tariff and uses the same energy as today; incomes and
+            benefits are held fixed. Northern Ireland uses GB prices.</li>
+          <li><strong>Data:</strong> Microcosm UK 2024-25 on policyengine.py {pv.policyengine_version} (policyengine-uk {pv.model_version}).<Fn n={12} /></li>
+          <li><strong>Poverty:</strong> DWP&apos;s relative HBAI measure. It counts income, not bills, so only support DWP treats as income moves it.<Fn n={9} /></li>
+        </ul>
+      </div>
+
+      <MoreDetail label="Full methodology">
       <div className="section-card">
         <h2 className="section-heading">How the model works</h2>
         <p className="section-description">
@@ -966,8 +1009,11 @@ function MethodologySection() {
           does not cover, uses GB prices as a proxy. The Autumn Budget and the OBR's next forecast are both due on
           28 October 2026;<Fn n={11} /> the OBR's March 2026 forecast closed before energy prices rose.
         </p>
+      </div>
+      </MoreDetail>
 
-        <div className="chart-title" style={{ marginTop: 24, marginBottom: 12 }}>Sources</div>
+      <div className="section-card">
+        <div className="chart-title" style={{ marginBottom: 12 }}>Sources</div>
         <ol className="ref-list">
           {REFERENCES.map(([text, href], i) => (
             <li id={`fn-${i + 1}`} key={href}>
@@ -1000,26 +1046,63 @@ export default function Dashboard() {
       <header className="title-row">
         <div className="title-row-inner">
           <h1>Energy bills and the Autumn Budget 2026</h1>
+          {activeTab !== "methodology" && (
+            <div className="header-controls">
+              <label>
+                <span>Year</span>
+                <select value={fy} onChange={(e) => setFy(e.target.value)}>
+                  {YEAR_OPTIONS.map((y) => <option key={y.key} value={y.key}>{y.label}</option>)}
+                </select>
+              </label>
+              <label>
+                <span>Option</span>
+                <select value={sel.id} onChange={(e) => setOpt(e.target.value)}>
+                  {options.filter((o) => o.fy === fy).map((o) => <option key={o.option_id} value={o.option_id}>{o.option}</option>)}
+                </select>
+              </label>
+            </div>
+          )}
         </div>
       </header>
 
       <main className="main-content">
         <p className="intro-text">
-          This dashboard uses PolicyEngine to estimate what UK households will pay for gas and electricity in
-          2026-27 and 2027-28 at the prices Ofgem has announced and forecasters expect, and what support
-          options ahead of the Autumn Budget on 28 October 2026 would cost and who they would reach. The
-          baseline is current law at forecast prices, and each option is modelled as a reform against it.
-          Proposals include a targeted energy discount (<a href="https://www.resolutionfoundation.org/publications/billing-me-softly/" target="_blank" rel="noopener noreferrer">Resolution Foundation</a>),
-          a social tariff with policy costs moved off bills (<a href="https://www.resolutionfoundation.org/publications/power-struggle/" target="_blank" rel="noopener noreferrer">Resolution Foundation</a>),
-          a discounted essential block of energy (<a href="https://www.jrf.org.uk/cost-of-living/addressing-the-2026-energy-price-crisis" target="_blank" rel="noopener noreferrer">Joseph Rowntree Foundation</a>),
-          a temporary cap on bills (<a href="https://ippr-org.files.svdcdn.com/production/Downloads/Price_caps_and_economic_stability_May26.pdf" target="_blank" rel="noopener noreferrer">IPPR</a>),
-          a reformed Warm Home Discount and debt relief (<a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/more-than-a-third-of-brits-worried-about-affording-energy-bills-this-winter-warns-citizens-advice/" target="_blank" rel="noopener noreferrer">Citizens Advice</a>, <a href="https://www.energy-uk.org.uk/publications/economic-defence-tackling-energy-bills-in-winter-2026-27/" target="_blank" rel="noopener noreferrer">Energy UK</a>, <a href="https://www.nea.org.uk/wp-content/uploads/2026/06/Clearing-the-Decks-Tackling-Energy-Debt-to-Lower-Bills-1.pdf" target="_blank" rel="noopener noreferrer">National Energy Action</a>),
-          and the government's removal of VAT from electricity bills (<a href="https://www.gov.uk/government/news/new-pm-cuts-tax-on-household-electricity-bills-to-give-breathing-space-on-cost-of-living" target="_blank" rel="noopener noreferrer">UK Government</a>).
-          The <strong>Budget responses</strong> tab shows baseline energy prices over time and the cost and
-          reach of seven options; <strong>Household effects</strong> shows the
-          gain by income decile and household type; and <strong>Methodology</strong> explains the modelling,
-          assumptions and sources.
+          What will UK households pay for gas and electricity in 2026-27 and 2027-28, and what would Autumn Budget support
+          options cost and who would they reach? We model every household&apos;s bill at the prices{" "}
+          <a href="https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026" target="_blank" rel="noopener noreferrer">Ofgem has set</a>{" "}
+          and forecasters expect, and score seven options against that baseline using PolicyEngine.
         </p>
+        <div className="metric-row intro-metrics">
+          {years.map((y) => (
+            <div className="metric-card" key={y.fy}>
+              <div className="metric-label">Average price rise, {y.fy}</div>
+              <div className="metric-value amber">{fmt(y.mean_extra_cost)}<span className="metric-unit">per household</span></div>
+              <div className="metric-info">Extra cost of current energy use compared with April–June 2026 cap rates</div>
+            </div>
+          ))}
+          <div className="metric-card">
+            <div className="metric-label">Options scored</div>
+            <div className="metric-value">7</div>
+            <div className="metric-info">Discounts, payments and price cuts, each a reform against the baseline</div>
+          </div>
+          <div className="metric-card">
+            <div className="metric-label">Autumn Budget</div>
+            <div className="metric-value">28 Oct 2026</div>
+            <div className="metric-info">
+              <a href="https://obr.uk/autumn-2026-forecast-date-announced/" target="_blank" rel="noopener noreferrer">OBR forecast</a> published the same day
+            </div>
+          </div>
+        </div>
+        <MoreDetail label="Proposals behind the options">
+          <p className="section-description">
+            Proposals include a targeted energy discount (<a href="https://www.resolutionfoundation.org/publications/billing-me-softly/" target="_blank" rel="noopener noreferrer">Resolution Foundation</a>),
+            a social tariff with policy costs moved off bills (<a href="https://www.resolutionfoundation.org/publications/power-struggle/" target="_blank" rel="noopener noreferrer">Resolution Foundation</a>),
+            a discounted essential block of energy (<a href="https://www.jrf.org.uk/cost-of-living/addressing-the-2026-energy-price-crisis" target="_blank" rel="noopener noreferrer">Joseph Rowntree Foundation</a>),
+            a temporary cap on bills (<a href="https://ippr-org.files.svdcdn.com/production/Downloads/Price_caps_and_economic_stability_May26.pdf" target="_blank" rel="noopener noreferrer">IPPR</a>),
+            a reformed Warm Home Discount and debt relief (<a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/more-than-a-third-of-brits-worried-about-affording-energy-bills-this-winter-warns-citizens-advice/" target="_blank" rel="noopener noreferrer">Citizens Advice</a>, <a href="https://www.energy-uk.org.uk/publications/economic-defence-tackling-energy-bills-in-winter-2026-27/" target="_blank" rel="noopener noreferrer">Energy UK</a>, <a href="https://www.nea.org.uk/wp-content/uploads/2026/06/Clearing-the-Decks-Tackling-Energy-Debt-to-Lower-Bills-1.pdf" target="_blank" rel="noopener noreferrer">National Energy Action</a>),
+            and the government&apos;s removal of VAT from electricity bills (<a href="https://www.gov.uk/government/news/new-pm-cuts-tax-on-household-electricity-bills-to-give-breathing-space-on-cost-of-living" target="_blank" rel="noopener noreferrer">UK Government</a>).
+          </p>
+        </MoreDetail>
 
         <div className="tab-bar">
           {TAB_OPTIONS.map((tab) => (

@@ -107,8 +107,8 @@ FORECAST_2027_28 = [
         "target": 1_846,
         "elec_vat_in_target": False,
         "kind": "Assumed",
-        "source": "Held at OVO's Oct–Dec 2027 forecast (no published forecast)",
-        "link": OVO,
+        "source": "Our assumption: no forecast published; held at the Oct–Dec 2027 level",
+        "link": None,
     },
 ]
 
