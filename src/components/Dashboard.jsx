@@ -887,15 +887,6 @@ const REFERENCES = [
 
 /* Sentences marked MODEL-DISCLOSURE (a)–(e) describe the corrected model from the publication review
  * (PolicyEngine/uk-energy-autumn-budget#1). Edit them in one place if the model's final method differs. */
-const OPTION_METHODS = [
-  ["Targeted discount (RF)", "PolicyEngine reform", "Change in household net income", "Yes, by assumption"],
-  ["£300 Cost of Living Payment", "PolicyEngine reform", "Change in household net income", "Yes"],
-  ["Warm Home Discount +£100", "PolicyEngine reform", "Change in household net income", "Yes, as DWP counts it"],
-  ["£400 bill credit", "PolicyEngine reform", "Change in household net income", "No"],
-  ["Cap freeze", "Costed from bills", "Total cut in bills", "No"],
-  ["Extend VAT cut", "Costed from bills", "Total cut in bills", "No"],
-  ["Remove levies", "Costed from bills", "Total cut in bills", "No"],
-];
 
 function MethodologySection() {
   const pv = provenance;
@@ -938,28 +929,68 @@ function MethodologySection() {
 
       <div className="section-card">
         <h2 className="section-heading">How each option is modelled</h2>
-        <div className="chart-values-scroll">
-          <table className="scenario-table method-table">
-            <thead>
-              <tr><th>Option</th><th>Method</th><th>Cost</th></tr>
-            </thead>
-            <tbody>
-              {OPTION_METHODS.map(([name, method, cost]) => (
-                <tr key={name}><td>{name}</td><td>{method}</td><td>{cost}</td></tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="model-group">
+          <div className="model-group-head">
+            <span className="model-group-title">Payments</span>
+            <span className="model-group-meta">Run as PolicyEngine reforms · cost is the change in household net income</span>
+          </div>
+          <div className="model-cards">
+            {/* MODEL-DISCLOSURE (c): RF option is a simplified flat-payment illustration. */}
+            <div className="model-card">
+              <div className="model-card-name">Targeted discount (RF, simplified)</div>
+              <p>A flat £175, RF&apos;s average, to households on a means-tested benefit or whose highest individual income is under
+                £24,000, on annual income, with full take-up. RF&apos;s design discounts unit rates quarterly on recent income, with
+                incomplete take-up.<Fn n={8} /></p>
+              <span className="model-tag yes">Counted as income, by analogy</span>
+            </div>
+            <div className="model-card">
+              <div className="model-card-name">£300 Cost of Living Payment</div>
+              <p>PolicyEngine UK&apos;s Cost of Living Payment set to £300 for the year.</p>
+              <span className="model-tag yes">Counted as income</span>
+            </div>
+            {/* MODEL-DISCLOSURE (e): WHD option is a means-tested-household proxy. */}
+            <div className="model-card">
+              <div className="model-card-name">Warm Home Discount +£100</div>
+              <p>£100 to every household where someone gets a qualifying benefit. Real recipients must also meet a qualifying date
+                and be named on a supplier account (<a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales" target="_blank" rel="noopener noreferrer">England and Wales</a>,{" "}
+                <a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland" target="_blank" rel="noopener noreferrer">Scotland</a>).</p>
+              <span className="model-tag yes">Counted as income, as DWP does<Fn n={9} /></span>
+            </div>
+            <div className="model-card">
+              <div className="model-card-name">£400 bill credit</div>
+              <p>PolicyEngine UK&apos;s energy bills credit set to £400.</p>
+              <span className="model-tag no">Not counted as income</span>
+            </div>
+          </div>
         </div>
-        {/* MODEL-DISCLOSURE (c): RF option is a simplified flat-payment illustration. */}
-        {/* MODEL-DISCLOSURE (e): WHD option is a means-tested-household proxy. */}
-        {/* MODEL-DISCLOSURE (b): cap freeze holds unit rates and standing charges. */}
-        <dl className="method-grid">
-          <div className="method-row"><dt>Targeted discount</dt><dd>A simplified version of the Resolution Foundation&apos;s proposal.<Fn n={8} /> RF discounts unit rates quarterly on the last three months&apos; income, with incomplete take-up. We pay a flat £175 (RF&apos;s average) to households on a means-tested benefit or whose highest individual income is under £24,000, on annual income, with full take-up.</dd></div>
-          <div className="method-row"><dt>Warm Home Discount</dt><dd>£100 to every household where someone gets a qualifying benefit during the year. Real recipients must also meet a qualifying date and be named on a participating supplier&apos;s account (<a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales" target="_blank" rel="noopener noreferrer">England and Wales</a>,{" "} <a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland" target="_blank" rel="noopener noreferrer">Scotland</a>).</dd></div>
-          <div className="method-row"><dt>Cap freeze</dt><dd>Unit rates and standing charges held at April–June 2026 levels (a £1,641 typical bill); the government pays suppliers the difference.</dd></div>
-          <div className="method-row"><dt>VAT and levies</dt><dd>PolicyEngine UK has no domestic electricity VAT parameter, so both are costed directly from each GB household&apos;s electricity bill.</dd></div>
-          <div className="method-row"><dt>Poverty treatment</dt><dd>DWP counts the Warm Home Discount as income in HBAI, although it is a bill credit.<Fn n={9} /> We treat the targeted discount the same way by analogy; HBAI has no rule for it.</dd></div>
-        </dl>
+        <div className="model-group">
+          <div className="model-group-head">
+            <span className="model-group-title">Price cuts</span>
+            <span className="model-group-meta">Costed from each household&apos;s bills · cost is the total cut in bills</span>
+          </div>
+          <div className="model-cards">
+            {/* MODEL-DISCLOSURE (b): cap freeze holds unit rates and standing charges. */}
+            <div className="model-card">
+              <div className="model-card-name">Cap freeze</div>
+              <p>Unit rates and standing charges held at April–June 2026 levels (a £1,641 typical bill); the government pays
+                suppliers the difference.</p>
+              <span className="model-tag no">Not counted as income</span>
+            </div>
+            <div className="model-card">
+              <div className="model-card-name">Extend VAT cut</div>
+              <p>0% VAT on GB electricity in 2027-28, costed from each household&apos;s electricity bill (PolicyEngine UK has no
+                VAT parameter for it).</p>
+              <span className="model-tag no">Not counted as income</span>
+            </div>
+            <div className="model-card">
+              <div className="model-card-name">Remove levies</div>
+              <p>Remaining policy costs moved off electricity bills to taxation: a 12.6% cut to each GB household&apos;s
+                electricity bill.</p>
+              <span className="model-tag no">Not counted as income</span>
+            </div>
+          </div>
+        </div>
+        <p className="section-description box-intro">Only support counted as income can move HBAI poverty.</p>
       </div>
 
       <div className="section-card">
@@ -976,10 +1007,6 @@ function MethodologySection() {
             </tbody>
           </table>
         </div>
-        <ul className="section-description method-list">
-          <li>PolicyEngine&apos;s previous enhanced FRS dataset gets closer on poverty (21.2%) but overstates energy spending at £51bn.</li>
-          <li>We report Microcosm&apos;s poverty rates as computed and do not use them to rank the options.</li>
-        </ul>
       </div>
 
       <div className="section-card">

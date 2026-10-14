@@ -1020,3 +1020,45 @@ a:has(sup) {
 /* Selector labels removed: the pill values are self-explanatory. */
 .pill-row-label { display: none; }
 .chart-sentence strong { color: #C05621; font-weight: 700; }
+.options-method td:first-child { font-weight: 600; white-space: nowrap; vertical-align: top; width: 1%; }
+.options-method td { vertical-align: top; line-height: 1.55; }
+.options-method tr.group-row td {
+  white-space: normal;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--pe-color-primary-700);
+  background: var(--pe-color-primary-50);
+  width: auto;
+}
+.options-method tbody tr.group-row:hover { background: none; }
+@media (max-width: 640px) { .options-method td:first-child { white-space: normal; width: 35%; } }
+
+/* Methodology: option cards */
+.model-group { margin-top: 8px; }
+.model-group + .model-group { margin-top: 24px; }
+.model-group-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 12px; }
+.model-group-title { font-size: 1rem; font-weight: 700; color: var(--pe-color-gray-900); }
+.model-group-meta { font-size: 0.85rem; color: var(--pe-color-gray-500); }
+.model-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.model-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--pe-color-border-light);
+  border-top: 3px solid var(--pe-color-primary-400);
+  border-radius: 12px;
+  background: var(--pe-color-gray-50);
+}
+.model-card-name { font-weight: 700; font-size: 0.95rem; color: var(--pe-color-gray-900); }
+.model-card p { margin: 0; flex: 1; font-size: 0.86rem; line-height: 1.55; color: var(--pe-color-gray-700); }
+.model-tag {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.model-tag.yes { color: var(--pe-color-primary-800); background: var(--pe-color-primary-100); }
+.model-tag.no { color: var(--pe-color-gray-700); background: var(--pe-color-gray-200); }
+.model-group + .box-intro { margin-top: 16px; margin-bottom: 0; }
