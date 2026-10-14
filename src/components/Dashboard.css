@@ -1010,3 +1010,4 @@ a:has(sup) {
 .chart-sentence { margin: 16px 0 0; font-size: 0.92rem; line-height: 1.6; color: var(--pe-color-gray-700); }
 /* Selector labels removed: the pill values are self-explanatory. */
 .pill-row-label { display: none; }
+.chart-sentence strong { color: #C05621; font-weight: 700; }

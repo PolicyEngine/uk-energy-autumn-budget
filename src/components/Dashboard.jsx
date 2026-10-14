@@ -785,11 +785,10 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
             xLabel="Income decile"
           />
           <p className="chart-sentence">
-            Across all households, the forecast price rise averages {fmt(years[0].mean_extra_cost)} a year in {years[0].fy} and{" "}
-            {fmt(years[1].mean_extra_cost)} in {years[1].fy}, compared with April–June 2026 cap rates, when the average bill
-            was {fmt(years[0].mean_bill_apr_jun_2026_prices)}: rises of{" "}
-            {((years[0].mean_extra_cost / years[0].mean_bill_apr_jun_2026_prices) * 100).toFixed(0)}% and{" "}
-            {((years[1].mean_extra_cost / years[1].mean_bill_apr_jun_2026_prices) * 100).toFixed(0)}%.
+            On average across all households, energy costs <strong>{fmt(years[0].mean_extra_cost)}</strong> a year more in{" "}
+            {years[0].fy} (<strong>+{((years[0].mean_extra_cost / years[0].mean_bill_apr_jun_2026_prices) * 100).toFixed(0)}%</strong>) and <strong>{fmt(years[1].mean_extra_cost)}</strong> more in{" "}
+            {years[1].fy} (<strong>+{((years[1].mean_extra_cost / years[1].mean_bill_apr_jun_2026_prices) * 100).toFixed(0)}%</strong>) than at April–June 2026 cap rates, when the average bill
+            was <strong>{fmt(years[0].mean_bill_apr_jun_2026_prices)}</strong>.
           </p>
           <ChartValuesTable
             caption={`${o.option}: average gain by income decile, ${fy}`}
