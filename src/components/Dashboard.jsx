@@ -759,16 +759,26 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
       </MoreDetail>
 
       <div className="rise-panel">
-        <div className="rise-panel-title">Average forecast price rise per household</div>
-        <div className="rise-panel-values">
-          {years.map((y) => (
-            <div className="rise-panel-item" key={y.fy}>
-              <span className="rise-panel-value">{fmt(y.mean_extra_cost)}</span>
-              <span className="rise-panel-year">in {y.fy}</span>
-            </div>
-          ))}
+        <div className="rise-panel-head">
+          <div className="rise-panel-title">Forecast price rise for the average household</div>
+          <div className="rise-panel-note">
+            Extra cost of current energy use compared with April–June 2026 cap rates, when the average bill was{" "}
+            {fmt(years[0].mean_bill_apr_jun_2026_prices)} a year.
+          </div>
         </div>
-        <div className="rise-panel-note">Extra cost of each household&apos;s current energy use compared with April–June 2026 cap rates.</div>
+        <div className="rise-panel-tiles">
+          {years.map((y) => {
+            const pct = (y.mean_extra_cost / y.mean_bill_apr_jun_2026_prices) * 100;
+            return (
+              <div className="rise-tile" key={y.fy}>
+                <span className="rise-tile-year">{y.fy}</span>
+                <span className="rise-tile-value">+{fmt(y.mean_extra_cost)}<span className="rise-tile-unit"> a year</span></span>
+                <span className="rise-tile-pct">+{pct.toFixed(0)}% on the average bill</span>
+                <span className="rise-tile-bar"><span style={{ width: `${Math.min(pct * 2.5, 100)}%` }} /></span>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="section-card">
@@ -826,6 +836,7 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
             value={breakdown}
             onChange={setBreakdown}
           />
+          <ExpandablePillRow label="BARS SHOWN" options={SHOW_OPTIONS} value={show} onChange={setShow} />
         </div>
         <div className="chart-wrapper">
           <Legend series={seriesPair} />
