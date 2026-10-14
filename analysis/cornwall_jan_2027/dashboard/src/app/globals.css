@@ -1,0 +1,116 @@
+@import "tailwindcss";
+@import "@policyengine/ui-kit/theme.css";
+
+/* ============ Design Tokens ============ */
+:root {
+  --pe-color-primary-50: #E6FFFA;
+  --pe-color-primary-100: #B2F5EA;
+  --pe-color-primary-200: #81E6D9;
+  --pe-color-primary-300: #4FD1C5;
+  --pe-color-primary-400: #38B2AC;
+  --pe-color-primary-500: #319795;
+  --pe-color-primary-600: #2C7A7B;
+  --pe-color-primary-700: #285E61;
+  --pe-color-primary-800: #234E52;
+  --pe-color-primary-900: #1D4044;
+
+  --pe-color-gray-50: #F9FAFB;
+  --pe-color-gray-100: #F2F4F7;
+  --pe-color-gray-200: #E2E8F0;
+  --pe-color-gray-300: #D1D5DB;
+  --pe-color-gray-400: #9CA3AF;
+  --pe-color-gray-500: #6B7280;
+  --pe-color-gray-600: #4B5563;
+  --pe-color-gray-700: #344054;
+  --pe-color-gray-800: #1F2937;
+  --pe-color-gray-900: #101828;
+
+  --pe-color-bg-primary: #ffffff;
+  --pe-color-bg-secondary: #F2F4F7;
+  --pe-color-border-light: #E2E8F0;
+  --pe-color-text-inverse: #ffffff;
+}
+
+/* ============ Reset & Base ============ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--pe-color-gray-50);
+  color: var(--pe-color-gray-800);
+  line-height: 1.5;
+}
+
+/* Dashboard links only, so the PolicyEngine site header and footer keep
+   their own link colours. */
+.app-shell a {
+  color: var(--pe-color-primary-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 150ms ease;
+}
+
+.app-shell a:hover {
+  opacity: 0.8;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Compact the shared PolicyEngine site footer (from @policyengine/ui-kit's
+   PolicyEngineShell): logo, links in one row, copyright on the right. */
+footer.w-full {
+  padding: 20px 32px !important;
+}
+footer.w-full img[alt="PolicyEngine"] {
+  height: 28px;
+}
+footer.w-full > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 32px;
+}
+footer.w-full > div > .grid {
+  display: contents;
+}
+footer.w-full .flex.flex-col.items-start {
+  flex: 1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+footer.w-full .flex.flex-col.gap-1 {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+}
+footer.w-full .flex.flex-col.gap-1 a {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+footer.w-full .flex.flex-col.gap-1 a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* Let the PolicyEngine site navigation scroll away; only the dashboard title bar stays pinned. */
+body > .min-h-screen > div:first-child {
+  position: relative !important;
+}
