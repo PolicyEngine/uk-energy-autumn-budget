@@ -422,8 +422,9 @@ function PriceSection() {
     <div id="baseline">
       <h2 className="section-heading">Baseline: energy prices over time</h2>
       <p className="section-description">
-        The <strong>typical bill</strong>{" "}rises from £1,477 in April–June 2026 to a forecast of about £2,000 in January–March 2027. This is
-        Ofgem&apos;s headline cap figure: the annual bill of a dual-fuel direct-debit household using{" "}
+        The <strong>typical bill</strong>{" "}rises from <a href="https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener noreferrer">£1,477 in April–June 2026</a> to a{" "}
+        <a href="https://www.cornwall-insight.com/press-releases/16-price-cap-rise-forecast-in-january/" target="_blank" rel="noopener noreferrer">forecast of about £2,000 in January–March 2027</a>. This is{" "}
+        <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap" target="_blank" rel="noopener noreferrer">Ofgem&apos;s headline cap figure</a>: the annual bill of a dual-fuel direct-debit household using{" "}
         <a href="https://www.ofgem.gov.uk/sites/default/files/2026-05/Review%20of%20typical%20domestic%20consumption%20values%20decision.pdf" target="_blank" rel="noopener noreferrer">typical consumption</a>{" "}
         (2,500 kWh electricity, 9,500 kWh gas).
       </p>
