@@ -26,8 +26,8 @@
 /* ============ Sticky Header ============ */
 .title-row {
   position: sticky;
-  /* Sit directly below PolicyEngine's sticky site navigation (58px). */
-  top: 58px;
+  /* The site navigation scrolls away (globals.css), so the title bar pins to the top. */
+  top: 0;
   z-index: 100;
   width: 100%;
   background: color-mix(in srgb, var(--pe-color-primary-700) 94%, transparent);

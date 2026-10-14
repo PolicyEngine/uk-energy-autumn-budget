@@ -109,3 +109,8 @@ footer.w-full .flex.flex-col.gap-1 a:hover {
   opacity: 1;
   text-decoration: underline;
 }
+
+/* Let the PolicyEngine site navigation scroll away; only the dashboard title bar stays pinned. */
+body > .min-h-screen > div:first-child {
+  position: relative !important;
+}
