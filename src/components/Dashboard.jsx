@@ -552,6 +552,11 @@ const POLICY_INFO = [
 ];
 
 const optionYears = (id) => yearsForOption(options, id);
+/** Options in the cost chart's order: highest cost in the year first, options with no result last. */
+const byCost = (fy) => {
+  const cost = (id) => options.find((o) => o.fy === fy && o.option_id === id)?.cost_bn ?? -1;
+  return [...POLICY_INFO].sort((a, b) => cost(b.id) - cost(a.id));
+};
 const policyName = (id) => POLICY_INFO.find((p) => p.id === id)?.name || options.find((o) => o.option_id === id)?.option || id;
 
 /** Shown wherever results are plotted when the selected option has no result in the selected year. */
@@ -574,17 +579,11 @@ function FallbackNote({ sel, fy, setFy }) {
 
 function PolicyOptionsSection({ sel, setOpt, fy }) {
   const info = POLICY_INFO.find((p) => p.id === sel.id) || POLICY_INFO[0];
-  const anyUnavailable = POLICY_INFO.some((p) => !sel.availableIds.includes(p.id));
   return (
     <div id="policies">
       <h2 className="section-heading">The policy options</h2>
-      <p className="section-description">
-        Seven options from published proposals, reported government plans and past schemes. Select one to see its details; the
-        charts follow your choice.
-        {anyUnavailable && <> Options marked with a year are modelled for that year only.</>}
-      </p>
       <div className="policy-grid">
-        {POLICY_INFO.map((p) => {
+        {byCost(fy).map((p) => {
           const available = sel.availableIds.includes(p.id);
           const onlyIn = optionYears(p.id);
           return (
