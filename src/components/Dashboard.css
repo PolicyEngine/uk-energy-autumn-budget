@@ -1007,7 +1007,16 @@ a:has(sup) {
 }
 .intro-text + .more-detail { margin-top: 14px; }
 
-.chart-sentence { margin: 16px 0 0; font-size: 0.92rem; line-height: 1.6; color: var(--pe-color-gray-700); }
+.chart-sentence {
+  margin: 16px 0 0;
+  padding: 12px 16px;
+  border-left: 4px solid #DD6B20;
+  border-radius: 8px;
+  background: #FFFAF0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--pe-color-gray-700);
+}
 /* Selector labels removed: the pill values are self-explanatory. */
 .pill-row-label { display: none; }
 .chart-sentence strong { color: #C05621; font-weight: 700; }
