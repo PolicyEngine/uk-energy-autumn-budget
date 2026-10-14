@@ -721,12 +721,7 @@ ol.ref-list li a {
 
 a:has(sup) {
   color: var(--pe-color-primary-600);
-  text-decoration: none;
   cursor: pointer;
-}
-
-a:has(sup):hover {
-  text-decoration: underline;
 }
 
 /* ============ Footer ============ */

@@ -56,6 +56,8 @@ body {
    their own link colours. */
 .app-shell a {
   color: var(--pe-color-primary-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
   transition: opacity 150ms ease;
 }
 

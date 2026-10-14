@@ -1040,8 +1040,8 @@ export default function Dashboard() {
 
       <main className="main-content">
         <p className="intro-text">
-          What will UK households pay for gas and electricity in 2026-27 and 2027-28, and what would Autumn Budget support
-          options cost and who would they reach? We model every household&apos;s bill at the prices{" "}
+          This dashboard estimates what UK households will pay for gas and electricity in 2026-27 and 2027-28, and what
+          Autumn Budget support options would cost and who they would reach. We model every household&apos;s bill at the prices{" "}
           <a href="https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026" target="_blank" rel="noopener noreferrer">Ofgem has set</a>{" "}
           and forecasters expect, and score seven options against that baseline using PolicyEngine.
         </p>
