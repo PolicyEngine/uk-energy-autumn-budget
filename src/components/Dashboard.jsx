@@ -68,6 +68,21 @@ function ExpandablePillRow({ label, options, value, onChange }) {
   );
 }
 
+/** Year and option pills, shown in every chart box that depends on them. */
+function YearOptionPills({ fy, setFy, sel, setOpt }) {
+  return (
+    <>
+      <ExpandablePillRow label="FINANCIAL YEAR" options={YEAR_OPTIONS} value={fy} onChange={setFy} />
+      <ExpandablePillRow
+        label="OPTION"
+        options={options.filter((o) => o.fy === fy).map((o) => ({ key: o.option_id, label: o.option }))}
+        value={sel.id}
+        onChange={setOpt}
+      />
+    </>
+  );
+}
+
 /** A one-line summary stays visible; the longer explanation sits behind "More detail". */
 function MoreDetail({ label = "More detail", children }) {
   return (
@@ -407,8 +422,8 @@ function PriceSection() {
     <div id="baseline">
       <h2 className="section-heading">Baseline: energy prices over time</h2>
       <p className="section-description">
-        The <strong>typical bill</strong> rises from £1,477 in April–June 2026 to a forecast of about £2,000 in January–March 2027. The
-        typical bill is Ofgem&apos;s headline cap figure: the annual bill of a dual-fuel direct-debit household using{" "}
+        The <strong>typical bill</strong>{" "}rises from £1,477 in April–June 2026 to a forecast of about £2,000 in January–March 2027. This is
+        Ofgem&apos;s headline cap figure: the annual bill of a dual-fuel direct-debit household using{" "}
         <a href="https://www.ofgem.gov.uk/sites/default/files/2026-05/Review%20of%20typical%20domestic%20consumption%20values%20decision.pdf" target="_blank" rel="noopener noreferrer">typical consumption</a>{" "}
         (2,500 kWh electricity, 9,500 kWh gas).
       </p>
@@ -564,7 +579,7 @@ function PolicyOptionsSection({ sel, setOpt, fy }) {
       <h2 className="section-heading">The policy options</h2>
       <p className="section-description">
         Seven options from published proposals, reported government plans and past schemes. Select one to see its details; the
-        charts follow your choice, which you can also change from the bar at the top.
+        charts follow your choice.
         {anyUnavailable && <> Options marked with a year are modelled for that year only.</>}
       </p>
       <div className="policy-grid">
@@ -657,7 +672,7 @@ function BudgetSection({ fy, setFy, sel, setOpt }) {
 
       <div className="section-card">
         <div className="pill-rows">
-          <ExpandablePillRow label="FINANCIAL YEAR" options={YEAR_OPTIONS} value={fy} onChange={setFy} />
+          <YearOptionPills fy={fy} setFy={setFy} sel={sel} setOpt={setOpt} />
           <ExpandablePillRow
             label="COMPARE OPTIONS BY"
             options={Object.entries(METRICS).map(([k, v]) => ({ key: k, label: v.label }))}
@@ -742,15 +757,22 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
       </p>
       </MoreDetail>
 
+      <div className="rise-panel">
+        <div className="rise-panel-title">Average forecast price rise per household</div>
+        <div className="rise-panel-values">
+          {years.map((y) => (
+            <div className="rise-panel-item" key={y.fy}>
+              <span className="rise-panel-value">{fmt(y.mean_extra_cost)}</span>
+              <span className="rise-panel-year">in {y.fy}</span>
+            </div>
+          ))}
+        </div>
+        <div className="rise-panel-note">Extra cost of each household&apos;s current energy use compared with April–June 2026 cap rates.</div>
+      </div>
+
       <div className="section-card">
         <div className="pill-rows">
-          <ExpandablePillRow label="FINANCIAL YEAR" options={YEAR_OPTIONS} value={fy} onChange={setFy} />
-          <ExpandablePillRow
-            label="REFORM"
-            options={rows.map((r) => ({ key: r.option_id, label: r.option }))}
-            value={id}
-            onChange={setOpt}
-          />
+          <YearOptionPills fy={fy} setFy={setFy} sel={sel} setOpt={setOpt} />
           <ExpandablePillRow
             label="MEASURE"
             options={Object.entries(MEASURES).map(([k, v]) => ({ key: k, label: v.label }))}
@@ -791,7 +813,12 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
 
       <div className="section-card">
         <h3 className="chart-title">{breakdown === "region" ? "By region" : "By household type"}</h3>
+        <p className="section-description box-intro">
+          Average price rise and gain over all households in each group, including those the option does not reach.
+          Northern Ireland is outside the Ofgem cap, so GB prices are used as a proxy for its bills.
+        </p>
         <div className="pill-rows">
+          <YearOptionPills fy={fy} setFy={setFy} sel={sel} setOpt={setOpt} />
           <ExpandablePillRow
             label="BREAKDOWN"
             options={[{ key: "hh_type", label: "Household type" }, { key: "region", label: "Region" }]}
@@ -829,11 +856,6 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
             ]}
           />
         </div>
-        <p className="section-description" style={{ marginTop: 12 }}>
-          Average price rise and gain over all households in each group, including those the reform does not reach.
-
-          {" "}Northern Ireland is outside the Ofgem cap, so GB prices are used as a proxy for its bills.
-        </p>
         {breakdown === "region" && GB_ONLY.includes(id) && (
           <div className="policy-note" style={{ marginTop: 12 }}>
             <strong>Great Britain only.</strong> {o.option} applies in England, Scotland and Wales, so Northern
@@ -846,7 +868,10 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
 }
 
 
-const Fn = ({ n }) => <a href={`#fn-${n}`}><sup>{n}</sup></a>;
+// Footnote links open the collapsed Sources list before jumping to the entry.
+const Fn = ({ n }) => (
+  <a href={`#fn-${n}`} onClick={() => document.querySelector(".sources-card")?.setAttribute("open", "")}><sup>{n}</sup></a>
+);
 
 const REFERENCES = [
   ["Ofgem, “Energy price cap unit rates and standing charges” and quarterly cap announcements, 2025–2026.", "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges"],
@@ -868,152 +893,115 @@ const REFERENCES = [
 
 /* Sentences marked MODEL-DISCLOSURE (a)–(e) describe the corrected model from the publication review
  * (PolicyEngine/uk-energy-autumn-budget#1). Edit them in one place if the model's final method differs. */
+const OPTION_METHODS = [
+  ["Targeted discount (RF)", "PolicyEngine reform", "Change in household net income", "Yes, by assumption"],
+  ["£300 Cost of Living Payment", "PolicyEngine reform", "Change in household net income", "Yes"],
+  ["Warm Home Discount +£100", "PolicyEngine reform", "Change in household net income", "Yes, as DWP counts it"],
+  ["£400 bill credit", "PolicyEngine reform", "Change in household net income", "No"],
+  ["Cap freeze", "Costed from bills", "Total cut in bills", "No"],
+  ["Extend VAT cut", "Costed from bills", "Total cut in bills", "No"],
+  ["Remove levies", "Costed from bills", "Total cut in bills", "No"],
+];
+
 function MethodologySection() {
   const pv = provenance;
   return (
     <div className="tab-content">
       <div className="section-card">
         <h2 className="section-heading">Core assumptions</h2>
-        <ul className="section-description method-list core-assumptions">
-          <li><strong>Prices:</strong> Ofgem&apos;s announced caps to December 2026,<Fn n={2} /> Cornwall Insight&apos;s forecast for
-            January–March 2027,<Fn n={3} /> supplier forecasts for April–December 2027,<Fn n={4} /><sup>,</sup><Fn n={13} /> and January–March 2028
-            held at the October–December 2027 level, which is our assumption.</li>
-          <li><strong>Price rise:</strong> the extra cost of each household&apos;s current energy use compared with April–June 2026 cap rates.<Fn n={1} /></li>
-          <li><strong>Households:</strong> every household is on the capped variable tariff and uses the same energy as today; incomes and
-            benefits are held fixed. Northern Ireland uses GB prices.</li>
-          <li><strong>Data:</strong> Microcosm UK 2024-25 on policyengine.py {pv.policyengine_version} (policyengine-uk {pv.model_version}).<Fn n={12} /></li>
-          <li><strong>Poverty:</strong> DWP&apos;s relative HBAI measure. It counts income, not bills, so only support DWP treats as income moves it.<Fn n={9} /></li>
-        </ul>
+        <dl className="method-grid">
+          <div className="method-row"><dt>Prices</dt><dd>Ofgem&apos;s announced caps to December 2026,<Fn n={2} /> Cornwall Insight&apos;s forecast for January–March 2027,<Fn n={3} /> supplier forecasts for April–December 2027,<Fn n={4} /><sup>,</sup><Fn n={13} /> and January–March 2028 held at the October–December 2027 level, which is our assumption.</dd></div>
+          <div className="method-row"><dt>Price rise</dt><dd>The extra cost of each household&apos;s current energy use compared with April–June 2026 cap rates.<Fn n={1} /></dd></div>
+          <div className="method-row"><dt>Households</dt><dd>Every household is on the capped variable tariff and uses the same energy as today; incomes and benefits are held fixed. Northern Ireland uses GB prices.</dd></div>
+          <div className="method-row"><dt>Data</dt><dd>Microcosm UK 2024-25 on policyengine.py {pv.policyengine_version} (policyengine-uk {pv.model_version}).<Fn n={12} /></dd></div>
+          <div className="method-row"><dt>Poverty</dt><dd>DWP&apos;s relative HBAI measure. It counts income, not bills, so only support DWP treats as income moves it.<Fn n={9} /></dd></div>
+        </dl>
       </div>
 
-      <MoreDetail label="Full methodology">
       <div className="section-card">
-        <h2 className="section-heading">How the model works</h2>
-        <p className="section-description">
-          We use policyengine.py {pv.policyengine_version} (policyengine-uk {pv.model_version})<Fn n={12} /> on
-          Microcosm UK 2024-25, PolicyEngine's calibrated household dataset of 29.3m UK households. The release
-          we use ({pv.dataset_release}) is not yet in the policyengine.py certified bundle, so we pin it by its
-          SHA-256 hash. Microcosm prices each household's energy use at DESNZ Quarterly Energy Prices for 2024-25
-          (regional unit cost plus standing charge), then calibrates household weights to ONS 2025 spending,
-          so each household's spending implies its annual kWh.<Fn n={7} />
-        </p>
-        <p className="section-description">
-          The baseline is current law at forecast prices. Ofgem's announced caps set prices to December
-          2026,<Fn n={2} /> Cornwall Insight's forecast sets January–March 2027,<Fn n={3} /> the average of
-          supplier forecasts sets April–September 2027,<Fn n={4} /> and OVO's forecast sets October–December
-          2027.<Fn n={13} /> No forecaster publishes January–March 2028, so it is held at the October level. OVO's
-          figures keep electricity VAT-free, so we add the 5% VAT that current law restores in April 2027. Because Ofgem cut its typical consumption
-          values on 1 July 2026,<Fn n={5} /> we cost every quarter from its unit rates and standing charges rather
-          than from headline cap figures, and take electricity and gas separately. Supplier forecasts give no
-          split between the two fuels, so we scale Cornwall Insight's January unit rates to each forecast total.
-          VAT on domestic electricity is 0% from October 2026 to March 2027 and returns to 5% from April
-          2027.<Fn n={6} />
-        </p>
-        <p className="section-description">
-          {/* MODEL-DISCLOSURE (a): kWh conversion, separate standing charges, seasonal profile. */}
-          A bill is a unit rate per kWh plus a fixed daily standing charge, so a price rise changes small and
-          large users' bills by different percentages.<Fn n={1} /> We therefore convert each household's
-          electricity and gas spending into annual kWh, net of standing charges, at the 2024-25 prices Microcosm
-          used, then re-cost that consumption at each quarter's unit rates, adding each quarter's standing charges
-          separately. Consumption is spread across quarters with a seasonal demand profile, so winter quarters,
-          when gas use and prices are highest, carry more weight; the profile follows Ofgem's published winter
-          shares of annual demand.<Fn n={14} /> About 10% of households have electricity spending equal to the
-          standing charge in Microcosm, so they have no measured use and only their standing charges change;
-          this understates their bill change.
-        </p>
-        <p className="section-description">
-          {/* MODEL-DISCLOSURE (d): all households on capped variable tariffs. */}
-          Every household is modelled as paying the capped standard variable tariff. In practice around 35% of
-          households are on fixed tariffs and will not see the October 2026 cap rise until their contracts
-          end;<Fn n={2} /> we do not model tariff type, payment method or contract expiry. The baseline is
-          therefore a scenario in which all households face cap prices, not a forecast of what each household
-          will pay.
-        </p>
-        <p className="section-description">
-          The four payment options (targeted discount, Cost of Living Payment, Warm Home Discount top-up and
-          £400 credit) are PolicyEngine reforms run against that baseline on the same households; their cost is
-          the change in household net income summed over all households. The three price reductions (cap
-          freeze, VAT extension and levy removal) are calculated directly from each household's modelled bills,
-          outside the PolicyEngine reform engine; their cost is the total reduction in bills. Household gains
-          are averaged by income decile or household type. Income deciles are PolicyEngine's household
-          income decile:<Fn n={15} /> households ranked by equivalised net income before housing costs and split
-          into tenths of people, with negative-income households left out. The Cost of Living Payment and £400
-          payment use PolicyEngine UK's own parameters.
-          {/* MODEL-DISCLOSURE (b): cap freeze holds unit rates and standing charges. */}
-          {" "}The cap freeze holds electricity and gas unit rates and standing charges at their April–June 2026
-          levels, when the typical bill was £1,641, and the government pays suppliers the difference from
-          forecast prices.
-          {/* MODEL-DISCLOSURE (c): RF option is a simplified flat-payment illustration. */}
-          {" "}The targeted discount is a simplified illustration of the Resolution Foundation's
-          proposal.<Fn n={8} /> RF discounts unit rates, switches on by quarter, assesses the previous three
-          months' income and expects incomplete take-up; we instead pay a flat £175, RF's average for eligible
-          households, to every household on a means-tested benefit or whose highest individual income is under
-          £24,000, assessed on annual income, with full take-up. It is implemented as a PolicyEngine UK reform
-          taken from PolicyEngine's uk-energy-reforms repository.
-          {/* MODEL-DISCLOSURE (e): WHD option is a means-tested-household proxy. */}
-          {" "}The Warm Home Discount top-up pays £100 to every household where someone receives a qualifying
-          means-tested benefit during the year. This is a proxy for actual recipients, who must also meet a
-          qualifying date and have the claimant named on a participating supplier's electricity account
-          (<a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales" target="_blank" rel="noopener noreferrer">England and Wales</a>;{" "}
-          <a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland" target="_blank" rel="noopener noreferrer">Scotland</a> has
-          further group and application rules). PolicyEngine UK has no parameter for VAT on domestic
-          electricity, so the VAT extension and levy removal are costed directly from each household's
-          electricity bill in Great Britain.
-        </p>
-        <p className="section-description">
-          Poverty is relative poverty: people in households below 60% of median equivalised HBAI income, the
-          DWP headline measure (PolicyEngine UK's relative poverty variables). Absolute poverty against a fixed
-          2024-25 line is also in the published data. HBAI income does not net off energy bills, so bill
-          support counts only where it is treated as income. DWP counts the Warm Home Discount, although it is a
-          bill credit, as miscellaneous income in HBAI.<Fn n={9} /> By scheme:
-        </p>
+        <h2 className="section-heading">Prices</h2>
+        <p className="section-description box-intro">Each quarter&apos;s source is in the price chart on the Budget responses tab.</p>
+        <dl className="method-grid">
+          <div className="method-row"><dt>Rates, not headline caps</dt><dd>Ofgem cut its typical consumption values on 1 July 2026,<Fn n={5} />{" "} so headline caps before and after are not comparable. We cost every quarter from its rates, for electricity and gas separately.</dd></div>
+          <div className="method-row"><dt>Fuel split</dt><dd>Supplier forecasts give one total; we split it between fuels by scaling Cornwall Insight&apos;s January unit rates to each total.</dd></div>
+          <div className="method-row"><dt>VAT on electricity</dt><dd>0% from October 2026 to March 2027 and 5% from April 2027.<Fn n={6} /> OVO quotes VAT-free figures, so we add the 5% back for October–December 2027.</dd></div>
+        </dl>
+      </div>
+
+      <div className="section-card">
+        <h2 className="section-heading">Households and bills</h2>
+        {/* MODEL-DISCLOSURE (a): kWh conversion, separate standing charges, seasonal profile. */}
+        {/* MODEL-DISCLOSURE (d): all households on capped variable tariffs. */}
+        <dl className="method-grid">
+          <div className="method-row"><dt>Data</dt><dd>Microcosm UK 2024-25, PolicyEngine&apos;s calibrated dataset of 29.3m households. Its release ({pv.dataset_release}) is not yet in the policyengine.py certified bundle, so we pin it by its SHA-256 hash.</dd></div>
+          <div className="method-row"><dt>From spending to kWh</dt><dd>Microcosm prices energy use at DESNZ 2024-25 regional prices.<Fn n={7} /> We reverse that to get each household&apos;s annual kWh, net of standing charges.</dd></div>
+          <div className="method-row"><dt>Re-costing</dt><dd>That kWh is priced at each quarter&apos;s unit rates, plus each quarter&apos;s standing charges. A bill is a unit rate plus a fixed daily charge, so the same price rise is a different percentage for small and large users.<Fn n={1} /></dd></div>
+          <div className="method-row"><dt>Seasons</dt><dd>Use is spread across quarters with Ofgem&apos;s winter shares (75% of gas and 57% of electricity in October–March),<Fn n={14} /> so winter prices carry more weight.</dd></div>
+          <div className="method-row"><dt>Zero use</dt><dd>About 10% of households have electricity spending equal to the standing charge, so only their standing charges change. This understates their bill change.</dd></div>
+          <div className="method-row"><dt>Tariffs</dt><dd>Everyone pays the capped variable tariff. In practice around 35% are on fixed tariffs and see cap changes only when their contract ends,<Fn n={2} /> so the baseline is a scenario, not a forecast of each household&apos;s bill.</dd></div>
+          <div className="method-row"><dt>Deciles</dt><dd>PolicyEngine&apos;s household income deciles:<Fn n={15} /> households ranked by equivalised net income before housing costs, split into tenths of people, with negative-income households left out.</dd></div>
+        </dl>
+      </div>
+
+      <div className="section-card">
+        <h2 className="section-heading">How each option is modelled</h2>
+        <div className="chart-values-scroll">
+          <table className="scenario-table method-table">
+            <thead>
+              <tr><th>Option</th><th>Method</th><th>Cost</th><th>Moves HBAI poverty?</th></tr>
+            </thead>
+            <tbody>
+              {OPTION_METHODS.map(([name, method, cost, pov]) => (
+                <tr key={name}><td>{name}</td><td>{method}</td><td>{cost}</td><td>{pov}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {/* MODEL-DISCLOSURE (c): RF option is a simplified flat-payment illustration. */}
+        {/* MODEL-DISCLOSURE (e): WHD option is a means-tested-household proxy. */}
+        {/* MODEL-DISCLOSURE (b): cap freeze holds unit rates and standing charges. */}
+        <dl className="method-grid">
+          <div className="method-row"><dt>Targeted discount</dt><dd>A simplified version of the Resolution Foundation&apos;s proposal.<Fn n={8} /> RF discounts unit rates quarterly on the last three months&apos; income, with incomplete take-up. We pay a flat £175 (RF&apos;s average) to households on a means-tested benefit or whose highest individual income is under £24,000, on annual income, with full take-up.</dd></div>
+          <div className="method-row"><dt>Warm Home Discount</dt><dd>£100 to every household where someone gets a qualifying benefit during the year. Real recipients must also meet a qualifying date and be named on a participating supplier&apos;s account (<a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales" target="_blank" rel="noopener noreferrer">England and Wales</a>,{" "} <a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland" target="_blank" rel="noopener noreferrer">Scotland</a>).</dd></div>
+          <div className="method-row"><dt>Cap freeze</dt><dd>Unit rates and standing charges held at April–June 2026 levels (a £1,641 typical bill); the government pays suppliers the difference.</dd></div>
+          <div className="method-row"><dt>VAT and levies</dt><dd>PolicyEngine UK has no domestic electricity VAT parameter, so both are costed directly from each GB household&apos;s electricity bill.</dd></div>
+          <div className="method-row"><dt>Poverty treatment</dt><dd>DWP counts the Warm Home Discount as income in HBAI, although it is a bill credit.<Fn n={9} /> We treat the targeted discount the same way by analogy; HBAI has no rule for it.</dd></div>
+        </dl>
+      </div>
+
+      <div className="section-card">
+        <h2 className="section-heading">How Microcosm compares with official figures</h2>
+        <div className="chart-values-scroll">
+          <table className="scenario-table method-table">
+            <thead>
+              <tr><th>Measure</th><th>Microcosm</th><th>Official</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Electricity and gas spending, 2025</td><td>£42.2bn</td><td>£41.9bn (ONS)</td></tr>
+              <tr><td>Households, 2024</td><td>29.0m</td><td>28.6m (ONS)</td></tr>
+              <tr><td>Relative poverty after housing costs, 2024-25</td><td>18.3% of people</td><td>20% (DWP)</td></tr>
+            </tbody>
+          </table>
+        </div>
         <ul className="section-description method-list">
-          <li><strong>Warm Home Discount top-up:</strong> counted, as DWP counts the Warm Home Discount.<Fn n={9} /></li>
-          <li><strong>£300 Cost of Living Payment:</strong> counted, as a cash benefit payment.</li>
-          <li><strong>Targeted discount (RF):</strong> counted by assumption. HBAI has no rule for this new discount;
-            we extrapolate from DWP's treatment of the Warm Home Discount.</li>
-          <li><strong>£400 bill credit, cap freeze, VAT cut and levy removal:</strong> not counted, so they show no
-            change in poverty even when they cut household costs.</li>
+          <li>PolicyEngine&apos;s previous enhanced FRS dataset gets closer on poverty (21.2%) but overstates energy spending at £51bn.</li>
+          <li>We report Microcosm&apos;s poverty rates as computed and do not use them to rank the options.</li>
         </ul>
-        <p className="section-description">
-          Microcosm matches official energy spending and household counts
-          closely (£42.2bn on electricity and gas in 2025 against the ONS's £41.9bn; 29.0m households in 2024
-          against 28.6m), but puts relative poverty after housing costs at 18.3% of people and 23.4% of people under 18
-          in 2024-25, against DWP's 20% of people and 27% of children. DWP's child count covers dependent children,
-          including some 16–19-year-olds in full-time education, so our under-18 rate is not directly comparable
-          with its child headline. PolicyEngine's previous enhanced FRS dataset gives 21.2% and 31.0% (under 18)
-          but overstates energy spending at £51bn. We report Microcosm's poverty rates as
-          computed and do not use them to rank the options.
-        </p>
       </div>
 
       <div className="section-card">
-        <h2 className="section-heading">Behavioural responses</h2>
-        <p className="section-description">
-          This is a static scenario: households use the same amount of electricity and gas at forecast prices as
-          at April–June 2026 prices, and none of the reforms changes how much they use. In practice households
-          cut use when prices rise; PolicyEngine's energy price shock analysis estimates short-run price
-          elasticities from −0.64 in income decile 1 to −0.11 in income decile 10,<Fn n={10} /> which we do not
-          apply. The VAT extension and levy removal are proportional to electricity spending, so 10% less
-          electricity spending means 10% lower costs for both. The cap freeze has two parts: a usage part that
-          falls in proportion to use, and the change in standing charges, which does not depend on use and can be
-          positive or negative. How its cost responds to lower use therefore depends on each household's use, the
-          sign of its standing-charge difference and the zero floor. The flat payments (£400 credit, Cost of Living
-          Payment, Warm Home Discount top-up and the targeted discount as modelled) do not depend on use. We do
-          not treat the baseline bills as an upper bound, because tariff type and contract timing are not
-          modelled.
-        </p>
-        <p className="section-description">
-          We also hold incomes and benefits fixed. Higher energy prices raise CPI inflation, which sets the
-          following April's benefit uprating; that link is not modelled. Northern Ireland, which the Ofgem cap
-          does not cover, uses GB prices as a proxy. The Autumn Budget and the OBR's next forecast are both due on
-          28 October 2026;<Fn n={11} /> the OBR's March 2026 forecast closed before energy prices rose.
-        </p>
+        <h2 className="section-heading">What we leave out</h2>
+        <dl className="method-grid">
+          <div className="method-row"><dt>Behaviour</dt><dd>Households use the same energy at every price. In practice they cut use; PolicyEngine&apos;s energy price shock analysis puts short-run elasticities at −0.64 in decile 1 to −0.11 in decile 10,<Fn n={10} /> which we do not apply.</dd></div>
+          <div className="method-row"><dt>How costs respond to lower use</dt><dd>VAT and levy costs fall in proportion to electricity spending. The cap freeze has a usage part that falls with use and a standing-charge part that does not and can be positive or negative. The flat payments do not depend on use.</dd></div>
+          <div className="method-row"><dt>Incomes</dt><dd>Held fixed. Higher prices raise CPI, which sets the following April&apos;s benefit uprating; that link is not modelled.</dd></div>
+          <div className="method-row"><dt>Northern Ireland</dt><dd>Outside the Ofgem cap; GB prices are a proxy.</dd></div>
+          <div className="method-row"><dt>Timing</dt><dd>The Budget and the OBR&apos;s next forecast are both due on 28 October 2026;<Fn n={11} /> the OBR&apos;s March 2026 forecast closed before energy prices rose.</dd></div>
+        </dl>
       </div>
-      </MoreDetail>
 
-      <div className="section-card">
-        <div className="chart-title" style={{ marginBottom: 12 }}>Sources</div>
+      <details className="section-card sources-card">
+        <summary className="chart-title">Sources</summary>
         <ol className="ref-list">
           {REFERENCES.map(([text, href], i) => (
             <li id={`fn-${i + 1}`} key={href}>
@@ -1022,7 +1010,7 @@ function MethodologySection() {
             </li>
           ))}
         </ol>
-      </div>
+      </details>
     </div>
   );
 }
@@ -1046,22 +1034,6 @@ export default function Dashboard() {
       <header className="title-row">
         <div className="title-row-inner">
           <h1>Energy bills and the Autumn Budget 2026</h1>
-          {activeTab !== "methodology" && (
-            <div className="header-controls">
-              <label>
-                <span>Year</span>
-                <select value={fy} onChange={(e) => setFy(e.target.value)}>
-                  {YEAR_OPTIONS.map((y) => <option key={y.key} value={y.key}>{y.label}</option>)}
-                </select>
-              </label>
-              <label>
-                <span>Option</span>
-                <select value={sel.id} onChange={(e) => setOpt(e.target.value)}>
-                  {options.filter((o) => o.fy === fy).map((o) => <option key={o.option_id} value={o.option_id}>{o.option}</option>)}
-                </select>
-              </label>
-            </div>
-          )}
         </div>
       </header>
 
@@ -1072,27 +1044,6 @@ export default function Dashboard() {
           <a href="https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026" target="_blank" rel="noopener noreferrer">Ofgem has set</a>{" "}
           and forecasters expect, and score seven options against that baseline using PolicyEngine.
         </p>
-        <div className="metric-row intro-metrics">
-          {years.map((y) => (
-            <div className="metric-card" key={y.fy}>
-              <div className="metric-label">Average price rise, {y.fy}</div>
-              <div className="metric-value amber">{fmt(y.mean_extra_cost)}<span className="metric-unit">per household</span></div>
-              <div className="metric-info">Extra cost of current energy use compared with April–June 2026 cap rates</div>
-            </div>
-          ))}
-          <div className="metric-card">
-            <div className="metric-label">Options scored</div>
-            <div className="metric-value">7</div>
-            <div className="metric-info">Discounts, payments and price cuts, each a reform against the baseline</div>
-          </div>
-          <div className="metric-card">
-            <div className="metric-label">Autumn Budget</div>
-            <div className="metric-value">28 Oct 2026</div>
-            <div className="metric-info">
-              <a href="https://obr.uk/autumn-2026-forecast-date-announced/" target="_blank" rel="noopener noreferrer">OBR forecast</a> published the same day
-            </div>
-          </div>
-        </div>
         <MoreDetail label="Proposals behind the options">
           <p className="section-description">
             Proposals include a targeted energy discount (<a href="https://www.resolutionfoundation.org/publications/billing-me-softly/" target="_blank" rel="noopener noreferrer">Resolution Foundation</a>),

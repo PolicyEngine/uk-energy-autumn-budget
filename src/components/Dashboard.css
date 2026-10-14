@@ -964,46 +964,75 @@ a:has(sup):hover {
 
 /* ============ Slack review, Oct 2026 ============ */
 /* One-line summaries stay visible; longer text sits behind "More detail". */
-.more-detail { margin: -8px 0 20px; }
+.more-detail { margin: 6px 0 28px; }
 .more-detail > summary {
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--pe-color-primary-600);
 }
 .more-detail-body { margin-top: 12px; }
-.intro-metrics { margin-top: 16px; }
-.intro-metrics .metric-value { font-size: 1.4rem; }
 
-/* Year and option pickers in the sticky title bar, so they stay in reach while scrolling. */
-.header-controls { display: flex; gap: 12px; flex-wrap: wrap; }
-.header-controls label { display: flex; align-items: center; gap: 6px; }
-.header-controls span {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--pe-color-primary-100);
-}
-.header-controls select {
-  font: inherit;
-  font-size: 0.85rem;
-  padding: 4px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--pe-color-primary-300);
-  background: var(--pe-color-bg-primary);
-  color: var(--pe-color-gray-800);
-  max-width: 260px;
-}
+
 @media (max-width: 720px) {
-  .title-row-inner { flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 16px; }
-  .header-controls select { max-width: 200px; }
+        }
+.method-table { width: 100%; margin: 0 0 16px; }
+.method-table th, .method-table td,
+.method-table td:last-child, .method-table th:last-child { text-align: left; padding: 8px 14px; }
+.method-table td { font-weight: 400; }
+
+/* Price-rise headline on the Household effects tab */
+.rise-panel {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 32px;
+  margin: 0 0 20px;
+  padding: 18px 24px;
+  border-radius: 16px;
+  border: 1px solid #FBD38D;
+  border-left: 6px solid #DD6B20;
+  background: #FFFAF0;
 }
-@media (max-width: 720px) {
-  .intro-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .intro-metrics .metric-card { padding: 12px; }
-  .intro-metrics .metric-value { font-size: 1.15rem; }
-  .intro-metrics .metric-unit { display: block; margin-left: 0; }
-  .header-controls { flex-wrap: nowrap; width: 100%; gap: 8px; }
-  .header-controls label:last-child { flex: 1; min-width: 0; }
-  .header-controls label:last-child select { width: 100%; max-width: none; }
+.rise-panel-title { font-size: 0.95rem; font-weight: 600; color: var(--pe-color-gray-800); }
+.rise-panel-values { grid-row: span 2; display: flex; gap: 32px; }
+.rise-panel-item { display: flex; flex-direction: column; align-items: flex-end; }
+.rise-panel-value { font-size: 1.9rem; font-weight: 700; color: #C05621; letter-spacing: -0.02em; line-height: 1.1; }
+.rise-panel-year { font-size: 0.8rem; color: var(--pe-color-gray-600); }
+.rise-panel-note { font-size: 0.8rem; color: var(--pe-color-gray-600); }
+@media (max-width: 640px) {
+  .rise-panel { grid-template-columns: 1fr; padding: 14px 16px; }
+  .rise-panel-values { grid-row: auto; gap: 24px; }
+  .rise-panel-item { align-items: flex-start; }
+  .rise-panel-value { font-size: 1.5rem; }
 }
+.box-intro { margin: 4px 0 16px; font-size: 0.9rem; }
+.sources-card > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; margin: 0; }
+.sources-card > summary::-webkit-details-marker { display: none; }
+.sources-card > summary::before { content: "▸"; color: var(--pe-color-gray-500); transition: transform 0.2s ease; display: inline-block; }
+.sources-card[open] > summary::before { transform: rotate(90deg); }
+.sources-card[open] > summary { margin-bottom: 12px; }
+
+/* Methodology: label / text rows inside each box */
+.method-grid { margin: 4px 0 0; }
+.method-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--pe-color-gray-100);
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+.method-row:first-child { border-top: none; padding-top: 4px; }
+.method-row dt { font-weight: 600; color: var(--pe-color-primary-700); }
+.method-row dd { margin: 0; color: var(--pe-color-gray-700); }
+.method-table + .method-grid, .chart-values-scroll + .method-grid { margin-top: 8px; }
+.tab-content > .section-card .section-heading {
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid var(--pe-color-primary-100);
+}
+@media (max-width: 640px) {
+  .method-row { grid-template-columns: 1fr; gap: 2px; }
+}
+.intro-text + .more-detail { margin-top: 14px; }
