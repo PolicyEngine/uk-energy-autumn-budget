@@ -758,29 +758,6 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
       </p>
       </MoreDetail>
 
-      <div className="rise-panel">
-        <div className="rise-panel-head">
-          <div className="rise-panel-title">Forecast price rise for the average household</div>
-          <div className="rise-panel-note">
-            Extra cost of current energy use compared with April–June 2026 cap rates, when the average bill was{" "}
-            {fmt(years[0].mean_bill_apr_jun_2026_prices)} a year.
-          </div>
-        </div>
-        <div className="rise-panel-tiles">
-          {years.map((y) => {
-            const pct = (y.mean_extra_cost / y.mean_bill_apr_jun_2026_prices) * 100;
-            return (
-              <div className="rise-tile" key={y.fy}>
-                <span className="rise-tile-year">{y.fy}</span>
-                <span className="rise-tile-value">+{fmt(y.mean_extra_cost)}<span className="rise-tile-unit"> a year</span></span>
-                <span className="rise-tile-pct">+{pct.toFixed(0)}% on the average bill</span>
-                <span className="rise-tile-bar"><span style={{ width: `${Math.min(pct * 2.5, 100)}%` }} /></span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       <div className="section-card">
         <div className="pill-rows">
           <YearOptionPills fy={fy} setFy={setFy} sel={sel} setOpt={setOpt} />
@@ -808,6 +785,13 @@ function HouseholdSection({ fy, setFy, sel, setOpt }) {
             yLabel={ms.y}
             xLabel="Income decile"
           />
+          <p className="chart-sentence">
+            Across all households, the forecast price rise averages {fmt(years[0].mean_extra_cost)} a year in {years[0].fy} and{" "}
+            {fmt(years[1].mean_extra_cost)} in {years[1].fy}, compared with April–June 2026 cap rates, when the average bill
+            was {fmt(years[0].mean_bill_apr_jun_2026_prices)}: rises of{" "}
+            {((years[0].mean_extra_cost / years[0].mean_bill_apr_jun_2026_prices) * 100).toFixed(0)}% and{" "}
+            {((years[1].mean_extra_cost / years[1].mean_bill_apr_jun_2026_prices) * 100).toFixed(0)}%.
+          </p>
           <ChartValuesTable
             caption={`${o.option}: average gain by income decile, ${fy}`}
             rows={dec}
@@ -926,7 +910,6 @@ function MethodologySection() {
           <div className="method-row"><dt>Price rise</dt><dd>The extra cost of each household&apos;s current energy use compared with April–June 2026 cap rates.<Fn n={1} /></dd></div>
           <div className="method-row"><dt>Households</dt><dd>Every household is on the capped variable tariff and uses the same energy as today; incomes and benefits are held fixed. Northern Ireland uses GB prices.</dd></div>
           <div className="method-row"><dt>Data</dt><dd>Microcosm UK 2024-25 on policyengine.py {pv.policyengine_version} (policyengine-uk {pv.model_version}).<Fn n={12} /></dd></div>
-          <div className="method-row"><dt>Poverty</dt><dd>DWP&apos;s relative HBAI measure. It counts income, not bills, so only support DWP treats as income moves it.<Fn n={9} /></dd></div>
         </dl>
       </div>
 
@@ -945,7 +928,7 @@ function MethodologySection() {
         {/* MODEL-DISCLOSURE (a): kWh conversion, separate standing charges, seasonal profile. */}
         {/* MODEL-DISCLOSURE (d): all households on capped variable tariffs. */}
         <dl className="method-grid">
-          <div className="method-row"><dt>Data</dt><dd>Microcosm UK 2024-25, PolicyEngine&apos;s calibrated dataset of 29.3m households. Its release ({pv.dataset_release}) is not yet in the policyengine.py certified bundle, so we pin it by its SHA-256 hash.</dd></div>
+          <div className="method-row"><dt>Data</dt><dd>Microcosm UK 2024-25, PolicyEngine&apos;s calibrated dataset of 29.3m households.</dd></div>
           <div className="method-row"><dt>From spending to kWh</dt><dd>Microcosm prices energy use at DESNZ 2024-25 regional prices.<Fn n={7} /> We reverse that to get each household&apos;s annual kWh, net of standing charges.</dd></div>
           <div className="method-row"><dt>Re-costing</dt><dd>That kWh is priced at each quarter&apos;s unit rates, plus each quarter&apos;s standing charges. A bill is a unit rate plus a fixed daily charge, so the same price rise is a different percentage for small and large users.<Fn n={1} /></dd></div>
           <div className="method-row"><dt>Seasons</dt><dd>Use is spread across quarters with Ofgem&apos;s winter shares (75% of gas and 57% of electricity in October–March),<Fn n={14} /> so winter prices carry more weight.</dd></div>
@@ -960,11 +943,11 @@ function MethodologySection() {
         <div className="chart-values-scroll">
           <table className="scenario-table method-table">
             <thead>
-              <tr><th>Option</th><th>Method</th><th>Cost</th><th>Moves HBAI poverty?</th></tr>
+              <tr><th>Option</th><th>Method</th><th>Cost</th></tr>
             </thead>
             <tbody>
-              {OPTION_METHODS.map(([name, method, cost, pov]) => (
-                <tr key={name}><td>{name}</td><td>{method}</td><td>{cost}</td><td>{pov}</td></tr>
+              {OPTION_METHODS.map(([name, method, cost]) => (
+                <tr key={name}><td>{name}</td><td>{method}</td><td>{cost}</td></tr>
               ))}
             </tbody>
           </table>

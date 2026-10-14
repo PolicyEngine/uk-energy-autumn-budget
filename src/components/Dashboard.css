@@ -975,54 +975,6 @@ a:has(sup) {
 .method-table td:last-child, .method-table th:last-child { text-align: left; padding: 8px 14px; }
 .method-table td { font-weight: 400; }
 
-/* Price-rise headline on the Household effects tab */
-.rise-panel {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 16px 32px;
-  margin: 0 0 24px;
-  padding: 20px 24px;
-  border-radius: 18px;
-  border: 1px solid var(--pe-color-border-light);
-  background: var(--pe-color-bg-primary);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--pe-color-gray-900) 6%, transparent);
-}
-.rise-panel-title { font-size: 1.05rem; font-weight: 700; color: var(--pe-color-gray-900); margin-bottom: 4px; }
-.rise-panel-note { font-size: 0.85rem; color: var(--pe-color-gray-600); line-height: 1.5; }
-.rise-panel-tiles { display: flex; gap: 12px; }
-.rise-tile {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 190px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: #FFFAF0;
-  border: 1px solid #FEEBC8;
-}
-.rise-tile-year {
-  align-self: flex-start;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #9C4221;
-  background: #FEEBC8;
-  border-radius: 999px;
-  padding: 2px 10px;
-  margin-bottom: 6px;
-}
-.rise-tile-value { font-size: 1.8rem; font-weight: 700; color: #C05621; letter-spacing: -0.02em; line-height: 1.1; }
-.rise-tile-unit { font-size: 0.85rem; font-weight: 500; color: var(--pe-color-gray-600); letter-spacing: 0; }
-.rise-tile-pct { font-size: 0.8rem; color: var(--pe-color-gray-700); }
-.rise-tile-bar { display: block; height: 6px; margin-top: 8px; border-radius: 999px; background: #FEEBC8; overflow: hidden; }
-.rise-tile-bar > span { display: block; height: 100%; border-radius: 999px; background: #DD6B20; }
-@media (max-width: 760px) {
-  .rise-panel { grid-template-columns: 1fr; padding: 16px; }
-  .rise-panel-tiles { gap: 8px; }
-  .rise-tile { min-width: 0; flex: 1; padding: 12px; }
-  .rise-tile-value { font-size: 1.45rem; }
-}
 .box-intro { margin: 4px 0 16px; font-size: 0.9rem; }
 .sources-card > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; margin: 0; }
 .sources-card > summary::-webkit-details-marker { display: none; }
@@ -1054,3 +1006,7 @@ a:has(sup) {
   .method-row { grid-template-columns: 1fr; gap: 2px; }
 }
 .intro-text + .more-detail { margin-top: 14px; }
+
+.chart-sentence { margin: 16px 0 0; font-size: 0.92rem; line-height: 1.6; color: var(--pe-color-gray-700); }
+/* Selector labels removed: the pill values are self-explanatory. */
+.pill-row-label { display: none; }
