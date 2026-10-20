@@ -23,7 +23,7 @@ from energy_budget.budget_options import (
     household_bills,
     year_quarters,
 )
-from energy_budget.config import QEP_FY2024_25, TARIFFS, quarter_shares
+from energy_budget.config import QEP_CY2024, TARIFFS, quarter_shares
 
 GAS_2026 = year_quarters(2026)["gas"]
 GAS_HELD = HELD_QUARTERS["gas"]
@@ -71,7 +71,7 @@ def test_seasonal_shares():
 
 
 def test_kwh_round_trip_at_reference_tariff():
-    unit, fixed = QEP_FY2024_25["LONDON"]["gas"]
+    unit, fixed = QEP_CY2024["LONDON"]["gas"]
     spend = fixed + unit / 100 * np.array([3_000.0, 20_000.0])
     kwh, connected = household_kwh(spend, ["LONDON", "LONDON"], "gas")
     assert kwh == pytest.approx([3_000, 20_000])
@@ -119,7 +119,7 @@ def test_cap_freeze_restores_april_tariffs():
 
 def test_reference_tariff_bases():
     unit, fixed = reference_tariff(["SCOTLAND", "NOWHERE"], "elec")
-    assert unit[0] == pytest.approx(QEP_FY2024_25["SCOTLAND"]["elec"][0])
+    assert unit[0] == pytest.approx(QEP_CY2024["SCOTLAND"]["elec"][0])
     assert fixed[1] > 0  # missing region falls back to the UK average
     unit, fixed = reference_tariff(["LONDON"], "gas", "ofgem_cy2025_national")
     assert 6 < unit[0] < 7 and 110 < fixed[0] < 125

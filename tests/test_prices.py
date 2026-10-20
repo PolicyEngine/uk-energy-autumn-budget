@@ -48,3 +48,30 @@ def test_2027_28_rates_hit_forecasts(q):
     if not q["elec_vat_in_target"]:
         elec /= 1.05
     assert abs(elec + gas - q["target"]) < 0.5
+
+
+def test_neg_saving_on_block_and_gas_porting():
+    import numpy as np
+
+    from energy_budget.budget_options import neg_support, year_quarters
+    from energy_budget.config import quarter_shares
+
+    kwh = {
+        "elec": np.array([5_000.0, 5_000.0, 1_000.0]),
+        "gas": np.array([20_000.0, 0, 0]),
+    }
+    connected = {"elec": np.array([True] * 3), "gas": np.array([True, False, False])}
+    saving = neg_support(2026, kwh, connected, np.zeros(3, dtype=bool))
+
+    def rate(f):
+        q = year_quarters(2026)[f]
+        return sum(s * u for s, (u, _) in zip(quarter_shares(f), q)) / 100
+
+    # Gas home above both blocks: the whole of each block is discounted.
+    assert saving[0] == pytest.approx(
+        1_800 * rate("elec") * 0.25 + 6_100 * rate("gas") * 0.4
+    )
+    # No gas: electricity block is 1,800 + 6,100 / 2 = 4,850 kWh.
+    assert saving[1] == pytest.approx(4_850 * rate("elec") * 0.25)
+    # Below the block: only the kWh used are discounted.
+    assert saving[2] == pytest.approx(1_000 * rate("elec") * 0.25)

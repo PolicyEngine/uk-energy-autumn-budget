@@ -2,19 +2,19 @@
  {
   "id": "data",
   "topic": "Data and model",
-  "detail": "policyengine.py 6.2.7 (policyengine-uk 2.125.1, bundle uk-6.2.7) on Microcosm UK 2024-25, release microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68. The release is not in the certified bundle, so it runs with allow_unmanaged=True, pinned by repository revision and SHA-256.",
+  "detail": "policyengine.py 6.8.0 (policyengine-uk 2.130.1, bundle uk-6.8.0) on Microcosm UK 2024-25, release microcosm-uk-2024-25-national-20261019T083323Z-6cba5d71. The release is not in the certified bundle, so it runs with allow_unmanaged=True, pinned by repository revision and SHA-256.",
   "link": "https://github.com/PolicyEngine/policyengine.py"
  },
  {
   "id": "kwh",
   "topic": "Usage and price basis",
-  "detail": "Microcosm builds each household's energy spend as kWh priced at DESNZ Quarterly Energy Prices for FY2024-25 (regional unit cost plus fixed cost, VAT included), then reweights households to ONS 2025 spending. Each household's kWh are recovered as (spend \u2212 fixed cost) \u00f7 unit rate and every scenario is costed from those kWh: unit rate \u00d7 kWh plus the standing charge. Households with no spend on a fuel pay no standing charge for it. In the data, 10.3% of households have electricity spend exactly equal to their region's fixed cost, so zero electricity kWh: only the standing charge moves for them, which understates their bill change. Sensitivity with CY2025 Ofgem cap tariffs as the reference (2026-27: extra cost \u00a36.96bn, mean bill \u00a31,600; 2027-28: extra cost \u00a310.97bn, mean bill \u00a31,735).",
+  "detail": "Microcosm builds each household's energy spend as kWh priced at DESNZ Quarterly Energy Prices for CY2024 (regional unit cost plus fixed cost, VAT included), then reweights households to ONS 2025 spending. Each household's kWh are recovered as (spend \u2212 fixed cost) \u00f7 unit rate and every scenario is costed from those kWh: unit rate \u00d7 kWh plus the standing charge. Households with no spend on a fuel pay no standing charge for it. In the data, 3.3% of households have electricity spend exactly equal to their region's fixed cost, so zero electricity kWh: only the standing charge moves for them, which understates their bill change. Sensitivity with CY2025 Ofgem cap tariffs as the reference (2026-27: extra cost \u00a38.49bn, mean bill \u00a31,858; 2027-28: extra cost \u00a313.27bn, mean bill \u00a32,020).",
   "link": "https://github.com/PolicyEngine/microcosm/issues/1113"
  },
  {
   "id": "seasonal",
   "topic": "Seasonal use",
-  "detail": "Central estimate uses Ofgem's winter shares: 75% of gas and 57% of electricity used in October\u2013March, split equally between the two quarters of each half-year; standing charges are time-weighted. Equal quarterly use is reported as a sensitivity (2026-27: typical bill \u00a31,995.83 seasonal vs \u00a31,923.34 equal-weight, extra cost \u00a37.22bn vs \u00a35.84bn; 2027-28: typical bill \u00a32,170.10 seasonal vs \u00a32,187.21 equal-weight, extra cost \u00a311.38bn vs \u00a311.73bn).",
+  "detail": "Central estimate uses Ofgem's winter shares: 75% of gas and 57% of electricity used in October\u2013March, split equally between the two quarters of each half-year; standing charges are time-weighted. Equal quarterly use is reported as a sensitivity (2026-27: typical bill \u00a31,995.83 seasonal vs \u00a31,923.34 equal-weight, extra cost \u00a38.42bn vs \u00a36.79bn; 2027-28: typical bill \u00a32,170.10 seasonal vs \u00a32,187.21 equal-weight, extra cost \u00a313.17bn vs \u00a313.58bn).",
   "link": "https://www.ofgem.gov.uk/sites/default/files/docs/2018/11/appendix_4_-_wholesale_costs.pdf#page=6"
  },
  {
@@ -62,7 +62,7 @@
  {
   "id": "whd",
   "topic": "Warm Home Discount top-up",
-  "detail": "Means-tested-household proxy: \u00a3100 to every GB household where any member receives a listed means-tested benefit during the year. The scheme's actual rules (qualifying date, participating supplier, account holder; core and broader groups in Scotland) are not modelled. Modelled caseload 7.8m in 2026-27, 7.8m in 2027-28. DESNZ estimates around 6 million recipient households across Great Britain in winter 2025/26 (DESNZ, Continuing the Warm Home Discount Scheme: Government Response, January 2026, p. 5).",
+  "detail": "Means-tested-household proxy: \u00a3100 to every GB household where any member receives a listed means-tested benefit during the year. The scheme's actual rules (qualifying date, participating supplier, account holder; core and broader groups in Scotland) are not modelled. Modelled caseload 7.4m in 2026-27, 7.4m in 2027-28. DESNZ estimates around 6 million recipient households across Great Britain in winter 2025/26 (DESNZ, Continuing the Warm Home Discount Scheme: Government Response, January 2026, p. 5).",
   "link": "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",
   "links": [
    "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",

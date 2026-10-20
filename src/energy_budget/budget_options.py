@@ -2,7 +2,7 @@
 
 Bills. Each household's annual electricity and gas kWh are recovered from
 its Microcosm spend at the dataset's reference tariff (``KWH_BASIS``: DESNZ
-QEP FY2024-25 regional unit cost + fixed cost) and re-costed quarter by
+QEP CY2024 regional unit cost + fixed cost) and re-costed quarter by
 quarter: kWh x unit rate on that quarter's share of annual use (Ofgem's
 seasonal profile, 75% of gas and 57% of electricity in October-March) plus
 the quarter's standing charge. Households with no spend on a fuel pay no
@@ -46,9 +46,13 @@ from .config import (
     CURRENT_CAP,
     FY_2026_27_PERIODS,
     KWH_BASIS,
+    NEG_BLOCK_KWH,
+    NEG_GAS_TO_ELEC_FACTOR,
+    NEG_PRICE_MULTIPLE,
     TARIFFS,
     TDCV_ELEC_KWH,
     TDCV_GAS_KWH,
+    quarter_shares,
 )
 
 VAT = 0.05
@@ -233,9 +237,48 @@ def levy_share(profile=CONSUMPTION_PROFILE):
     return LEVY_SAVING_TYPICAL / float(typical_elec)
 
 
-def analytic_supports(year, forecast, held, gb, profile=CONSUMPTION_PROFILE):
+def neg_blocks(connected):
+    """Annual block 1 kWh per fuel; homes without gas port half the gas block."""
+    no_gas = ~np.asarray(connected["gas"], dtype=bool)
+    port = NEG_BLOCK_KWH["gas"] * NEG_GAS_TO_ELEC_FACTOR
+    elec = np.where(
+        connected["elec"], NEG_BLOCK_KWH["elec"] + np.where(no_gas, port, 0.0), 0.0
+    )
+    gas = np.where(no_gas, 0.0, NEG_BLOCK_KWH["gas"])
+    return {"elec": elec, "gas": gas}
+
+
+def neg_support(year, kwh, connected, is_ni, profile=CONSUMPTION_PROFILE):
+    """National Energy Guarantee saving: block 1 kWh at a discounted unit rate.
+
+    The block is profiled through the year like consumption, so in each
+    quarter a household gets that quarter's share of its block at the
+    discount. Summed over quarters, the saving is min(kWh, block) times the
+    discount on the consumption-weighted unit rate.
+    """
+    blocks = neg_blocks(connected)
+    gb_q, ni_q = year_quarters(year), year_quarters(year, ni=True)
+    out = 0.0
+    for f in FUELS:
+        shares = quarter_shares(f, profile)
+        rate = {
+            k: sum(s * u for s, (u, _) in zip(shares, q[f])) / 100
+            for k, q in (("gb", gb_q), ("ni", ni_q))
+        }
+        unit = np.where(is_ni, rate["ni"], rate["gb"])
+        covered = np.minimum(np.asarray(kwh[f], dtype=float), blocks[f])
+        out = out + covered * unit * (1 - NEG_PRICE_MULTIPLE[f])
+    return out
+
+
+def analytic_supports(
+    year, forecast, held, gb, kwh, connected, profile=CONSUMPTION_PROFILE
+):
     """Supports for the options costed directly from bills."""
-    out = {"cap_freeze": cap_freeze_support(forecast, held)}
+    out = {
+        "cap_freeze": cap_freeze_support(forecast, held),
+        "national_energy_guarantee": neg_support(year, kwh, connected, ~gb, profile),
+    }
     if year == 2027:
         out["extend_vat_cut"] = np.where(gb, forecast["elec"] * VAT / (1 + VAT), 0.0)
         out["remove_levies"] = np.where(gb, forecast["elec"] * levy_share(profile), 0.0)
@@ -333,6 +376,21 @@ ANALYTIC_OPTIONS = {
         "label": "Extend the 0% VAT on domestic electricity through 2027-28 (GB)",
         "note": NOT_HBAI,
     },
+    "national_energy_guarantee": {
+        "label": (
+            f"National Energy Guarantee: the first {NEG_BLOCK_KWH['elec']:,} kWh of "
+            f"electricity and {NEG_BLOCK_KWH['gas']:,} kWh of gas a year at "
+            f"{1 - NEG_PRICE_MULTIPLE['elec']:.0%} and {1 - NEG_PRICE_MULTIPLE['gas']:.0%} "
+            "below the unit rate"
+        ),
+        "note": (
+            "Costed from each household's kWh at the forecast unit rates for each "
+            "quarter; households with no gas add "
+            f"{NEG_BLOCK_KWH['gas'] * NEG_GAS_TO_ELEC_FACTOR:,.0f} kWh to their "
+            "electricity block. Standing charges unchanged. UK-wide, with Northern "
+            "Ireland on GB prices as a proxy. " + NOT_HBAI
+        ),
+    },
     "remove_levies": {
         "label": (
             f"Move remaining levies to taxation: £{LEVY_SAVING_TYPICAL} off a typical "
@@ -348,6 +406,7 @@ OPTION_ORDER = [
     "cost_of_living_payment",
     "flat_400",
     "cap_freeze",
+    "national_energy_guarantee",
     "extend_vat_cut",
     "remove_levies",
 ]
@@ -411,7 +470,9 @@ def _sensitivity(year, kwh, connected, is_ni, gb, w, profile):
         "total_extra_cost_bn": _bn(hit, w),
         "option_cost_bn": {
             k: _bn(v, w)
-            for k, v in analytic_supports(year, fc, held, gb, profile).items()
+            for k, v in analytic_supports(
+                year, fc, held, gb, kwh, connected, profile
+            ).items()
         },
     }
 
@@ -427,8 +488,8 @@ def run_budget_options(data):
 
     alt_basis = (
         "ofgem_cy2025_national"
-        if KWH_BASIS == "qep_fy2024_25_regional"
-        else "qep_fy2024_25_regional"
+        if KWH_BASIS == "qep_cy2024_regional"
+        else "qep_cy2024_regional"
     )
     alt_kwh, alt_conn = {}, {}
     for f, spend in (("elec", data["elec_spend"]), ("gas", data["gas_spend"])):
@@ -512,7 +573,9 @@ def run_budget_options(data):
         whd = rows["whd_top_up"]
         whd["note"] = _whd_note(whd["recipients_m"])
 
-        for key, support in analytic_supports(year, fc, held, gb).items():
+        for key, support in analytic_supports(
+            year, fc, held, gb, kwh, connected
+        ).items():
             meta = ANALYTIC_OPTIONS[key]
             rows[key] = summarise(meta["label"], support, note=meta["note"])
         rows = {k: rows[k] for k in OPTION_ORDER if k in rows}
@@ -525,9 +588,9 @@ def run_budget_options(data):
                 "gas_price_vs_apr_jun_2026_pct": round(typ["gas_pct"] * 100, 1),
                 "typical_bill_old_tdcv": round(typ["bill"]),
                 "typical_bill_old_tdcv_exact": round(typ["bill"], 2),
-                # Dataset spend at its own (QEP FY2024-25) prices, and the
+                # Dataset spend at its own (QEP CY2024) prices, and the
                 # implied national volume, as diagnostics against ONS 2025
-                # spending (£41.9bn) and DESNZ Energy Trends FY2024-25.
+                # spending (£41.9bn) and DESNZ Energy Trends CY2024.
                 "total_bill_dataset_prices_bn": _bn(
                     data["elec_spend"] + data["gas_spend"], w
                 ),

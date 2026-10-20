@@ -506,7 +506,7 @@ const POLICY_INFO = [
     id: "whd_top_up",
     name: "Warm Home +£100",
     summary: "Raises the discount to £250.",
-    eligibility: <>Households receiving a means-tested benefit (the Warm Home Discount's qualifying list): DESNZ estimates around 6 million recipient households across Great Britain in winter 2025/26 (<a href="https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf#page=5" target="_blank" rel="noopener noreferrer">DESNZ, January 2026</a>); our 2026-27 proxy reaches about 7.8 million.</>,
+    eligibility: <>Households receiving a means-tested benefit (the Warm Home Discount's qualifying list): DESNZ estimates around 6 million recipient households across Great Britain in winter 2025/26 (<a href="https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf#page=5" target="_blank" rel="noopener noreferrer">DESNZ, January 2026</a>); our 2026-27 proxy reaches about 7.4 million.</>,
     how: <>The <a href="https://www.gov.uk/the-warm-home-discount-scheme" target="_blank" rel="noopener noreferrer">Warm Home Discount</a> takes £150 off electricity bills each winter, funded by a levy on all bills. This adds £100, paid from taxation.</>,
     source: <>Reported as the Treasury's preferred option (<a href="https://www.ft.com/content/cfb7a7a9-90c2-4ed9-8b3b-e8477430d77f" target="_blank" rel="noopener noreferrer">Financial Times</a>, 11 October 2026: about £600m). <a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/more-than-a-third-of-brits-worried-about-affording-energy-bills-this-winter-warns-citizens-advice/" target="_blank" rel="noopener noreferrer">Citizens Advice</a> and <a href="https://www.energy-uk.org.uk/publications/economic-defence-tackling-energy-bills-in-winter-2026-27/" target="_blank" rel="noopener noreferrer">Energy UK</a> call for more support through the scheme.</>,
     // MODEL-DISCLOSURE (e): means-tested-household proxy for actual WHD recipients.
@@ -538,6 +538,15 @@ const POLICY_INFO = [
     how: "A flat credit on the energy bill, paid through suppliers in monthly instalments.",
     source: <>Repeats the 2022 <a href="https://www.gov.uk/government/publications/energy-bills-support/energy-bills-support-factsheet-8-september-2022" target="_blank" rel="noopener noreferrer">Energy Bills Support Scheme</a>.</>,
     model: "PolicyEngine UK's energy bills credit parameter set to £400.",
+  },
+  {
+    id: "national_energy_guarantee",
+    name: "National Energy Guarantee",
+    summary: "First 1,800 kWh electricity and 6,100 kWh gas cheaper, all households.",
+    eligibility: "Every household.",
+    how: "Each household's first 1,800 kWh of electricity and 6,100 kWh of gas a year are charged 25% and 40% below the normal unit rate. Use above that pays the normal rate. Households with no gas get an extra 3,050 kWh of cheaper electricity instead. Standing charges do not change.",
+    source: <>Proposed by the <a href="https://neweconomics.org/2023/04/the-national-energy-guarantee" target="_blank" rel="noopener noreferrer">New Economics Foundation</a> (2023), from an idea by Fuel Poverty Action. We cost a simpler two-tier version, from a costing model shared with us in October 2026: no premium tier for high use, and no extra allowances for children or disability.</>,
+    model: "Costed from each household's kWh: the discount applies to the kWh it uses up to its block, at our forecast unit rate for each quarter, with use and the block spread over the year by season. The source model prices it at the 2024-25 average cap (31p electricity, 10p gas) and puts the cost at £9.7bn; our forecast unit rates are lower, so our cost is lower. UK-wide, with Northern Ireland on GB prices.",
   },
   {
     id: "cap_freeze",
@@ -882,7 +891,7 @@ const REFERENCES = [
   ["policyengine.py release on PyPI.", "https://pypi.org/project/policyengine/"],
   ["OVO, “Energy price cap” forecast table, 7 October 2026.", "https://www.ovoenergy.com/price-cap"],
   ["Ofgem, price cap methodology appendix 4: wholesale costs (winter shares of annual demand, page 6), November 2018.", "https://www.ofgem.gov.uk/sites/default/files/docs/2018/11/appendix_4_-_wholesale_costs.pdf#page=6"],
-  ["PolicyEngine UK 2.125.1, household_income_decile variable definition.", "https://github.com/PolicyEngine/policyengine-uk/blob/2.125.1/policyengine_uk/variables/household/income/household_income_decile.py"],
+  ["PolicyEngine UK 2.130.1, household_income_decile variable definition.", "https://github.com/PolicyEngine/policyengine-uk/blob/2.130.1/policyengine_uk/variables/household/income/household_income_decile.py"],
 ];
 
 /* Sentences marked MODEL-DISCLOSURE (a)–(e) describe the corrected model from the publication review
@@ -917,11 +926,11 @@ function MethodologySection() {
         {/* MODEL-DISCLOSURE (a): kWh conversion, separate standing charges, seasonal profile. */}
         {/* MODEL-DISCLOSURE (d): all households on capped variable tariffs. */}
         <dl className="method-grid">
-          <div className="method-row"><dt>Data</dt><dd>Microcosm UK 2024-25, PolicyEngine&apos;s calibrated dataset of 29.3m households.</dd></div>
-          <div className="method-row"><dt>From spending to kWh</dt><dd>Microcosm prices energy use at DESNZ 2024-25 regional prices.<Fn n={7} /> We reverse that to get each household&apos;s annual kWh, net of standing charges.</dd></div>
+          <div className="method-row"><dt>Data</dt><dd>Microcosm UK 2024-25, PolicyEngine&apos;s calibrated dataset of 29.2m households.</dd></div>
+          <div className="method-row"><dt>From spending to kWh</dt><dd>Microcosm prices energy use at DESNZ 2024 regional prices.<Fn n={7} /> We reverse that to get each household&apos;s annual kWh, net of standing charges.</dd></div>
           <div className="method-row"><dt>Re-costing</dt><dd>That kWh is priced at each quarter&apos;s unit rates, plus each quarter&apos;s standing charges. A bill is a unit rate plus a fixed daily charge, so the same price rise is a different percentage for small and large users.<Fn n={1} /></dd></div>
           <div className="method-row"><dt>Seasons</dt><dd>Use is spread across quarters with Ofgem&apos;s winter shares (75% of gas and 57% of electricity in October–March),<Fn n={14} /> so winter prices carry more weight.</dd></div>
-          <div className="method-row"><dt>Zero use</dt><dd>About 10% of households have electricity spending equal to the standing charge, so only their standing charges change. This understates their bill change.</dd></div>
+          <div className="method-row"><dt>Zero use</dt><dd>About 3% of households have electricity spending equal to the standing charge, so only their standing charges change. This understates their bill change.</dd></div>
           <div className="method-row"><dt>Tariffs</dt><dd>Everyone pays the capped variable tariff. In practice around 35% are on fixed tariffs and see cap changes only when their contract ends,<Fn n={2} /> so the baseline is a scenario, not a forecast of each household&apos;s bill.</dd></div>
           <div className="method-row"><dt>Deciles</dt><dd>PolicyEngine&apos;s household income deciles:<Fn n={15} /> households ranked by equivalised net income before housing costs, split into tenths of people, with negative-income households left out.</dd></div>
         </dl>
@@ -977,6 +986,12 @@ function MethodologySection() {
               <span className="model-tag no">Not counted as income</span>
             </div>
             <div className="model-card">
+              <div className="model-card-name">National Energy Guarantee</div>
+              <p>The first 1,800 kWh of electricity and 6,100 kWh of gas a year at 25% and 40% off the unit rate (4,850 kWh of
+                electricity for homes without gas), costed from each household&apos;s kWh.</p>
+              <span className="model-tag no">Not counted as income</span>
+            </div>
+            <div className="model-card">
               <div className="model-card-name">Extend VAT cut</div>
               <p>0% VAT on GB electricity in 2027-28, costed from each household&apos;s electricity bill (PolicyEngine UK has no
                 VAT parameter for it).</p>
@@ -1001,9 +1016,11 @@ function MethodologySection() {
               <tr><th>Measure</th><th>Microcosm</th><th>Official</th></tr>
             </thead>
             <tbody>
-              <tr><td>Electricity and gas spending, 2025</td><td>£42.2bn</td><td>£41.9bn (ONS)</td></tr>
-              <tr><td>Households, 2024</td><td>29.0m</td><td>28.6m (ONS)</td></tr>
-              <tr><td>Relative poverty after housing costs, 2024-25</td><td>18.3% of people</td><td>20% (DWP)</td></tr>
+              <tr><td>Electricity use, 2024</td><td>91.4 TWh</td><td>91.7 TWh (DESNZ)</td></tr>
+              <tr><td>Gas use, 2024</td><td>243.5 TWh</td><td>252.3 TWh (DESNZ)</td></tr>
+              <tr><td>Electricity and gas spending, 2025</td><td>£48.4bn</td><td>£41.9bn (ONS)</td></tr>
+              <tr><td>Households, 2024</td><td>28.9m</td><td>28.6m (ONS)</td></tr>
+              <tr><td>Relative poverty after housing costs, 2024-25</td><td>18.1% of people</td><td>20% (DWP)</td></tr>
             </tbody>
           </table>
         </div>
@@ -1062,7 +1079,7 @@ export default function Dashboard() {
           This dashboard estimates what UK households will pay for gas and electricity in 2026-27 and 2027-28, and what
           Autumn Budget support options would cost and who they would reach. We model every household&apos;s bill at the prices{" "}
           <a href="https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026" target="_blank" rel="noopener noreferrer">Ofgem has set</a>{" "}
-          and forecasters expect, and score seven options against that baseline using PolicyEngine.
+          and forecasters expect, and score eight options against that baseline using PolicyEngine.
         </p>
         <MoreDetail label="Proposals behind the options">
           <p className="section-description">

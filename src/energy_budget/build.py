@@ -233,6 +233,7 @@ def write_tables(r):
         "extend_vat_cut": "Extend electricity VAT cut",
         "flat_400": "£400 to every household",
         "cap_freeze": "Cap freeze at April–June 2026 tariffs",
+        "national_energy_guarantee": "National Energy Guarantee",
     }
     for fy, v in r.items():
         if fy == "provenance":
@@ -407,7 +408,7 @@ def build_notes(r):
             "topic": "Usage and price basis",
             "detail": (
                 "Microcosm builds each household's energy spend as kWh priced at DESNZ "
-                "Quarterly Energy Prices for FY2024-25 (regional unit cost plus fixed cost, "
+                "Quarterly Energy Prices for CY2024 (regional unit cost plus fixed cost, "
                 "VAT included), then reweights households to ONS 2025 spending. Each "
                 "household's kWh are recovered as (spend − fixed cost) ÷ unit rate and "
                 "every scenario is costed from those kWh: unit rate × kWh plus the standing "

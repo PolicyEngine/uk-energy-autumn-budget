@@ -2,7 +2,7 @@
 
 Energy is electricity_consumption + gas_consumption. Each household's spend
 is converted to annual kWh at the dataset's reference tariff (``KWH_BASIS``,
-QEP FY2024-25 regional unit rate + fixed cost by default) and re-costed at
+QEP CY2024 regional unit rate + fixed cost by default) and re-costed at
 April-June 2026 Ofgem cap tariffs, the start of the analysis baseline.
 
 Runs on Microcosm UK through ``policyengine.py``'s managed
@@ -83,7 +83,7 @@ def provenance(sim) -> dict:
         "managed": False,
         "kwh_basis": KWH_BASIS,
         "kwh_basis_source": (
-            "Microcosm build stage price_domestic_energy: DESNZ QEP FY2024-25 "
+            "Microcosm build stage price_domestic_energy: DESNZ QEP CY2024 "
             "regional unit cost + fixed cost, incl. VAT, all payment methods "
             "(PolicyEngine/microcosm#1113)"
         ),
