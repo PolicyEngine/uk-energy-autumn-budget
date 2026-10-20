@@ -124,17 +124,18 @@ def quarter_shares(fuel, profile=CONSUMPTION_PROFILE):
 # ── Dataset price basis ─────────────────────────────────────────────────
 #
 # Microcosm UK builds each household's electricity and gas spending as
-# annual kWh (DESNZ Energy Trends domestic volumes for the four FY2024-25
-# quarters, raked to NEED margins) priced at DESNZ Quarterly Energy Prices
-# (QEP) FY2024-25 regional average unit costs plus the regional fixed cost,
-# including VAT, all payment methods (stage ``price_domestic_energy`` in the
-# build record of release microcosm-uk-2024-25-national-20261002T230158Z-
-# 5c6b3f68, policyengine/populace-uk-private@f9d1922c, files
-# staged/uk-frs-calibration-attempt-20261002T230158Z-5c6b3f68/build_record.json
-# and releases/microcosm-uk-2024-25-national/spine_gates.json). Calibration
+# annual kWh (DESNZ Energy Trends domestic volumes for the four CY2024
+# quarters, raked to NEED 2024 margins) priced at DESNZ Quarterly Energy
+# Prices (QEP) CY2024 regional average unit costs plus the regional fixed
+# cost, including VAT, all payment methods (stage ``price_domestic_energy``
+# in the build record of release microcosm-uk-2024-25-national-
+# 20261019T083323Z-6cba5d71, policyengine/populace-uk-private@bb225848, file
+# staged/uk-frs-calibration-attempt-20261019T083323Z-6cba5d71/build_record.json,
+# spine_provenance.stage_evidence.lcfs_consumption.energy_pricing). The
+# 2 October release priced at QEP FY2024-25 instead. Calibration
 # then reweights households so weighted spending matches ONS Consumer
 # Trends CY2025 (COICOP 04.5.1 / 04.5.2); it changes weights, not each
-# household's spend. So each household's spend is on the QEP FY2024-25
+# household's spend. So each household's spend is on the QEP CY2024
 # regional basis: in every GB region the lowest electricity spend equals
 # that region's QEP fixed cost. See PolicyEngine/microcosm#1113.
 #
@@ -147,33 +148,32 @@ def quarter_shares(fuel, profile=CONSUMPTION_PROFILE):
 # only through floating-point rounding.
 #
 # KWH_BASIS switches the reference tariff:
-#   "qep_fy2024_25_regional" (default; what the build used), or
+#   "qep_cy2024_regional" (default; what the build used), or
 #   "ofgem_cy2025_national": the four CY2025 Ofgem cap quarters (GB average,
 #     direct debit), unit rates weighted by the seasonal profile. Kept as a
 #     sensitivity; it was this repository's original (incorrect) assumption.
-KWH_BASIS = "qep_fy2024_25_regional"
+KWH_BASIS = "qep_cy2024_regional"
 
-# QEP FY2024-25 regional prices, as used by the build: unit rate (p/kWh) and
+# QEP CY2024 regional prices, as used by the build: unit rate (p/kWh) and
 # fixed cost (£/yr), VAT included. FRS regions map to QEP regions as in the
 # build (Scotland -> south_scotland, Wales -> south_wales, East of England ->
 # eastern). Northern Ireland: QEP publishes no electricity fixed cost (0),
 # and gas is priced at the UK average.
-QEP_FY2024_25 = {
-    "EAST_MIDLANDS": {"elec": (23.975425353649914, 206.19892348861137), "gas": (6.121185915305579, 114.63475437474918)},
-    "EAST_OF_ENGLAND": {"elec": (25.433401818323404, 184.75570497558127), "gas": (6.189902929736283, 114.66524644556283)},
-    "LONDON": {"elec": (25.695029958424957, 153.84198551021262), "gas": (6.319403551432788, 118.04131810499113)},
-    "NORTHERN_IRELAND": {"elec": (30.69783821469067, 0.0), "gas": (6.2310725604795225, 113.12698361893374)},
-    "NORTH_EAST": {"elec": (23.387452050534694, 259.99949391627337), "gas": (6.201645024344041, 115.68085068413619)},
-    "NORTH_WEST": {"elec": (24.958336465763903, 189.69303157506977), "gas": (6.143483988396162, 115.54964406237428)},
-    "SCOTLAND": {"elec": (24.07873330442262, 232.97332300802108), "gas": (6.172288897645929, 115.54058124854232)},
-    "SOUTH_EAST": {"elec": (25.362880086372137, 205.8995779598325), "gas": (6.167387887020088, 113.51623692620075)},
-    "SOUTH_WEST": {"elec": (24.246541563525536, 242.83158453310014), "gas": (6.407245693067759, 110.40783503988152)},
-    "WALES": {"elec": (24.436750400826238, 228.7377582586279), "gas": (6.317265828101576, 113.12600630737884)},
-    "WEST_MIDLANDS": {"elec": (24.04622652441871, 229.98795369188866), "gas": (6.12714395248696, 113.02514947990299)},
-    "YORKSHIRE": {"elec": (23.59230294674964, 246.22442968964552), "gas": (6.109505359504377, 113.10595798118004)},
+QEP_CY2024 = {
+    "EAST_MIDLANDS": {"elec": (25.053293170311687, 203.6469586068837), "gas": (6.435726469166246, 114.28197217862198)},
+    "EAST_OF_ENGLAND": {"elec": (26.41731849577092, 180.8427391440612), "gas": (6.511205201883456, 114.44059874634034)},
+    "LONDON": {"elec": (26.789694870253182, 152.7755737350434), "gas": (6.6374620471779, 117.56650677674024)},
+    "NORTHERN_IRELAND": {"elec": (31.158624480157513, 0.0), "gas": (6.542750544471211, 112.9466738272855)},
+    "NORTH_EAST": {"elec": (24.568929957393884, 249.39684851329997), "gas": (6.493122903175057, 115.19470718691655)},
+    "NORTH_WEST": {"elec": (25.755896178283994, 190.9825253151596), "gas": (6.489856624647314, 114.99066589587105)},
+    "SCOTLAND": {"elec": (25.1918999464631, 231.85530732357282), "gas": (6.510092228635631, 114.80588446266019)},
+    "SOUTH_EAST": {"elec": (26.42441500735528, 198.68374993260184), "gas": (6.497672694906628, 113.42209447731446)},
+    "SOUTH_WEST": {"elec": (25.378326518477078, 236.81017550048588), "gas": (6.6546987385452105, 110.26056903388599)},
+    "WALES": {"elec": (25.515587706693882, 224.01347351828662), "gas": (6.599895653177751, 114.50831315151983)},
+    "WEST_MIDLANDS": {"elec": (25.088415159700123, 224.23954146818355), "gas": (6.414225734031459, 112.85686879966056)},
+    "YORKSHIRE": {"elec": (24.646335673155033, 237.8267566951339), "gas": (6.384756317302948, 113.02509161599487)},
 }  # fmt: skip
-# UK average, for any household whose region is missing.
-QEP_FY2024_25_UK = {"elec": (24.809458249743663, 209.38599214492953), "gas": (6.2310725604795225, 113.12698361893374)}  # fmt: skip
+QEP_CY2024_UK = {"elec": (25.82700021794268, 205.1094903566591), "gas": (6.542750544471211, 112.9466738272855)}  # fmt: skip
 
 
 def _ofgem_cy2025_reference():
@@ -252,12 +252,14 @@ CT_REBATE = 300
 ELEC_RATE = TARIFFS["apr_jun_2026"]["elec"][0] / 100  # £/kWh
 GAS_RATE = TARIFFS["apr_jun_2026"]["gas"][0] / 100  # £/kWh
 
-# NEG electricity threshold per Bangham (2026) Substack proposal: matches
-# Austria and the Netherlands' 2022 "first N kWh at the old price" relief
-# schemes. 2,900 kWh is close to but not identical to the Ofgem TDCV for
-# electricity (≈ 2,700 kWh for the medium-consumption band).
-NEG_ELEC_KWH = 2_900
-NEG_ELEC_SPEND = NEG_ELEC_KWH * ELEC_RATE
+# National Energy Guarantee, two-tier version (Blai Avia-Novoa's model,
+# RBT_model_2024_25_v10.5, sheet "Inputs 2-tier"): each household's first
+# block of kWh a year is charged at a fraction of the unit rate; use above
+# it pays the normal rate. Households with no mains gas add half the gas
+# block to their electricity block. Standing charges are unchanged.
+NEG_BLOCK_KWH = {"elec": 1_800, "gas": 6_100}
+NEG_PRICE_MULTIPLE = {"elec": 0.75, "gas": 0.6}
+NEG_GAS_TO_ELEC_FACTOR = 0.5
 
 # ── Data ────────────────────────────────────────────────────────────────
 #
@@ -267,8 +269,8 @@ NEG_ELEC_SPEND = NEG_ELEC_KWH * ELEC_RATE
 # The file is pinned by repository revision and content hash instead.
 DATASET_REPO = "policyengine/populace-uk-private"
 DATASET_FILE = "microcosm_uk_2024_25.h5"
-# Release tag microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68,
-# published 4 Oct 2026 as the latest national line (non-default release).
-DATASET_RELEASE = "microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68"
-DATASET_REVISION = "f9d1922cddab6b54a0dd37794a9bac74e3780c88"
-DATASET_SHA256 = "aa31bdf67c977927ea2b325567d1cf7a79d94381239bc79918a0a0fc9c9588af"
+# Release tag microcosm-uk-2024-25-national-20261019T083323Z-6cba5d71,
+# published 19 Oct 2026 as the latest national line (non-default release).
+DATASET_RELEASE = "microcosm-uk-2024-25-national-20261019T083323Z-6cba5d71"
+DATASET_REVISION = "bb2258482ef8ce44f814a29288ee22bad2b636a0"
+DATASET_SHA256 = "810ba980005a8b907cb51464279fa5e0125464b7af9a4871b7f6744c30951ece"

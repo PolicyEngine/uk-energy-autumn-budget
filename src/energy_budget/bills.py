@@ -21,8 +21,8 @@ import numpy as np
 from .config import (
     KWH_BASIS,
     OFGEM_CY2025_REFERENCE,
-    QEP_FY2024_25,
-    QEP_FY2024_25_UK,
+    QEP_CY2024,
+    QEP_CY2024_UK,
     quarter_shares,
 )
 
@@ -43,13 +43,9 @@ def kwh_from_spend(spend, unit_p, fixed_gbp):
 def reference_tariff(region, fuel, basis=KWH_BASIS):
     """Per-household reference (unit p/kWh, fixed £/yr) arrays for a fuel."""
     region = np.asarray(region).astype(str)
-    if basis == "qep_fy2024_25_regional":
-        unit = np.array(
-            [QEP_FY2024_25.get(r, QEP_FY2024_25_UK)[fuel][0] for r in region]
-        )
-        fixed = np.array(
-            [QEP_FY2024_25.get(r, QEP_FY2024_25_UK)[fuel][1] for r in region]
-        )
+    if basis == "qep_cy2024_regional":
+        unit = np.array([QEP_CY2024.get(r, QEP_CY2024_UK)[fuel][0] for r in region])
+        fixed = np.array([QEP_CY2024.get(r, QEP_CY2024_UK)[fuel][1] for r in region])
         return unit, fixed
     if basis == "ofgem_cy2025_national":
         unit, fixed = OFGEM_CY2025_REFERENCE[fuel]

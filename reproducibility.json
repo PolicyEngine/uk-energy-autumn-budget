@@ -1,41 +1,59 @@
 {
- "generated_at": "2026-10-12T14:31:27+00:00",
+ "generated_at": "2026-10-20T14:08:56+00:00",
  "command": "HF_HUB_OFFLINE=1 .venv/bin/energy-budget",
  "git": {
-  "head": "e5ce26dd00aa95a20cf63efcee85b5556d6f0b42",
-  "branch": "fix/publication-review-1",
-  "uncommitted_changes": false,
-  "uncommitted_paths": []
+  "head": "4d916d54c15f12407d6d463d23acb47ac89b55be",
+  "branch": "options/national-energy-guarantee",
+  "uncommitted_changes": true,
+  "uncommitted_paths": [
+   "M pyproject.toml",
+   " M reproducibility.json",
+   " M src/data/deciles.json",
+   " M src/data/hh_types.json",
+   " M src/data/notes.json",
+   " M src/data/options.json",
+   " M src/data/provenance.json",
+   " M src/data/regions.json",
+   " M src/data/results.json",
+   " M src/data/years.json",
+   " M src/energy_budget/baseline.py",
+   " M src/energy_budget/bills.py",
+   " M src/energy_budget/budget_options.py",
+   " M src/energy_budget/build.py",
+   " M src/energy_budget/config.py",
+   " M tests/test_bills.py",
+   " M tests/test_prices.py"
+  ]
  },
  "runtime": {
   "python": "3.13.15",
-  "policyengine": "6.2.7",
-  "policyengine_uk": "2.125.1",
+  "policyengine": "6.8.0",
+  "policyengine_uk": "2.130.1",
   "policyengine_core": "3.33.0",
-  "bundle_id": "uk-6.2.7",
-  "bundle_model_version": "2.125.1"
+  "bundle_id": "uk-6.8.0",
+  "bundle_model_version": "2.130.1"
  },
  "dataset": {
   "repo": "policyengine/populace-uk-private",
   "file": "microcosm_uk_2024_25.h5",
-  "revision": "f9d1922cddab6b54a0dd37794a9bac74e3780c88",
-  "release": "microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68",
-  "sha256_pinned": "aa31bdf67c977927ea2b325567d1cf7a79d94381239bc79918a0a0fc9c9588af",
-  "sha256_verified": "aa31bdf67c977927ea2b325567d1cf7a79d94381239bc79918a0a0fc9c9588af"
+  "revision": "bb2258482ef8ce44f814a29288ee22bad2b636a0",
+  "release": "microcosm-uk-2024-25-national-20261019T083323Z-6cba5d71",
+  "sha256_pinned": "810ba980005a8b907cb51464279fa5e0125464b7af9a4871b7f6744c30951ece",
+  "sha256_verified": "810ba980005a8b907cb51464279fa5e0125464b7af9a4871b7f6744c30951ece"
  },
  "model_choices": {
-  "kwh_basis": "qep_fy2024_25_regional",
+  "kwh_basis": "qep_cy2024_regional",
   "consumption_profile": "seasonal"
  },
  "outputs": {
-  "src/data/deciles.json": "71edcf80182742e11b95bbf8d780a7f2a001425c5b4d2f363172cb2894920b50",
-  "src/data/hh_types.json": "08bb323244384c4a337b6a87480bd22ab01a80468ac945cabf77de5ee0d9aba2",
-  "src/data/notes.json": "4f9e6d86d5d5587e04d2b978489e8e742fb1596e30712fb716bd7db206766f79",
-  "src/data/options.json": "c047f33a2af9bfe3e6e872a2cbe76a45e173bb74b53d1ef332af4de896213cba",
-  "src/data/price_path.json": "efe98f12f96a2bf8000e5d9775bfdbfecd1dec94552e102c01ea275b0aaaa5a8",
-  "src/data/provenance.json": "e820c6d21508f26bf877c1fd06290d54a0785500dfd83dd4cf5a1897d059e0ad",
-  "src/data/regions.json": "0a60742383a52564a0f47e3805b230818b06338a4b4a917018aa53a70493dfeb",
-  "src/data/results.json": "0c0b282fa9d8e15d393a92ab05ceb6099a3549837556a0cd12089d9360b11f69",
-  "src/data/years.json": "138a17f941e49c538d7dd1ccc9cdf5e6e746ce11834b453a4657773e86d1df19"
+  "src/data/deciles.json": "514781b2f4143d2f8a7150839a9192d4eb1fa39ad379eeed3d4e776f31699e18",
+  "src/data/hh_types.json": "da4d8179d85d001cacb8b9b7fe53b0eab1b9723b51ad7adc660ea15098a15662",
+  "src/data/notes.json": "c71c5f1005bfe1dd4a4b4d3bf9611ec359205cf855b9c6049963a89b0140383f",
+  "src/data/options.json": "38aa7c426d8075d9b2a4b2fa706a38d3385993d3ece1c1f7523e9ac066d52fe0",
+  "src/data/price_path.json": "d7467066e6362ae7e77471932ebbc039e571419152e29a754d4a65fb557c039c",
+  "src/data/provenance.json": "7204eb62acb38c043b571f079a5a9e058a1e33282e3302067416d47b40f00cb1",
+  "src/data/regions.json": "da07de76853a2b3a4543b40ee9028ab6f65790e3310bae3636196b32c79584fc",
+  "src/data/results.json": "dc7b9986ef4b1062de188239041752e9ba7d67022407f04fe62b560f96672e20",
+  "src/data/years.json": "33c69d1f91e240b1e349d7372f996898eaca5a43314bd254e124dd3124069798"
  }
 }

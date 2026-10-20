@@ -12,7 +12,7 @@ license = { text = "AGPL-3.0-or-later" }
 authors = [{ name = "PolicyEngine", email = "hello@policyengine.org" }]
 dependencies = [
     # policyengine.py pins the UK model version and certified bundle.
-    "policyengine[uk]==6.2.7",
+    "policyengine[uk]==6.8.0",
     "huggingface-hub",
     "microdf-python>=1.2.0",
     "pandas>=2.0",
