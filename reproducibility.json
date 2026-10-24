@@ -1,24 +1,11 @@
 {
- "generated_at": "2026-10-24T15:12:33+00:00",
+ "generated_at": "2026-10-24T15:18:08+00:00",
  "command": "HF_HUB_OFFLINE=1 .venv/bin/energy-budget",
  "git": {
-  "head": "4d916d54c15f12407d6d463d23acb47ac89b55be",
+  "head": "9928c5f2b7ab2ba5eced6c6be9028614d4c5c400",
   "branch": "fix/whd-receipt-rates",
-  "uncommitted_changes": true,
-  "uncommitted_paths": [
-   "M reproducibility.json",
-   " M src/data/deciles.json",
-   " M src/data/hh_types.json",
-   " M src/data/notes.json",
-   " M src/data/options.json",
-   " M src/data/regions.json",
-   " M src/data/results.json",
-   " M src/energy_budget/budget_options.py",
-   " M src/energy_budget/build.py",
-   " M src/energy_budget/reforms/targeted_energy_discount/parameters.yaml",
-   " M src/energy_budget/reforms/targeted_energy_discount/variables.py",
-   "?? tests/test_whd_receipt.py"
-  ]
+  "uncommitted_changes": false,
+  "uncommitted_paths": []
  },
  "runtime": {
   "python": "3.13.15",
