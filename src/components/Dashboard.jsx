@@ -9,6 +9,8 @@ import years from "../data/years.json";
 import { resolvePolicySelection, yearsForOption } from "../lib/policySelection";
 import "./Dashboard.css";
 
+const WHD_2026 = options.find((o) => o.fy === "2026-27" && o.option_id === "whd_top_up");
+
 const YEAR_OPTIONS = [
   { key: "2026-27", label: "2026-27" },
   { key: "2027-28", label: "2027-28" },
@@ -506,11 +508,11 @@ const POLICY_INFO = [
     id: "whd_top_up",
     name: "Warm Home +£100",
     summary: "Raises the discount to £250.",
-    eligibility: <>Households receiving a means-tested benefit (the Warm Home Discount's qualifying list): DESNZ estimates around 6 million recipient households across Great Britain in winter 2025/26 (<a href="https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf#page=5" target="_blank" rel="noopener noreferrer">DESNZ, January 2026</a>); our 2026-27 proxy reaches about 7.8 million.</>,
+    eligibility: <>Households where someone receives a means-tested benefit on the Warm Home Discount&apos;s qualifying list: about {WHD_2026.eligible_m.toFixed(1)} million in Great Britain in 2026-27.</>,
     how: <>The <a href="https://www.gov.uk/the-warm-home-discount-scheme" target="_blank" rel="noopener noreferrer">Warm Home Discount</a> takes £150 off electricity bills each winter, funded by a levy on all bills. This adds £100, paid from taxation.</>,
     source: <>Reported as the Treasury's preferred option (<a href="https://www.ft.com/content/cfb7a7a9-90c2-4ed9-8b3b-e8477430d77f" target="_blank" rel="noopener noreferrer">Financial Times</a>, 11 October 2026: about £600m). <a href="https://www.citizensadvice.org.uk/about-us/media-centre/press-releases/more-than-a-third-of-brits-worried-about-affording-energy-bills-this-winter-warns-citizens-advice/" target="_blank" rel="noopener noreferrer">Citizens Advice</a> and <a href="https://www.energy-uk.org.uk/publications/economic-defence-tackling-energy-bills-in-winter-2026-27/" target="_blank" rel="noopener noreferrer">Energy UK</a> call for more support through the scheme.</>,
-    // MODEL-DISCLOSURE (e): means-tested-household proxy for actual WHD recipients.
-    model: <>£100 to every household where someone receives a listed means-tested benefit during the year. This is a proxy: actual recipients must also meet a qualifying date and have the claimant named on a participating supplier's electricity account (<a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales" target="_blank" rel="noopener noreferrer">England and Wales</a>, <a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland" target="_blank" rel="noopener noreferrer">Scotland</a>). Counted in HBAI income, as DWP counts the Warm Home Discount.</>,
+    // MODEL-DISCLOSURE (e): DESNZ receipt rates, drawn per household (switch to the engine's once policyengine-uk#2616 is pinned).
+    model: <>£100 at DESNZ&apos;s receipt rates for the current scheme: about 85% of Pension Credit households and 70% of other qualifying households receive the Warm Home Discount, because the claimant or partner must be named on a participating supplier&apos;s electricity account and matched to DWP records (<a href="https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11" target="_blank" rel="noopener noreferrer">DESNZ impact assessment, January 2026</a>). Each household&apos;s receipt is a seeded random draw, so about {WHD_2026.recipients_m.toFixed(1)} million households receive it in 2026-27, against DESNZ&apos;s estimate of around 6 million recipient households in winter 2025/26 (<a href="https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf#page=5" target="_blank" rel="noopener noreferrer">DESNZ, January 2026</a>). The qualifying date and Scotland&apos;s broader group are not modelled. Counted in HBAI income, as DWP counts the Warm Home Discount.</>,
   },
   {
     id: "remove_levies",
@@ -883,6 +885,7 @@ const REFERENCES = [
   ["OVO, “Energy price cap” forecast table, 7 October 2026.", "https://www.ovoenergy.com/price-cap"],
   ["Ofgem, price cap methodology appendix 4: wholesale costs (winter shares of annual demand, page 6), November 2018.", "https://www.ofgem.gov.uk/sites/default/files/docs/2018/11/appendix_4_-_wholesale_costs.pdf#page=6"],
   ["PolicyEngine UK 2.125.1, household_income_decile variable definition.", "https://github.com/PolicyEngine/policyengine-uk/blob/2.125.1/policyengine_uk/variables/household/income/household_income_decile.py"],
+  ["DESNZ, “Continuing the Warm Home Discount 2026-2031: final stage impact assessment” (DESNZ002(F)-26-EAC), 30 January 2026, paragraph 40.", "https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11"],
 ];
 
 /* Sentences marked MODEL-DISCLOSURE (a)–(e) describe the corrected model from the publication review
@@ -948,12 +951,11 @@ function MethodologySection() {
               <p>PolicyEngine UK&apos;s Cost of Living Payment set to £300 for the year.</p>
               <span className="model-tag yes">Counted as income</span>
             </div>
-            {/* MODEL-DISCLOSURE (e): WHD option is a means-tested-household proxy. */}
+            {/* MODEL-DISCLOSURE (e): WHD option uses DESNZ's receipt rates, drawn per household. */}
             <div className="model-card">
               <div className="model-card-name">Warm Home Discount +£100</div>
-              <p>£100 to every household where someone gets a qualifying benefit. Real recipients must also meet a qualifying date
-                and be named on a supplier account (<a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales" target="_blank" rel="noopener noreferrer">England and Wales</a>,{" "}
-                <a href="https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland" target="_blank" rel="noopener noreferrer">Scotland</a>).</p>
+              <p>£100 to households on a qualifying benefit at DESNZ&apos;s receipt rates for the current scheme, with a seeded
+                random draw deciding which households receive it.<Fn n={16} /></p>
               <span className="model-tag yes">Counted as income, as DWP does<Fn n={9} /></span>
             </div>
             <div className="model-card">
