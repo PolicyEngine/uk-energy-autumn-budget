@@ -62,11 +62,12 @@
  {
   "id": "whd",
   "topic": "Warm Home Discount top-up",
-  "detail": "Means-tested-household proxy: \u00a3100 to every GB household where any member receives a listed means-tested benefit during the year. The scheme's actual rules (qualifying date, participating supplier, account holder; core and broader groups in Scotland) are not modelled. Modelled caseload 7.8m in 2026-27, 7.8m in 2027-28. DESNZ estimates around 6 million recipient households across Great Britain in winter 2025/26 (DESNZ, Continuing the Warm Home Discount Scheme: Government Response, January 2026, p. 5).",
-  "link": "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",
+  "detail": "\u00a3100 to GB households where any member receives a listed means-tested benefit during the year, at DESNZ's receipt rates: around 85% of Pension Credit households and 70% of other qualifying households go on to receive the Warm Home Discount, because the claimant or partner must be named on a participating supplier's electricity account and matched to DWP records (DESNZ, Continuing the Warm Home Discount 2026-2031: final stage impact assessment, January 2026, para. 40; Table 8 applies the same rates to Scotland). Each eligible household gets a seeded random draw, the same hash as policyengine-uk#2616; once that merges and the pinned model carries the rates, the analysis will use the model's. The qualifying date and Scotland's broader group are not modelled. 2026-27: 7.8m eligible, 5.5m receive it, \u00a30.55bn; 2027-28: 7.8m eligible, 5.5m receive it, \u00a30.55bn. DESNZ estimates around 6 million recipient households across Great Britain in winter 2025/26 (DESNZ, Continuing the Warm Home Discount Scheme: Government Response, January 2026, p. 5).",
+  "link": "https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11",
   "links": [
    "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",
    "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland",
+   "https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11",
    "https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf"
   ]
  },

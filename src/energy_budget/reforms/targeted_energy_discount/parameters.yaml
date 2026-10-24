@@ -77,6 +77,36 @@ passport:
       2000-01-01: 0
     metadata:
       unit: currency-GBP
+receipt_rate:
+  description: >-
+    Share of passported households that actually receive the support. Passported
+    households are enrolled without a claim, but a Warm-Home-Discount-style payment
+    reaches only households matched to a supplier account with the claimant, partner
+    or appointee named on the bill. Defaults of 1 mean every passported household
+    receives it (RF's full take-up assumption). Households eligible only through the
+    income test are governed by claims_targeted_energy_discount instead.
+  pension_credit:
+    description: >-
+      Receipt rate for passported households where anyone receives Pension Credit.
+      DESNZ's delivery experience of the Warm Home Discount is around 85%.
+    values:
+      2000-01-01: 1
+    metadata:
+      unit: /1
+      reference:
+        - title: "DESNZ, Continuing the Warm Home Discount 2026-2031: final stage impact assessment (DESNZ002(F)-26-EAC, 30 January 2026), para. 40 (page 11) and Table 8"
+          href: https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11
+  other_benefits:
+    description: >-
+      Receipt rate for other passported households. DESNZ's delivery experience of the
+      Warm Home Discount is around 70%.
+    values:
+      2000-01-01: 1
+    metadata:
+      unit: /1
+      reference:
+        - title: "DESNZ, Continuing the Warm Home Discount 2026-2031: final stage impact assessment (DESNZ002(F)-26-EAC, 30 January 2026), para. 40 (page 11) and Table 8"
+          href: https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11
 income_test:
   in_effect:
     description: Households can qualify through the highest-individual-income test.

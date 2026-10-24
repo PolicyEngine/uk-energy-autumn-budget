@@ -147,6 +147,20 @@ TARIFF_NOTE_LINK = (
 )
 
 WHD_OFFICIAL_HOUSEHOLDS_M = 6.0
+# Warm Home Discount receipt rates: around 85% of Pension Credit households and
+# 70% of other qualifying households go on to receive the rebate (DESNZ,
+# Continuing the Warm Home Discount 2026-2031: final stage impact assessment,
+# DESNZ002(F)-26-EAC, 30 January 2026, para. 40, p. 11; Table 8 applies the
+# same rates to Scotland). Drawn per household with the same hash as
+# policyengine-uk#2616. Once #2616 merges and the pinned policyengine-uk
+# carries gov.ofgem.warm_home_discount.receipt_rate, use the engine's rates
+# and would_receive_warm_home_discount instead of these constants.
+WHD_RECEIPT_RATE_PENSION_CREDIT = 0.85
+WHD_RECEIPT_RATE_OTHER = 0.70
+WHD_IA_LINK = (
+    "https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/"
+    "continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11"
+)
 WHD_LINKS = [
     "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",
     "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland",
@@ -282,9 +296,11 @@ def _policies(year):
                     **PRESETS["passport_only"],
                     f"{tp}.amount[0].amount": WHD_TOP_UP,
                     f"{tp}.amount[1].amount": WHD_TOP_UP,
+                    f"{tp}.receipt_rate.pension_credit": WHD_RECEIPT_RATE_PENSION_CREDIT,
+                    f"{tp}.receipt_rate.other_benefits": WHD_RECEIPT_RATE_OTHER,
                 }
             ),
-            "links": WHD_LINKS,
+            "links": [*WHD_LINKS, WHD_IA_LINK],
         },
         "cost_of_living_payment": {
             "label": "£300 Cost of Living Payment to households on means-tested benefits",
@@ -303,16 +319,18 @@ def _policies(year):
     }
 
 
-def _whd_note(recipients_m):
+def _whd_note(eligible_m, recipients_m):
     return (
-        "Proxy for Warm Home Discount recipients: every GB household where any member "
-        "receives Universal Credit, Pension Credit, Housing Benefit, income-related ESA, "
-        "income-based JSA or Income Support during the year. The actual scheme also "
-        "requires the qualifying date, a participating supplier and the claimant or "
-        "partner named on the electricity account (England and Wales), and has "
-        "core/broader groups with application conditions in Scotland. Modelled "
-        f"caseload {recipients_m:.1f}m households against about "
-        f"{WHD_OFFICIAL_HOUSEHOLDS_M:.0f}m in official estimates."
+        "Eligible: every GB household where any member receives Universal Credit, "
+        "Pension Credit, Housing Benefit, income-related ESA, income-based JSA or "
+        f"Income Support during the year ({eligible_m:.1f}m households). Not every "
+        "eligible household receives the Warm Home Discount: the claimant or partner "
+        "must be named on a participating supplier's electricity account and matched "
+        "to DWP records. DESNZ's receipt rates are applied by a seeded draw per "
+        f"household: {WHD_RECEIPT_RATE_PENSION_CREDIT:.0%} of households with Pension "
+        f"Credit and {WHD_RECEIPT_RATE_OTHER:.0%} of other eligible households "
+        f"({recipients_m:.1f}m recipients, against about "
+        f"{WHD_OFFICIAL_HOUSEHOLDS_M:.0f}m in DESNZ's estimate for winter 2025/26)."
     )
 
 
@@ -509,8 +527,24 @@ def run_budget_options(data):
                 assumptions=p.get("assumptions"),
                 links=p.get("links"),
             )
+            if key == "whd_top_up":
+                # Eligible before the receipt draw, for the caseload comparison.
+                eligible = _arr(ref, "targeted_energy_discount_eligible", year)
+                pc = _arr(ref, "pension_credit", year, map_to="household") > 0
+                rows[key]["eligible_m"] = round(float(np.sum(eligible * w)) / 1e6, 2)
+                rows[key]["eligible_pension_credit_m"] = round(
+                    float(np.sum((eligible & pc) * w)) / 1e6, 2
+                )
+                # Diagnostic: recipients at the rates' expected value. Calibrated
+                # weights are uneven, so one seeded draw lands a little off it.
+                rate = np.where(
+                    pc, WHD_RECEIPT_RATE_PENSION_CREDIT, WHD_RECEIPT_RATE_OTHER
+                )
+                rows[key]["expected_recipients_m"] = round(
+                    float(np.sum(eligible * rate * w)) / 1e6, 2
+                )
         whd = rows["whd_top_up"]
-        whd["note"] = _whd_note(whd["recipients_m"])
+        whd["note"] = _whd_note(whd["eligible_m"], whd["recipients_m"])
 
         for key, support in analytic_supports(year, fc, held, gb).items():
             meta = ANALYTIC_OPTIONS[key]
