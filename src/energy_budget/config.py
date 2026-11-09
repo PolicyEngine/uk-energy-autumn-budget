@@ -224,7 +224,8 @@ def fuel_bill(period, fuel, kwh=None):
 # * SI 2026/987 zero-rates supplies in England, Wales and Scotland from
 #   1 Oct 2026 to 31 Mar 2027; Northern Ireland keeps the reduced rate.
 #   https://www.legislation.gov.uk/uksi/2026/987/made
-# * Budget 2026 (28 Oct 2026, para 6.210 and policy costings p. 12) extends
+# * Budget 2026 (28 Oct 2026; policyengine-uk cites para 6.210 and the policy
+#   costings, p. 12) extends
 #   the zero rate to 30 June 2027 and expects it to apply UK-wide from
 #   1 April 2027. This is announced policy, not yet law.
 # "post_budget" is the baseline. "pre_budget" is the counterfactual used to

@@ -940,7 +940,7 @@ const REFERENCES = [
   ["Resolution Foundation, “Billing me softly”, 10 August 2026.", "https://www.resolutionfoundation.org/publications/billing-me-softly/"],
   ["DWP, Households Below Average Income: background information and methodology report, FYE 2025.", "https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2025/households-below-average-income-background-information-and-methodology-report-fye-2025"],
   ["Priesmann, J. and Praktiknjo, A. (2025), income-specific price elasticities of household energy demand, as used in PolicyEngine's energy price shock analysis.", "https://github.com/PolicyEngine/energy-price-shock"],
-  ["HM Treasury, Budget 2026, 28 October 2026 (paragraphs 3.5 and 6.24: Household Energy Payment; paragraph 6.210: electricity VAT).", BUDGET_LINK],
+  ["HM Treasury, Budget 2026, 28 October 2026: the Household Energy Payment and the extension of 0% VAT on domestic electricity.", BUDGET_LINK],
   ["policyengine.py release on PyPI.", "https://pypi.org/project/policyengine/"],
   ["OVO, “Energy price cap” forecast table, 7 October 2026.", "https://www.ovoenergy.com/price-cap"],
   ["Ofgem, price cap methodology appendix 4: wholesale costs (winter shares of annual demand, page 6), November 2018.", "https://www.ofgem.gov.uk/sites/default/files/docs/2018/11/appendix_4_-_wholesale_costs.pdf#page=6"],
