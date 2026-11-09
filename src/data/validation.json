@@ -58,6 +58,7 @@
    "household_net_income_records_gain_differs": 5,
    "hbai_household_net_income_before_reset_to_zero_records_gain_differs": 0,
    "hbai_household_net_income_records_gain_differs": 284,
+   "note": "Benefits and HBAI income before the reset to zero rise by exactly the payment. HBAI income after the reset gains less for households that stay at or below zero. Household net income differs by a few pounds on a handful of very high-income records through float32 rounding; the weighted total of that difference is shown in pounds.",
    "net_income_gain_minus_payment_total_gbp": 159.53
   },
   "vat_change_abs_gbp_by_simulation": {
@@ -78,7 +79,7 @@
  "2027-28": {
   "household_energy_payment": {
    "paid_outside_england_bands_a_to_d": 0,
-   "eligible_not_paid": 34464,
+   "eligible_not_paid": null,
    "amounts_paid": [],
    "recipients_m": 0.0,
    "cost_bn": 0.0,
@@ -94,6 +95,7 @@
    "household_net_income_records_gain_differs": 0,
    "hbai_household_net_income_before_reset_to_zero_records_gain_differs": 0,
    "hbai_household_net_income_records_gain_differs": 0,
+   "note": "Benefits and HBAI income before the reset to zero rise by exactly the payment. HBAI income after the reset gains less for households that stay at or below zero. Household net income differs by a few pounds on a handful of very high-income records through float32 rounding; the weighted total of that difference is shown in pounds.",
    "net_income_gain_minus_payment_total_gbp": 0.0
   },
   "vat_change_abs_gbp_by_simulation": {

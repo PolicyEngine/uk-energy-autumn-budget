@@ -1,22 +1,13 @@
 {
- "generated_at": "2026-11-09T16:24:14+00:00",
+ "generated_at": "2026-11-09T16:39:11+00:00",
  "command": "HF_HUB_OFFLINE=1 .venv/bin/energy-budget",
  "git": {
-  "head": "b0633c5f2e31d75981d2cf6d8758b47f9af032a1",
+  "head": "5b3c0f64c14a7abbe669552deaeeb268bbd6922f",
   "branch": "migrate/policyengine-6.16.1",
   "uncommitted_changes": true,
   "uncommitted_paths": [
-   "M src/data/deciles.json",
-   " M src/data/hh_types.json",
-   " M src/data/notes.json",
-   " M src/data/options.json",
-   " M src/data/price_path.json",
-   " M src/data/provenance.json",
-   " M src/data/regions.json",
-   " M src/data/results.json",
-   " M src/data/years.json",
-   "?? src/data/budget_measures.json",
-   "?? src/data/validation.json"
+   "M src/data/results.json",
+   " M src/data/validation.json"
   ]
  },
  "runtime": {
@@ -50,8 +41,8 @@
   "src/data/price_path.json": "620489695e027ab3433c20a1fc7a9d595a5ee5730b4783548c5ec2f3d894a86d",
   "src/data/provenance.json": "d5b16d435d63a1728f10f2196ed12172dfa3bb6354bda71bab2aaf997b60053c",
   "src/data/regions.json": "850ec31b088c97d079982434c892020f4137478e0be7116cb9b0412a6545ae5c",
-  "src/data/results.json": "8c52f08beebcf122b35da4ffeab86f1b13fd1749023b514a7c44faef8b67b582",
-  "src/data/validation.json": "f98be38133ab00a21010d3fa5a5771ad12ac4407552c357fdff85413b59fe5a4",
+  "src/data/results.json": "37afe2c78d40694ea4bdcdfab48fa98f78ee481366b625d5c3ad76100f7af077",
+  "src/data/validation.json": "77e84f6c7f5fd83aa909ecf97f8ec99f1040a3c483b31bd7eb1b7b213d7bff5a",
   "src/data/years.json": "640d742ba4f13f797d72a0b5bc35c87c18f5808e0639b3a209d8e1ae6b8c784f"
  }
 }
