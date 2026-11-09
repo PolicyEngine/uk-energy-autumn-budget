@@ -1,0 +1,113 @@
+{
+ "dataset": {
+  "households_m": 28.99,
+  "elec": {
+   "twh": 85.88,
+   "spend_bn": 28.03,
+   "max_abs_price_basis_residual_gbp": 9.094947017729282e-13,
+   "records": 78181,
+   "connected_zero_kwh_records": 2126,
+   "connected_zero_kwh_pct": 3.63,
+   "not_connected_records": 84,
+   "not_connected_pct": 0.03,
+   "not_connected_northern_ireland_records": 84,
+   "kwh_without_spend_records": 0,
+   "spend_above_fixed_without_kwh_records": 0
+  },
+  "gas": {
+   "twh": 253.19,
+   "spend_bn": 19.27,
+   "max_abs_price_basis_residual_gbp": 4.547473508864641e-13,
+   "records": 78181,
+   "connected_zero_kwh_records": 0,
+   "connected_zero_kwh_pct": 0.0,
+   "not_connected_records": 13188,
+   "not_connected_pct": 15.86,
+   "not_connected_northern_ireland_records": 2176,
+   "kwh_without_spend_records": 0,
+   "spend_above_fixed_without_kwh_records": 0
+  },
+  "release_levels": {
+   "elec_twh": 84.94,
+   "elec_basis": "ONS Consumer Trends 2024 electricity spending \u00a328.13bn at the QEP UK price",
+   "energy_trends_elec_twh": 91.74,
+   "gas_twh": 252.34,
+   "gas_basis": "DESNZ Energy Trends domestic gas, calendar 2024"
+  },
+  "relative_poverty_ahc_pct": 18.52,
+  "household_id_aligned": true
+ },
+ "2026-27": {
+  "household_energy_payment": {
+   "paid_outside_england_bands_a_to_d": 0,
+   "eligible_not_paid": 0,
+   "amounts_paid": [
+    100.0
+   ],
+   "recipients_m": 19.65,
+   "cost_bn": 1.96,
+   "household_benefits_gain_bn": 1.96,
+   "household_net_income_gain_bn": 1.96,
+   "hbai_household_net_income_before_reset_to_zero_gain_bn": 1.96,
+   "hbai_household_net_income_gain_bn": 1.96,
+   "household_benefits_max_abs_gain_minus_payment": 0.0,
+   "household_net_income_max_abs_gain_minus_payment": 4.0,
+   "hbai_household_net_income_before_reset_to_zero_max_abs_gain_minus_payment": 0.0,
+   "hbai_household_net_income_max_abs_gain_minus_payment": 100.0,
+   "household_benefits_records_gain_differs": 0,
+   "household_net_income_records_gain_differs": 5,
+   "hbai_household_net_income_before_reset_to_zero_records_gain_differs": 0,
+   "hbai_household_net_income_records_gain_differs": 284,
+   "net_income_gain_minus_payment_total_gbp": 159.53
+  },
+  "vat_change_abs_gbp_by_simulation": {
+   "baseline": 0.0,
+   "counterfactual": 0.0,
+   "rf_targeted_discount": 0.0,
+   "whd_top_up": 0.0,
+   "cost_of_living_payment": 0.0,
+   "flat_400": 0.0
+  },
+  "vat_reconciliation": {
+   "dashboard_elec_vat_bn": 0.62,
+   "policyengine_uk_elec_vat_bn": 0.7,
+   "dashboard_gas_vat_bn": 1.13,
+   "note": "Dashboard: each quarter's rate on that quarter's seasonal share of use. policyengine-uk: fiscal-year day-weighted rate on bill / 1.05. Only the dashboard's figure enters results; the model's never reaches income because vat_change is zero."
+  }
+ },
+ "2027-28": {
+  "household_energy_payment": {
+   "paid_outside_england_bands_a_to_d": 0,
+   "eligible_not_paid": 34464,
+   "amounts_paid": [],
+   "recipients_m": 0.0,
+   "cost_bn": 0.0,
+   "household_benefits_gain_bn": 0.0,
+   "household_net_income_gain_bn": 0.0,
+   "hbai_household_net_income_before_reset_to_zero_gain_bn": 0.0,
+   "hbai_household_net_income_gain_bn": 0.0,
+   "household_benefits_max_abs_gain_minus_payment": 0.0,
+   "household_net_income_max_abs_gain_minus_payment": 0.0,
+   "hbai_household_net_income_before_reset_to_zero_max_abs_gain_minus_payment": 0.0,
+   "hbai_household_net_income_max_abs_gain_minus_payment": 0.0,
+   "household_benefits_records_gain_differs": 0,
+   "household_net_income_records_gain_differs": 0,
+   "hbai_household_net_income_before_reset_to_zero_records_gain_differs": 0,
+   "hbai_household_net_income_records_gain_differs": 0,
+   "net_income_gain_minus_payment_total_gbp": 0.0
+  },
+  "vat_change_abs_gbp_by_simulation": {
+   "baseline": 0.0,
+   "rf_targeted_discount": 0.0,
+   "whd_top_up": 0.0,
+   "cost_of_living_payment": 0.0,
+   "flat_400": 0.0
+  },
+  "vat_reconciliation": {
+   "dashboard_elec_vat_bn": 1.16,
+   "policyengine_uk_elec_vat_bn": 1.15,
+   "dashboard_gas_vat_bn": 1.23,
+   "note": "Dashboard: each quarter's rate on that quarter's seasonal share of use. policyengine-uk: fiscal-year day-weighted rate on bill / 1.05. Only the dashboard's figure enters results; the model's never reaches income because vat_change is zero."
+  }
+ }
+}

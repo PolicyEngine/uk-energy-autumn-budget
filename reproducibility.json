@@ -1,41 +1,57 @@
 {
- "generated_at": "2026-10-12T14:31:27+00:00",
+ "generated_at": "2026-11-09T16:24:14+00:00",
  "command": "HF_HUB_OFFLINE=1 .venv/bin/energy-budget",
  "git": {
-  "head": "e5ce26dd00aa95a20cf63efcee85b5556d6f0b42",
-  "branch": "fix/publication-review-1",
-  "uncommitted_changes": false,
-  "uncommitted_paths": []
+  "head": "b0633c5f2e31d75981d2cf6d8758b47f9af032a1",
+  "branch": "migrate/policyengine-6.16.1",
+  "uncommitted_changes": true,
+  "uncommitted_paths": [
+   "M src/data/deciles.json",
+   " M src/data/hh_types.json",
+   " M src/data/notes.json",
+   " M src/data/options.json",
+   " M src/data/price_path.json",
+   " M src/data/provenance.json",
+   " M src/data/regions.json",
+   " M src/data/results.json",
+   " M src/data/years.json",
+   "?? src/data/budget_measures.json",
+   "?? src/data/validation.json"
+  ]
  },
  "runtime": {
   "python": "3.13.15",
-  "policyengine": "6.2.7",
-  "policyengine_uk": "2.125.1",
-  "policyengine_core": "3.33.0",
-  "bundle_id": "uk-6.2.7",
-  "bundle_model_version": "2.125.1"
+  "policyengine": "6.16.1",
+  "policyengine_uk": "2.174.1",
+  "policyengine_core": "3.33.3",
+  "bundle_id": "uk-6.16.1",
+  "bundle_model_version": "2.174.1"
  },
  "dataset": {
-  "repo": "policyengine/populace-uk-private",
-  "file": "microcosm_uk_2024_25.h5",
-  "revision": "f9d1922cddab6b54a0dd37794a9bac74e3780c88",
-  "release": "microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68",
-  "sha256_pinned": "aa31bdf67c977927ea2b325567d1cf7a79d94381239bc79918a0a0fc9c9588af",
-  "sha256_verified": "aa31bdf67c977927ea2b325567d1cf7a79d94381239bc79918a0a0fc9c9588af"
+  "managed": true,
+  "name": "microcosm_uk_2024_25",
+  "uri": "hf://policyengine/populace-uk-private/microcosm_uk_2024_25.h5@microcosm-uk-2024-25-national-20261107T020434Z-eeb6093e",
+  "build_id": "microcosm-uk-2024-25-national-20261107T020434Z-eeb6093e",
+  "revision": "microcosm-uk-2024-25-national-20261107T020434Z-eeb6093e",
+  "sha256_certified": "0a9b77db1c0dee2693cb2d47bad68da34cb662916eee4829942bcd45de581f25",
+  "sha256_verified": "0a9b77db1c0dee2693cb2d47bad68da34cb662916eee4829942bcd45de581f25"
  },
  "model_choices": {
-  "kwh_basis": "qep_fy2024_25_regional",
-  "consumption_profile": "seasonal"
+  "baseline_policy": "post_budget",
+  "consumption_profile": "seasonal",
+  "kwh_source": "dataset export: household electricity_kwh and gas_kwh (annual, calendar 2024)"
  },
  "outputs": {
-  "src/data/deciles.json": "71edcf80182742e11b95bbf8d780a7f2a001425c5b4d2f363172cb2894920b50",
-  "src/data/hh_types.json": "08bb323244384c4a337b6a87480bd22ab01a80468ac945cabf77de5ee0d9aba2",
-  "src/data/notes.json": "4f9e6d86d5d5587e04d2b978489e8e742fb1596e30712fb716bd7db206766f79",
-  "src/data/options.json": "c047f33a2af9bfe3e6e872a2cbe76a45e173bb74b53d1ef332af4de896213cba",
-  "src/data/price_path.json": "efe98f12f96a2bf8000e5d9775bfdbfecd1dec94552e102c01ea275b0aaaa5a8",
-  "src/data/provenance.json": "e820c6d21508f26bf877c1fd06290d54a0785500dfd83dd4cf5a1897d059e0ad",
-  "src/data/regions.json": "0a60742383a52564a0f47e3805b230818b06338a4b4a917018aa53a70493dfeb",
-  "src/data/results.json": "0c0b282fa9d8e15d393a92ab05ceb6099a3549837556a0cd12089d9360b11f69",
-  "src/data/years.json": "138a17f941e49c538d7dd1ccc9cdf5e6e746ce11834b453a4657773e86d1df19"
+  "src/data/budget_measures.json": "57637cc68e4495f849483e2cce47a54ca97f4d9bcab78e294a75db35ad928564",
+  "src/data/deciles.json": "58db77189a28217af6fe4a8ec98364ee206737c67ca64c8d8e6039126b1cbaf3",
+  "src/data/hh_types.json": "a5c119621b47a775632186d8efbaca1d8234562ba2cf4f320f91aa1a69997705",
+  "src/data/notes.json": "fbbf6ea944bcbbc042f5f02164b81802634db7483c756999e54c61c7dc4dda28",
+  "src/data/options.json": "a0ea825f92697525158fb3629294ddbeb2df1e5109f850ffc762d60f42d62f00",
+  "src/data/price_path.json": "620489695e027ab3433c20a1fc7a9d595a5ee5730b4783548c5ec2f3d894a86d",
+  "src/data/provenance.json": "d5b16d435d63a1728f10f2196ed12172dfa3bb6354bda71bab2aaf997b60053c",
+  "src/data/regions.json": "850ec31b088c97d079982434c892020f4137478e0be7116cb9b0412a6545ae5c",
+  "src/data/results.json": "8c52f08beebcf122b35da4ffeab86f1b13fd1749023b514a7c44faef8b67b582",
+  "src/data/validation.json": "f98be38133ab00a21010d3fa5a5771ad12ac4407552c357fdff85413b59fe5a4",
+  "src/data/years.json": "640d742ba4f13f797d72a0b5bc35c87c18f5808e0639b3a209d8e1ae6b8c784f"
  }
 }

@@ -2,19 +2,19 @@
  {
   "id": "data",
   "topic": "Data and model",
-  "detail": "policyengine.py 6.2.7 (policyengine-uk 2.125.1, bundle uk-6.2.7) on Microcosm UK 2024-25, release microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68. The release is not in the certified bundle, so it runs with allow_unmanaged=True, pinned by repository revision and SHA-256.",
-  "link": "https://github.com/PolicyEngine/policyengine.py"
+  "detail": "policyengine.py 6.16.1 (policyengine-uk 2.174.1, bundle uk-6.16.1) on its certified Microcosm UK 2024-25 national dataset, release microcosm-uk-2024-25-national-20261107T020434Z-eeb6093e, loaded through the package's managed loader and checked against the bundle's SHA-256.",
+  "link": "https://github.com/PolicyEngine/policyengine.py/releases/tag/6.16.1"
  },
  {
   "id": "kwh",
-  "topic": "Usage and price basis",
-  "detail": "Microcosm builds each household's energy spend as kWh priced at DESNZ Quarterly Energy Prices for FY2024-25 (regional unit cost plus fixed cost, VAT included), then reweights households to ONS 2025 spending. Each household's kWh are recovered as (spend \u2212 fixed cost) \u00f7 unit rate and every scenario is costed from those kWh: unit rate \u00d7 kWh plus the standing charge. Households with no spend on a fuel pay no standing charge for it. In the data, 10.3% of households have electricity spend exactly equal to their region's fixed cost, so zero electricity kWh: only the standing charge moves for them, which understates their bill change. Sensitivity with CY2025 Ofgem cap tariffs as the reference (2026-27: extra cost \u00a36.96bn, mean bill \u00a31,600; 2027-28: extra cost \u00a310.97bn, mean bill \u00a31,735).",
+  "topic": "Energy use",
+  "detail": "Each household's annual electricity and gas use in kWh comes from the dataset's export (calendar 2024: gas levelled to DESNZ Energy Trends domestic volumes, electricity to ONS 2024 spending) and is held fixed. The dataset's spending columns are those kWh priced at DESNZ Quarterly Energy Prices CY2024 (regional unit cost plus fixed cost, 5% VAT included); the pipeline checks that basis but costs every scenario from kWh. 3.6% of households use no electricity and pay only the standing charge; 15.9% have no mains gas and pay no gas standing charge.",
   "link": "https://github.com/PolicyEngine/microcosm/issues/1113"
  },
  {
   "id": "seasonal",
   "topic": "Seasonal use",
-  "detail": "Central estimate uses Ofgem's winter shares: 75% of gas and 57% of electricity used in October\u2013March, split equally between the two quarters of each half-year; standing charges are time-weighted. Equal quarterly use is reported as a sensitivity (2026-27: typical bill \u00a31,995.83 seasonal vs \u00a31,923.34 equal-weight, extra cost \u00a37.22bn vs \u00a35.84bn; 2027-28: typical bill \u00a32,170.10 seasonal vs \u00a32,187.21 equal-weight, extra cost \u00a311.38bn vs \u00a311.73bn).",
+  "detail": "Central estimate uses Ofgem's winter shares: 75% of gas and 57% of electricity used in October\u2013March, split equally between the two quarters of each half-year; standing charges are time-weighted. Equal quarterly use is reported as a sensitivity (2026-27: typical bill \u00a31,995.83 seasonal vs \u00a31,923.34 equal-weight, extra cost \u00a38.48bn vs \u00a36.82bn; 2027-28: typical bill \u00a32,158.64 seasonal vs \u00a32,174.31 equal-weight, extra cost \u00a312.74bn vs \u00a313.1bn).",
   "link": "https://www.ofgem.gov.uk/sites/default/files/docs/2018/11/appendix_4_-_wholesale_costs.pdf#page=6"
  },
  {
@@ -26,8 +26,20 @@
  {
   "id": "baseline",
   "topic": "Baseline",
-  "detail": "Current law at forecast prices. Each household's kWh are costed at each quarter's tariffs and the resulting electricity and gas bills are loaded into PolicyEngine. The Energy Price Guarantee ended in April 2024, so it pays nothing.",
-  "link": "https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026"
+  "detail": "Post-Budget law at forecast prices: the Household Energy Payment and the electricity VAT extension announced in Budget 2026 are in the baseline. Each household's kWh are costed at each quarter's tariffs and the resulting electricity and gas bills are loaded into PolicyEngine. The Energy Price Guarantee ended in April 2024, so it pays nothing.",
+  "link": "https://www.gov.uk/government/news/what-the-autumn-budget-2026-means-for-your-energy-bills"
+ },
+ {
+  "id": "budget_measures",
+  "topic": "Budget energy measures",
+  "detail": "Their effect is measured against a counterfactual with the same prices, data and other policies but no Household Energy Payment and electricity VAT as under SI 2026/987 alone. The payment reaches 19.6m households in 2026-27 at \u00a31.96bn; the VAT extension saves households \u00a30.36bn in 2027-28.",
+  "link": "https://www.gov.uk/government/news/what-the-autumn-budget-2026-means-for-your-energy-bills"
+ },
+ {
+  "id": "hep",
+  "topic": "Household Energy Payment",
+  "detail": "\u00a3100 to households in council tax bands A\u2013D in England in 2026-27, paid by local authorities from January 2027. policyengine-uk pays every household in those bands (it cannot identify landlords liable for council tax) and counts the payment in household and HBAI income, as DWP counted the 2022 Council Tax Rebate, so it moves poverty. The devolved governments' Barnett share is not allocated.",
+  "link": "https://www.gov.uk/government/publications/budget-2026-document/budget-2026-html"
  },
  {
   "id": "tariffs",
@@ -38,13 +50,13 @@
  {
   "id": "vat",
   "topic": "Electricity VAT",
-  "detail": "VAT on domestic electricity is 0% for supplies in England, Wales and Scotland from 1 Oct 2026 to 31 Mar 2027 (SI 2026/987), then returns to 5%. Northern Ireland keeps the 5% reduced rate, so its electricity carries VAT in every quarter. The 2027-28 baseline includes the return.",
+  "detail": "VAT on domestic electricity is 0% in England, Wales and Scotland from 1 Oct 2026 (SI 2026/987). Budget 2026 extends the zero rate to 30 June 2027 and expects it to apply in Northern Ireland from 1 April 2027; this is announced policy, not yet law. The rate is 5% from 1 July 2027. Each quarter's published electricity rates are taken back to their VAT-exclusive level and priced at the rate in force for that quarter and nation, so the April\u2013June 2027 supplier forecast, made at 5%, is reduced. policyengine-uk's own energy VAT (a fiscal-year day-weighted rate on bills \u00f7 1.05) is not used: no simulation changes a VAT rate, so it never reaches income and VAT savings are counted once.",
   "link": "https://www.legislation.gov.uk/uksi/2026/987/made"
  },
  {
   "id": "forecast2728",
   "topic": "2027-28 prices",
-  "detail": "April\u2013September 2027 use the average of supplier forecasts (EDF, British Gas, E.ON Next); October\u2013December 2027 uses OVO's forecast with 5% electricity VAT restored, and January\u2013March 2028 holds that level. Forecasts give no fuel split, so Cornwall Insight's January unit rates and standing charges are scaled to each total.",
+  "detail": "April\u2013September 2027 use the average of supplier forecasts (EDF, British Gas, E.ON Next); October\u2013December 2027 uses OVO's forecast, and January\u2013March 2028 holds that level. Forecasts give no fuel split, so Cornwall Insight's January 2027 rates as forecast on 30 Sep 2026 are scaled to each total. These forecasts predate the Budget and are unchanged.",
   "link": "https://www.eonnext.com/electricity-and-gas/price-cap/predictions"
  },
  {
@@ -52,6 +64,12 @@
   "topic": "Cap freeze",
   "detail": "Electricity and gas unit rates and standing charges are held at April\u2013June 2026 levels. The cost is each household's forecast bill minus its bill at those tariffs for the same kWh, floored at zero. It is a price restoration, so it sits outside HBAI income and has no poverty effect.",
   "link": "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges"
+ },
+ {
+  "id": "extend_vat_cut",
+  "topic": "Extend VAT cut",
+  "detail": "Keeps 0% VAT on domestic electricity from 1 July 2027 to 31 March 2028, UK-wide like the Budget's extension. Its cost is the additional relief beyond the extension to June 2027, which is already in the baseline.",
+  "link": "https://www.legislation.gov.uk/uksi/2026/987/made"
  },
  {
   "id": "rf",
@@ -62,7 +80,7 @@
  {
   "id": "whd",
   "topic": "Warm Home Discount top-up",
-  "detail": "Means-tested-household proxy: \u00a3100 to every GB household where any member receives a listed means-tested benefit during the year. The scheme's actual rules (qualifying date, participating supplier, account holder; core and broader groups in Scotland) are not modelled. Modelled caseload 7.8m in 2026-27, 7.8m in 2027-28. DESNZ estimates around 6 million recipient households across Great Britain in winter 2025/26 (DESNZ, Continuing the Warm Home Discount Scheme: Government Response, January 2026, p. 5).",
+  "detail": "Means-tested-household proxy: \u00a3100 to every GB household where any member receives a listed means-tested benefit during the year. The scheme's actual rules (qualifying date, participating supplier, account holder; core and broader groups in Scotland) are not modelled. Modelled caseload 7.6m in 2026-27, 7.6m in 2027-28. DESNZ estimates around 6 million recipient households across Great Britain in winter 2025/26 (DESNZ, Continuing the Warm Home Discount Scheme: Government Response, January 2026, p. 5).",
   "link": "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",
   "links": [
    "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",
@@ -73,14 +91,14 @@
  {
   "id": "poverty",
   "topic": "Poverty",
-  "detail": "Relative poverty: people in households below 60% of median equivalised HBAI income (PolicyEngine UK in_relative_poverty_bhc/ahc, the DWP headline measure). Absolute poverty (in_poverty_*, a fixed FYE 2025 line) is also exported. Child rates (child_*) are under-18 rates (age < 18), not DWP's dependent-child cohort, which includes some 16-19-year-olds in full-time non-advanced education. DWP counts the Warm Home Discount, a bill credit, as HBAI income, so the top-up moves poverty; the RF discount is counted the same way by assumption. Price cuts (cap freeze, VAT, levies) lower bills rather than raise income, so they do not move HBAI poverty.",
+  "detail": "Relative poverty: people in households below 60% of median equivalised HBAI income (PolicyEngine UK in_relative_poverty_bhc/ahc, the DWP headline measure). Absolute poverty (in_poverty_*, a fixed FYE 2025 line) is also exported. Child rates (child_*) are under-18 rates (age < 18), not DWP's dependent-child cohort, which includes some 16-19-year-olds in full-time non-advanced education. HBAI income counts the Household Energy Payment, the Warm Home Discount and (as DWP did for the 2022 Energy Bills Support Scheme) the \u00a3400 credit, so they move poverty; the RF discount is counted the same way by assumption. Price cuts (VAT, cap freeze, levies) lower bills rather than raise income, so they do not move HBAI poverty.",
   "link": "https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2025/households-below-average-income-background-information-and-methodology-report-fye-2025"
  },
  {
   "id": "deciles",
   "topic": "Income deciles",
-  "detail": "Deciles of equivalised HBAI household income before housing costs, person-weighted (household weight \u00d7 household size), as PolicyEngine UK defines household_income_decile. Households with negative income are excluded from the ten deciles. Gains shown are household-weighted means within each decile.",
-  "link": "https://github.com/PolicyEngine/policyengine-uk/blob/2.125.1/policyengine_uk/variables/household/income/household_income_decile.py"
+  "detail": "Deciles of equivalised HBAI household income before housing costs, person-weighted (household weight \u00d7 household size), as PolicyEngine UK defines household_income_decile. As in HBAI, negative incomes are reset to zero and ranked in the bottom decile. Gains shown are household-weighted means within each decile.",
+  "link": "https://github.com/PolicyEngine/policyengine-uk/blob/2.174.1/policyengine_uk/variables/household/income/household_income_decile.py"
  },
  {
   "id": "hh_types",
@@ -96,8 +114,8 @@
  },
  {
   "id": "budget",
-  "topic": "Budget date",
-  "detail": "Autumn Budget and OBR forecast, Wednesday 28 October 2026. The OBR's March 2026 forecast closed before the conflict.",
-  "link": "https://obr.uk/autumn-2026-forecast-date-announced/"
+  "topic": "Budget and forecasts",
+  "detail": "Autumn Budget 2026 and the OBR's forecast were published on 28 October 2026. The energy price forecasts used here were made before the Budget and are unchanged; Ofgem's January\u2013March 2027 cap can replace Cornwall Insight's forecast separately.",
+  "link": "https://www.gov.uk/government/publications/budget-2026-document/budget-2026-html"
  }
 ]
