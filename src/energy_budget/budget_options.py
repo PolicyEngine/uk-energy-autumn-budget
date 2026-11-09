@@ -1,55 +1,58 @@
-"""Autumn Budget 2026 options, scored against a forecast-price baseline.
+"""Autumn Budget 2026: the energy measures in the baseline, and further options.
 
-Bills. Each household's annual electricity and gas kWh are recovered from
-its Microcosm spend at the dataset's reference tariff (``KWH_BASIS``: DESNZ
-QEP FY2024-25 regional unit cost + fixed cost) and re-costed quarter by
-quarter: kWh x unit rate on that quarter's share of annual use (Ofgem's
-seasonal profile, 75% of gas and 57% of electricity in October-March) plus
-the quarter's standing charge. Households with no spend on a fuel pay no
-standing charge for it. The equal-quarter profile is reported as a
-sensitivity, as is the CY2025 Ofgem-cap reference tariff.
+Bills. Each household's annual electricity and gas kWh come from the
+certified Microcosm UK export and are costed quarter by quarter: kWh x unit
+rate on that quarter's share of annual use (Ofgem's seasonal profile, 75% of
+gas and 57% of electricity in October-March) plus the quarter's standing
+charge. Households not connected to a fuel pay no standing charge for it.
+The equal-quarter profile is reported as a sensitivity.
 
-Baseline (current law at forecast prices), per financial year:
+Baseline: post-Budget law at forecast prices. Prices are as published or
+forecast (``config.PRICE_PATH``); electricity VAT follows the law for each
+quarter and nation (``config.ELEC_VAT["post_budget"]``): 0% in Great
+Britain from October 2026 to June 2027 and in Northern Ireland from April to
+June 2027, 5% otherwise. The Household Energy Payment (£100 to households in
+council tax bands A-D in England in 2026-27) comes from policyengine-uk,
+which counts it in household and HBAI income.
 
-* **2026-27**: Ofgem caps for April-December 2026 and Cornwall Insight's
-  January-March 2027 forecast. Electricity is VAT-free from October in
-  England, Wales and Scotland (SI 2026/987); Northern Ireland, costed on
-  GB rates as a proxy, keeps 5% VAT.
-* **2027-28**: the average of supplier forecasts (EDF, British Gas,
-  E.ON Next) for April-June and July-September 2027; OVO's October-December
-  2027 forecast, quoted at 0% electricity VAT, with 5% VAT restored; and
-  January-March 2028 held at the October-December level. Forecasts give no
-  fuel split: each quarter scales Cornwall Insight's January 2027 unit rates
-  and standing charges by one factor that hits the forecast total.
+Each Budget measure enters once. The VAT extension enters only through the
+tariffs: no simulation changes a VAT parameter, so policyengine-uk's
+``vat_change`` is zero everywhere (checked) and the model's own energy VAT
+never reaches household income. The payment enters only through the model's
+household income: bills are not reduced by it.
 
-Every household is modelled on capped variable tariffs; tariff type,
-payment method and contract expiry are not modelled.
+Counterfactual for the Budget measures ("pre_budget"): the same prices,
+data and policies, with no Household Energy Payment and electricity VAT as
+under SI 2026/987 alone (5% from April 2027 in Great Britain, 5% throughout
+in Northern Ireland).
 
-Options. The targeted discount (RF, simplified), Warm Home Discount
-top-up, Cost of Living Payment and £400 payment are PolicyEngine reforms
-against that baseline. The cap freeze, the VAT extension and levy removal
-are price cuts costed analytically from each household's bill, outside
-HBAI income: PolicyEngine UK has no domestic-electricity VAT parameter
-(policyengine-uk#2166), and its Energy Price Guarantee scales the whole
-combined bill rather than holding each fuel's unit rate and standing charge.
+Options. The targeted discount (RF, simplified), Warm Home Discount top-up,
+Cost of Living Payment and £400 payment are PolicyEngine reforms against the
+post-Budget baseline. The cap freeze, the further VAT extension and levy
+removal are price cuts costed from each household's bills, outside HBAI
+income.
 """
 
 from __future__ import annotations
 
+import gc
+
 import numpy as np
 import pandas as pd
 
-from .baseline import _build_simulation, dataset_path, weighted_mean
-from .bills import FUELS, fuel_bill_for_profile, household_kwh, typical_bill
+from .baseline import _build_simulation, weighted_mean
+from .bills import FUELS, fuel_bill_for_profile, typical_bill
 from .config import (
+    BASELINE_LAW,
     CONSUMPTION_PROFILE,
+    COUNTERFACTUAL_LAW,
     CURRENT_CAP,
-    FY_2026_27_PERIODS,
-    KWH_BASIS,
-    TARIFFS,
+    HEP_PARAMETER,
+    NEW_TDCV,
     TDCV_ELEC_KWH,
     TDCV_GAS_KWH,
 )
+from .prices import HELD_QUARTERS, year_quarters
 
 VAT = 0.05
 WHD_TOP_UP = 100
@@ -59,81 +62,6 @@ WHD_TOP_UP = 100
 # 11 Oct 2026). Levies sit on electricity, so each household's electricity
 # bill falls by the share that takes £120 off the typical electricity bill.
 LEVY_SAVING_TYPICAL = 120
-NEW_TDCV = {"elec": 2_500, "gas": 9_500}
-
-# 2027-28 price path, post-July-2026 TDCVs, typical dual-fuel direct debit.
-# Forecasts give totals only, so each quarter scales Cornwall Insight's
-# January 2027 unit rates to the total. ``elec_vat_in_target`` says whether
-# the forecast already carries 5% VAT on electricity (current law from April
-# 2027): OVO states its figures keep the 0% rate in force since October 2026,
-# so VAT is added back after scaling; the supplier average is taken to
-# include it.
-MSE = "https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/"
-OVO = "https://www.ovoenergy.com/price-cap"
-FORECAST_2027_28 = [
-    {
-        "key": "apr_jun_2027",
-        "period": "Apr–Jun 2027",
-        "target": 2_074,
-        "elec_vat_in_target": True,
-        "kind": "Forecast",
-        "source": "Supplier average (EDF, British Gas, E.ON Next), 6–7 Oct 2026",
-        "link": MSE,
-    },
-    {
-        "key": "jul_sep_2027",
-        "period": "Jul–Sep 2027",
-        "target": 1_912,
-        "elec_vat_in_target": True,
-        "kind": "Forecast",
-        "source": "Supplier average (EDF, E.ON Next), 6–7 Oct 2026",
-        "link": MSE,
-    },
-    {
-        "key": "oct_dec_2027",
-        "period": "Oct–Dec 2027",
-        "target": 1_846,
-        "elec_vat_in_target": False,
-        "kind": "Forecast",
-        "source": "OVO, 7 Oct 2026",
-        "link": OVO,
-    },
-    {
-        # No published forecast; held at OVO's Oct-Dec 2027 level. The
-        # Winter-27 gas forward prices Q4-27 and Q1-28 together, with no
-        # Q1 premium (Catalyst, 22 Sep 2026 settlement).
-        "key": "jan_mar_2028",
-        "period": "Jan–Mar 2028",
-        "target": 1_846,
-        "elec_vat_in_target": False,
-        "kind": "Assumed",
-        "source": "Our assumption: no forecast published; held at the Oct–Dec 2027 level",
-        "link": None,
-    },
-]
-
-
-def _quarter_rates_2027_28(target, elec_vat_in_target=True):
-    """Cornwall's Jan 2027 rates scaled to a forecast total on the post-July
-    TDCVs, with 5% VAT on electricity in the result."""
-    e_unit, e_sc = TARIFFS["jan_mar_2027_cornwall"]["elec"]
-    g_unit, g_sc = TARIFFS["jan_mar_2027_cornwall"]["gas"]
-    if elec_vat_in_target:
-        e_unit, e_sc = e_unit * (1 + VAT), e_sc * (1 + VAT)
-    total = (
-        e_unit * NEW_TDCV["elec"] + e_sc * 365 + g_unit * NEW_TDCV["gas"] + g_sc * 365
-    ) / 100
-    g = target / total
-    e_unit, e_sc = e_unit * g, e_sc * g
-    if not elec_vat_in_target:
-        e_unit, e_sc = e_unit * (1 + VAT), e_sc * (1 + VAT)
-    return {"elec": (e_unit, e_sc), "gas": (g_unit * g, g_sc * g)}
-
-
-# Northern Ireland keeps the reduced VAT rate on electricity while GB is
-# zero-rated (SI 2026/987, art. 4), so NI's proxy GB rates get 5% back in
-# these quarters.
-NI_VAT_RESTORED = ("oct_dec_2026", "jan_mar_2027_cornwall")
 
 TARIFF_NOTE = (
     "Every household is modelled on the capped variable tariff (Ofgem GB "
@@ -164,33 +92,20 @@ RF_ASSUMPTIONS = [
     ),
 ]
 NOT_HBAI = "Price cut, costed from bills; not in HBAI income, so no poverty effect."
+BUDGET_COUNTERFACTUAL = (
+    "Same prices, data and policies without the Budget's energy measures: no "
+    "Household Energy Payment, and electricity VAT as under SI 2026/987 alone "
+    "(5% from April 2027 in Great Britain, 5% throughout in Northern Ireland)."
+)
 
 
-def year_quarters(year, ni=False):
-    """Four quarterly (unit p/kWh, standing p/day) tariffs per fuel for a FY."""
-    if year == 2026:
-        out = {f: [TARIFFS[p][f] for p in FY_2026_27_PERIODS] for f in FUELS}
-        if ni:
-            out["elec"] = [
-                (u * (1 + VAT), sc * (1 + VAT)) if p in NI_VAT_RESTORED else (u, sc)
-                for p, (u, sc) in zip(FY_2026_27_PERIODS, out["elec"])
-            ]
-        return out
-    if year == 2027:
-        rates = [
-            _quarter_rates_2027_28(q["target"], q["elec_vat_in_target"])
-            for q in FORECAST_2027_28
-        ]
-        return {f: [r[f] for r in rates] for f in FUELS}
-    raise ValueError(f"No price path for {year}")
+def _quarters(year, is_ni_household, law):
+    return year_quarters(year, "NI" if is_ni_household else "GB", law)
 
 
-HELD_QUARTERS = {f: [TARIFFS["apr_jun_2026"][f]] * 4 for f in FUELS}
-
-
-def typical(year, profile=CONSUMPTION_PROFILE):
-    """Typical bill (old TDCVs) and each fuel's change vs April-June 2026."""
-    q = year_quarters(year)
+def typical(year, profile=CONSUMPTION_PROFILE, law=BASELINE_LAW):
+    """Typical GB bill (old TDCVs) and each fuel's change vs April-June 2026."""
+    q = year_quarters(year, "GB", law)
     out = {"bill": typical_bill(q, profile, TDCV_ELEC_KWH, TDCV_GAS_KWH)}
     for f, kwh in (("elec", TDCV_ELEC_KWH), ("gas", TDCV_GAS_KWH)):
         new = fuel_bill_for_profile(kwh, True, q[f], f, profile)
@@ -199,9 +114,11 @@ def typical(year, profile=CONSUMPTION_PROFILE):
     return out
 
 
-def household_bills(year, kwh, connected, is_ni, profile=CONSUMPTION_PROFILE):
-    """Forecast bills per fuel. ``kwh``/``connected`` map fuel -> arrays."""
-    gb_q, ni_q = year_quarters(year), year_quarters(year, ni=True)
+def household_bills(
+    year, kwh, connected, is_ni, profile=CONSUMPTION_PROFILE, law=BASELINE_LAW
+):
+    """Bills per fuel under a VAT law. ``kwh``/``connected`` map fuel -> arrays."""
+    gb_q, ni_q = _quarters(year, False, law), _quarters(year, True, law)
     out = {}
     for f in FUELS:
         gb = fuel_bill_for_profile(kwh[f], connected[f], gb_q[f], f, profile)
@@ -225,19 +142,31 @@ def cap_freeze_support(forecast, held):
     )
 
 
+def vat_saving(year, kwh, connected, is_ni, profile, law_from, law_to):
+    """Fall in each household's electricity bill moving from one VAT law to another."""
+    a = household_bills(year, kwh, connected, is_ni, profile, law_from)["elec"]
+    b = household_bills(year, kwh, connected, is_ni, profile, law_to)["elec"]
+    return a - b
+
+
 def levy_share(profile=CONSUMPTION_PROFILE):
-    """Share of the typical 2027-28 electricity bill that £120 of levies is."""
+    """Share of the typical 2027-28 GB electricity bill that £120 of levies is."""
     typical_elec = fuel_bill_for_profile(
         NEW_TDCV["elec"], True, year_quarters(2027)["elec"], "elec", profile
     )
     return LEVY_SAVING_TYPICAL / float(typical_elec)
 
 
-def analytic_supports(year, forecast, held, gb, profile=CONSUMPTION_PROFILE):
+def analytic_supports(
+    year, forecast, held, kwh, connected, is_ni, profile=CONSUMPTION_PROFILE
+):
     """Supports for the options costed directly from bills."""
+    gb = ~is_ni
     out = {"cap_freeze": cap_freeze_support(forecast, held)}
     if year == 2027:
-        out["extend_vat_cut"] = np.where(gb, forecast["elec"] * VAT / (1 + VAT), 0.0)
+        out["extend_vat_cut"] = vat_saving(
+            year, kwh, connected, is_ni, profile, BASELINE_LAW, "extend_2027_28"
+        )
         out["remove_levies"] = np.where(gb, forecast["elec"] * levy_share(profile), 0.0)
     return out
 
@@ -330,8 +259,14 @@ ANALYTIC_OPTIONS = {
         ),
     },
     "extend_vat_cut": {
-        "label": "Extend the 0% VAT on domestic electricity through 2027-28 (GB)",
-        "note": NOT_HBAI,
+        "label": (
+            "Keep 0% VAT on domestic electricity from July 2027 to March 2028, beyond "
+            "the Budget's extension to June 2027 (UK-wide)"
+        ),
+        "note": (
+            "Additional relief only: the Budget's zero rate to 30 June 2027 is already "
+            "in the baseline. " + NOT_HBAI
+        ),
     },
     "remove_levies": {
         "label": (
@@ -359,18 +294,23 @@ def _arr(sim, var, year, **kw):
 
 
 def _sim(year, elec, gas, params=None, extra_scenario=None):
-    if extra_scenario is not None:
-        import policyengine as pe
+    """A managed simulation with each household's forecast bills loaded.
 
-        sim = pe.uk.managed_microsimulation(
-            dataset=dataset_path(), allow_unmanaged=True, scenario=extra_scenario
-        )
-    else:
-        sim = _build_simulation(params or None)
+    The bills (VAT included at each quarter's rate) replace the dataset's
+    spending for ``year``. They feed only policyengine-uk's own energy VAT,
+    which reaches household income solely through ``vat_change``; no
+    simulation here changes a VAT rate, so that is zero (``_vat_change_gbp``).
+    """
+    sim = _build_simulation(reform=params or None, scenario=extra_scenario)
     sim.set_input("electricity_consumption", year, elec)
     sim.set_input("gas_consumption", year, gas)
     sim.set_input("domestic_energy_consumption", year, elec + gas)
     return sim
+
+
+def _vat_change_gbp(sim, year, w):
+    """Weighted sum of |vat_change|: must be zero (no VAT enters twice)."""
+    return float(np.sum(np.abs(_arr(sim, "vat_change", year)) * w))
 
 
 def _poverty(sim, year):
@@ -395,57 +335,142 @@ def _poverty(sim, year):
     return out
 
 
+def _poverty_change(after, before):
+    return {k: round(after[k] - before[k], 2) for k in after}
+
+
 def _bn(values, w):
     return round(float(np.sum(values * w)) / 1e9, 2)
 
 
-def _sensitivity(year, kwh, connected, is_ni, gb, w, profile):
-    """Headline bills and analytic option costs under another assumption."""
+def _sensitivity(year, kwh, connected, is_ni, w, profile):
+    """Headline bills and analytic option costs under another profile."""
     fc = household_bills(year, kwh, connected, is_ni, profile)
     held = held_bills(kwh, connected)
     hit = fc["elec"] + fc["gas"] - held["elec"] - held["gas"]
+    vat = vat_saving(
+        year, kwh, connected, is_ni, profile, COUNTERFACTUAL_LAW, BASELINE_LAW
+    )
     return {
         "typical_bill_old_tdcv": round(typical(year, profile)["bill"], 2),
         "mean_bill": round(weighted_mean(fc["elec"] + fc["gas"], w)),
         "mean_extra_cost": round(weighted_mean(hit, w)),
         "total_extra_cost_bn": _bn(hit, w),
+        "budget_vat_extension_bn": _bn(vat, w),
         "option_cost_bn": {
             k: _bn(v, w)
-            for k, v in analytic_supports(year, fc, held, gb, profile).items()
+            for k, v in analytic_supports(
+                year, fc, held, kwh, connected, is_ni, profile
+            ).items()
         },
     }
 
 
+def _pre_budget_option_costs(year, cf, held, kwh, connected, is_ni, w):
+    """Bill-costed option costs against pre-Budget bills.
+
+    ``extend_vat_cut_previous_design`` is the option as previously published:
+    0% VAT on GB electricity for the whole of 2027-28, against 5% law.
+    """
+    out = {"cap_freeze": _bn(cap_freeze_support(cf, held), w)}
+    if year == 2027:
+        gb = ~is_ni
+        whole_year = vat_saving(
+            year,
+            kwh,
+            connected,
+            is_ni,
+            CONSUMPTION_PROFILE,
+            COUNTERFACTUAL_LAW,
+            "no_vat",
+        )
+        out["extend_vat_cut_previous_design"] = _bn(np.where(gb, whole_year, 0.0), w)
+        out["remove_levies"] = _bn(np.where(gb, cf["elec"] * levy_share(), 0.0), w)
+    return out
+
+
+def _hep_checks(sim, year, w, hep, net_gain, hbai_gain):
+    """The payment reaches only English bands A-D and enters income once."""
+    band = pd.Series(_arr(sim, "council_tax_band", year)).astype(str).to_numpy()
+    country = pd.Series(_arr(sim, "country", year)).astype(str).to_numpy()
+    eligible = (country == "ENGLAND") & np.isin(band, ["A", "B", "C", "D"])
+    out = {
+        "paid_outside_england_bands_a_to_d": int(np.sum((hep > 0) & ~eligible)),
+        "eligible_not_paid": int(np.sum((hep == 0) & eligible)),
+        "amounts_paid": sorted({float(x) for x in np.unique(hep[hep > 0])}),
+        "recipients_m": round(float(np.sum((hep > 0) * w)) / 1e6, 2),
+        "cost_bn": _bn(hep, w),
+        "net_income_gain_bn": _bn(net_gain, w),
+        "hbai_income_gain_bn": _bn(hbai_gain, w),
+        "max_abs_net_gain_minus_payment": round(
+            float(np.max(np.abs(net_gain - hep))), 4
+        ),
+        "max_abs_hbai_gain_minus_payment": round(
+            float(np.max(np.abs(hbai_gain - hep))), 4
+        ),
+    }
+    if year == 2026 and (
+        out["paid_outside_england_bands_a_to_d"]
+        or out["max_abs_net_gain_minus_payment"] > 0.01
+        or out["max_abs_hbai_gain_minus_payment"] > 0.01
+    ):
+        raise AssertionError(f"Household Energy Payment check failed: {out}")
+    return out
+
+
+def _vat_reconciliation(sim, year, fc, kwh, connected, is_ni, w):
+    """Electricity VAT in the dashboard's bills vs policyengine-uk's own.
+
+    The dashboard prices each quarter at that quarter's VAT rate and weights
+    quarters by seasonal use. policyengine-uk charges the fiscal-year average
+    rate (day-weighted, fiscal year from 6 April) on the bill divided by 1.05
+    (its input price basis). Only the dashboard's figure enters any result.
+    """
+    ex = household_bills(year, kwh, connected, is_ni, CONSUMPTION_PROFILE, "no_vat")
+    dashboard = fc["elec"] - ex["elec"]
+    native_total = _arr(sim, "domestic_energy_vat", year)
+    native_elec = native_total - fc["gas"] * VAT / (1 + VAT)
+    return {
+        "dashboard_elec_vat_bn": _bn(dashboard, w),
+        "policyengine_uk_elec_vat_bn": _bn(native_elec, w),
+        "dashboard_gas_vat_bn": _bn(fc["gas"] * VAT / (1 + VAT), w),
+        "note": (
+            "Dashboard: each quarter's rate on that quarter's seasonal share of use. "
+            "policyengine-uk: fiscal-year day-weighted rate on bill / 1.05. Only the "
+            "dashboard's figure enters results; the model's never reaches income "
+            "because vat_change is zero."
+        ),
+    }
+
+
 def run_budget_options(data):
-    """Score every option against each year's forecast baseline (UK)."""
+    """Score the Budget measures and every option against each year's baseline."""
     kwh = {"elec": data["elec_kwh"], "gas": data["gas_kwh"]}
     connected = {"elec": data["has_elec"], "gas": data["has_gas"]}
     held = {"elec": data["elec"], "gas": data["gas"]}
     region_all = pd.Series(data["region"]).astype(str).to_numpy()
     is_ni = region_all == "NORTHERN_IRELAND"
-    gb = ~is_ni
-
-    alt_basis = (
-        "ofgem_cy2025_national"
-        if KWH_BASIS == "qep_fy2024_25_regional"
-        else "qep_fy2024_25_regional"
-    )
-    alt_kwh, alt_conn = {}, {}
-    for f, spend in (("elec", data["elec_spend"]), ("gas", data["gas_spend"])):
-        alt_kwh[f], alt_conn[f] = household_kwh(spend, region_all, f, alt_basis)
     alt_profile = "equal" if CONSUMPTION_PROFILE == "seasonal" else "seasonal"
 
     results = {}
     for year, y in YEARS.items():
         fc = household_bills(year, kwh, connected, is_ni)
+        cf = household_bills(year, kwh, connected, is_ni, law=COUNTERFACTUAL_LAW)
         elec, gas = fc["elec"], fc["gas"]
         hit = elec + gas - held["elec"] - held["gas"]
+        cf_hit = cf["elec"] + cf["gas"] - held["elec"] - held["gas"]
         typ = typical(year)
+        typ_cf = typical(year, law=COUNTERFACTUAL_LAW)
 
         base = _sim(year, elec, gas)
         w = _arr(base, "household_weight", year, unweighted=True)
         base_net = _arr(base, "household_net_income", year)
+        base_hbai = _arr(base, "hbai_household_net_income", year)
+        hep = _arr(base, "household_energy_payment", year)
         decile = _arr(base, "household_income_decile", year)
+        base_poverty = _poverty(base, year)
+        vat_change = {"baseline": _vat_change_gbp(base, year, w)}
+        vat_rec = _vat_reconciliation(base, year, fc, kwh, connected, is_ni, w)
         hh_type = data["hh_type"]
         types = [t for t in sorted(set(hh_type)) if t != "OTHER"]
 
@@ -453,6 +478,8 @@ def run_budget_options(data):
             return {t: round(weighted_mean(values, w, hh_type == t)) for t in types}
 
         region_arr = pd.Series(_arr(base, "region", year)).astype(str).to_numpy()
+        if not (region_arr == region_all).all():
+            raise ValueError("household order changed between simulations")
         regions = [r for r in sorted(set(region_arr)) if r not in ("", "UNKNOWN")]
 
         def by_region(values, w=w, region_arr=region_arr, regions=regions):
@@ -497,10 +524,64 @@ def run_budget_options(data):
                 **extra,
             }
 
+        # ── The Budget's energy measures, against the counterfactual ──
+        if np.any(hep != 0):
+            period = f"{year}-01-01.{year}-12-31"
+            cf_sim = _sim(year, cf["elec"], cf["gas"], {HEP_PARAMETER: {period: 0}})
+            if np.any(_arr(cf_sim, "household_energy_payment", year) != 0):
+                raise AssertionError(
+                    "counterfactual still pays the Household Energy Payment"
+                )
+            cf_net = _arr(cf_sim, "household_net_income", year)
+            cf_hbai = _arr(cf_sim, "hbai_household_net_income", year)
+            cf_poverty = _poverty(cf_sim, year)
+            vat_change["counterfactual"] = _vat_change_gbp(cf_sim, year, w)
+            del cf_sim
+            gc.collect()
+        else:
+            # No payment this year, so the counterfactual's income is the
+            # baseline's; only bills differ.
+            cf_net, cf_hbai, cf_poverty = base_net, base_hbai, base_poverty
+        hep_gain = base_net - cf_net
+        hep_check = _hep_checks(base, year, w, hep, hep_gain, base_hbai - cf_hbai)
+        vat_ext = vat_saving(
+            year,
+            kwh,
+            connected,
+            is_ni,
+            CONSUMPTION_PROFILE,
+            COUNTERFACTUAL_LAW,
+            BASELINE_LAW,
+        )
+        measures = {
+            "household_energy_payment": summarise(
+                "£100 Household Energy Payment (England, council tax bands A–D)",
+                hep_gain,
+                hit=cf_hit,
+                poverty_change_pp=_poverty_change(base_poverty, cf_poverty),
+                counted_in_hbai_income=True,
+            ),
+            "electricity_vat_extension": summarise(
+                "0% VAT on domestic electricity extended to 30 June 2027 (UK-wide from April 2027)",
+                vat_ext,
+                hit=cf_hit,
+                poverty_change_pp=None,
+                counted_in_hbai_income=False,
+            ),
+        }
+        measures["combined"] = summarise(
+            "Both Budget energy measures",
+            hep_gain + vat_ext,
+            hit=cf_hit,
+            poverty_change_pp=_poverty_change(base_poverty, cf_poverty),
+        )
+
+        # ── Further options, against the post-Budget baseline ──
         rows = {}
         for key, p in _policies(year).items():
             ref = _sim(year, elec, gas, p.get("params"), p.get("scenario"))
             support = _arr(ref, "household_net_income", year) - base_net
+            vat_change[key] = _vat_change_gbp(ref, year, w)
             rows[key] = summarise(
                 p["label"],
                 support,
@@ -509,25 +590,35 @@ def run_budget_options(data):
                 assumptions=p.get("assumptions"),
                 links=p.get("links"),
             )
+            del ref
+            gc.collect()
         whd = rows["whd_top_up"]
         whd["note"] = _whd_note(whd["recipients_m"])
 
-        for key, support in analytic_supports(year, fc, held, gb).items():
+        for key, support in analytic_supports(
+            year, fc, held, kwh, connected, is_ni
+        ).items():
             meta = ANALYTIC_OPTIONS[key]
             rows[key] = summarise(meta["label"], support, note=meta["note"])
         rows = {k: rows[k] for k in OPTION_ORDER if k in rows}
 
+        if max(vat_change.values()) > 1.0:
+            raise AssertionError(f"policyengine-uk VAT reached income: {vat_change}")
+
+        zero_kwh = {
+            f: round(
+                float(np.sum(w * (connected[f] & (kwh[f] == 0))) / np.sum(w)) * 100, 2
+            )
+            for f in FUELS
+        }
         results[y["label"]] = {
             "baseline": {
+                "policy": BASELINE_LAW,
                 "consumption_profile": CONSUMPTION_PROFILE,
-                "kwh_basis": KWH_BASIS,
                 "elec_price_vs_apr_jun_2026_pct": round(typ["elec_pct"] * 100, 1),
                 "gas_price_vs_apr_jun_2026_pct": round(typ["gas_pct"] * 100, 1),
                 "typical_bill_old_tdcv": round(typ["bill"]),
                 "typical_bill_old_tdcv_exact": round(typ["bill"], 2),
-                # Dataset spend at its own (QEP FY2024-25) prices, and the
-                # implied national volume, as diagnostics against ONS 2025
-                # spending (£41.9bn) and DESNZ Energy Trends FY2024-25.
                 "total_bill_dataset_prices_bn": _bn(
                     data["elec_spend"] + data["gas_spend"], w
                 ),
@@ -535,17 +626,9 @@ def run_budget_options(data):
                     "elec": round(float(np.sum(kwh["elec"] * w)) / 1e9, 1),
                     "gas": round(float(np.sum(kwh["gas"] * w)) / 1e9, 1),
                 },
-                # Connected households whose dataset spend equals the fixed
-                # cost, so they carry zero kWh (under 0.5 kWh: spend is float32 in the
-                # simulation) and only standing charges move.
-                "connected_zero_kwh_pct": {
-                    f: round(
-                        float(np.sum(w * (connected[f] & (kwh[f] < 0.5))) / np.sum(w))
-                        * 100,
-                        1,
-                    )
-                    for f in FUELS
-                },
+                # Connected households with zero use of a fuel: only the
+                # standing charge moves for them.
+                "connected_zero_kwh_pct": zero_kwh,
                 "households_m": round(float(np.sum(w)) / 1e6, 2),
                 "mean_bill": round(weighted_mean(elec + gas, w)),
                 "mean_bill_apr_jun_2026_prices": round(
@@ -572,18 +655,40 @@ def run_budget_options(data):
                     t: round(float(np.sum(w * (hh_type == t)) / np.sum(w)) * 100, 1)
                     for t in sorted(set(hh_type))
                 },
-                "poverty": _poverty(base, year),
+                "poverty": base_poverty,
                 "note": TARIFF_NOTE,
                 "note_link": TARIFF_NOTE_LINK,
                 "sensitivities": {
                     f"profile_{alt_profile}": _sensitivity(
-                        year, kwh, connected, is_ni, gb, w, alt_profile
-                    ),
-                    f"kwh_basis_{alt_basis}": _sensitivity(
-                        year, alt_kwh, alt_conn, is_ni, gb, w, CONSUMPTION_PROFILE
+                        year, kwh, connected, is_ni, w, alt_profile
                     ),
                 },
             },
+            "pre_budget": {
+                "description": BUDGET_COUNTERFACTUAL,
+                "typical_bill_old_tdcv": round(typ_cf["bill"]),
+                "typical_bill_old_tdcv_exact": round(typ_cf["bill"], 2),
+                "mean_bill": round(weighted_mean(cf["elec"] + cf["gas"], w)),
+                "total_bill_bn": _bn(cf["elec"] + cf["gas"], w),
+                "mean_extra_cost": round(weighted_mean(cf_hit, w)),
+                "total_extra_cost_bn": _bn(cf_hit, w),
+                "poverty": cf_poverty,
+                # The bill-costed options as previously defined, on pre-Budget
+                # bills: used to split changes into policy and data effects.
+                "option_cost_bn": _pre_budget_option_costs(
+                    year, cf, held, kwh, connected, is_ni, w
+                ),
+            },
+            "budget_measures": measures,
             "options": rows,
+            "validation": {
+                "household_energy_payment": hep_check,
+                "vat_change_abs_gbp_by_simulation": {
+                    k: round(v, 2) for k, v in vat_change.items()
+                },
+                "vat_reconciliation": vat_rec,
+            },
         }
+        del base
+        gc.collect()
     return results
