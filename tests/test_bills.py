@@ -10,20 +10,18 @@ import pytest
 
 from energy_budget.bills import (
     annual_bill,
+    connections,
     fuel_bill_for_profile,
-    household_kwh,
-    kwh_from_spend,
-    reference_tariff,
+    price_basis_residual,
     typical_bill,
 )
 from energy_budget.budget_options import (
-    HELD_QUARTERS,
     cap_freeze_support,
     held_bills,
     household_bills,
-    year_quarters,
 )
-from energy_budget.config import QEP_FY2024_25, TARIFFS, quarter_shares
+from energy_budget.config import QEP_CY2024, TARIFFS, quarter_shares
+from energy_budget.prices import HELD_QUARTERS, year_quarters
 
 GAS_2026 = year_quarters(2026)["gas"]
 GAS_HELD = HELD_QUARTERS["gas"]
@@ -70,34 +68,41 @@ def test_seasonal_shares():
     assert sum(quarter_shares("elec")) == pytest.approx(1)
 
 
-def test_kwh_round_trip_at_reference_tariff():
-    unit, fixed = QEP_FY2024_25["LONDON"]["gas"]
-    spend = fixed + unit / 100 * np.array([3_000.0, 20_000.0])
-    kwh, connected = household_kwh(spend, ["LONDON", "LONDON"], "gas")
-    assert kwh == pytest.approx([3_000, 20_000])
-    assert connected.all()
+def test_price_basis_residual_is_zero_on_qep_cy2024():
+    unit, fixed = QEP_CY2024["LONDON"]["gas"]
+    kwh = np.array([3_000.0, 20_000.0, 0.0])
+    spend = np.array([fixed + unit / 100 * 3_000, fixed + unit / 100 * 20_000, 0.0])
+    assert price_basis_residual(spend, kwh, ["LONDON"] * 3, "gas") == pytest.approx(0)
+    # A household priced on another basis shows up.
+    assert price_basis_residual([spend[0] + 5], [3_000.0], ["LONDON"], "gas")[
+        0
+    ] == pytest.approx(5)
 
 
-def test_unconnected_households_pay_no_standing_charge():
-    kwh, connected = household_kwh(np.array([0.0]), ["LONDON"], "gas")
-    assert kwh[0] == 0 and not connected[0]
-    bill = annual_bill(kwh, connected, GAS_2026, quarter_shares("gas"))
-    assert bill[0] == 0
+def test_connection_keeps_zero_use_separate_from_no_supply():
+    # GB: spend equal to the fixed cost is connected with zero use;
+    # no gas spend is no mains gas.
+    fixed = QEP_CY2024["LONDON"]["elec"][1]
+    c = connections([fixed, 600.0], [0.0, 500.0])
+    assert c["elec"].tolist() == [True, True]
+    assert c["gas"].tolist() == [False, True]
+    zero_use = annual_bill(
+        np.array([0.0]), c["elec"][:1], HELD_QUARTERS["elec"], (0.25,) * 4
+    )
+    assert zero_use[0] == pytest.approx(TARIFFS["apr_jun_2026"]["elec"][1] * 365 / 100)
+    no_gas = annual_bill(np.array([0.0]), c["gas"][:1], GAS_2026, quarter_shares("gas"))
+    assert no_gas[0] == 0
 
 
-def test_spend_below_fixed_cost_pays_standing_only():
-    assert kwh_from_spend(np.array([50.0]), 6.0, 113.0)[0] == 0
-    bill = annual_bill(np.array([0.0]), np.array([True]), GAS_HELD, (0.25,) * 4)
-    assert bill[0] == pytest.approx(TARIFFS["apr_jun_2026"]["gas"][1] * 365 / 100)
-
-
-def test_northern_ireland_keeps_electricity_vat():
+def test_northern_ireland_keeps_electricity_vat_until_april_2027():
     gb = year_quarters(2026)["elec"]
-    ni = year_quarters(2026, ni=True)["elec"]
+    ni = year_quarters(2026, "NI")["elec"]
     assert ni[:2] == gb[:2]
     assert ni[2][0] == pytest.approx(gb[2][0] * 1.05)
     assert ni[3][1] == pytest.approx(gb[3][1] * 1.05)
-    assert year_quarters(2026, ni=True)["gas"] == year_quarters(2026)["gas"]
+    assert year_quarters(2026, "NI")["gas"] == year_quarters(2026)["gas"]
+    # From April 2027 the Budget's extension applies UK-wide.
+    assert year_quarters(2027, "NI") == year_quarters(2027)
 
 
 def test_cap_freeze_restores_april_tariffs():
@@ -115,13 +120,3 @@ def test_cap_freeze_restores_april_tariffs():
     assert after == pytest.approx(
         np.minimum(fc["elec"] + fc["gas"], held["elec"] + held["gas"])
     )
-
-
-def test_reference_tariff_bases():
-    unit, fixed = reference_tariff(["SCOTLAND", "NOWHERE"], "elec")
-    assert unit[0] == pytest.approx(QEP_FY2024_25["SCOTLAND"]["elec"][0])
-    assert fixed[1] > 0  # missing region falls back to the UK average
-    unit, fixed = reference_tariff(["LONDON"], "gas", "ofgem_cy2025_national")
-    assert 6 < unit[0] < 7 and 110 < fixed[0] < 125
-    with pytest.raises(ValueError):
-        reference_tariff(["LONDON"], "gas", "nonsense")

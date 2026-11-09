@@ -11,23 +11,22 @@ from datetime import UTC, datetime
 from importlib.metadata import version
 from pathlib import Path
 
-from .baseline import dataset_path, provenance, run_baseline
-from .budget_options import (
-    FORECAST_2027_28,
-    WHD_LINKS,
-    _quarter_rates_2027_28,
-    run_budget_options,
-)
+import numpy as np
+
+from .baseline import _hh_array, _weights, provenance, run_baseline
+from .bills import FUELS, price_basis_residual
+from .budget_options import WHD_LINKS, run_budget_options
 from .config import (
-    DATASET_FILE,
-    DATASET_RELEASE,
-    DATASET_REPO,
-    DATASET_REVISION,
-    DATASET_SHA256,
-    TARIFFS,
+    DATASET_ENERGY_LEVELS,
+    DATASET_YEAR,
+    ELEC_VAT,
+    NEW_TDCV,
+    PRICE_PATH,
+    TDCV_ELEC_KWH,
+    TDCV_GAS_KWH,
     WINTER_SHARE,
-    fuel_bill,
 )
+from .prices import published_rates, quarter_rates
 
 REGION_LABELS = {
     "NORTH_EAST": "North East",
@@ -67,11 +66,59 @@ def _dump(obj, path):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     data = run_baseline()
+    prov = provenance(data["sim"])
+    dataset_checks = dataset_validation(data)
+    # Free the extraction simulation before the scenario runs.
+    data["sim"] = None
     r = run_budget_options(data)
-    r["provenance"] = provenance(data["sim"])
+    r["provenance"] = prov
+    r["validation"] = dataset_checks
     _dump(r, OUT / "results.json")
     write_tables(r)
-    write_receipt(r["provenance"])
+    write_receipt(r["provenance"], data["dataset_path"])
+
+
+def dataset_validation(data):
+    """Checks on the dataset's energy export, at its own (2024) weights."""
+    sim = data["sim"]
+    w = _weights(sim, DATASET_YEAR)
+    region = np.asarray(data["region"]).astype(str)
+    is_ni = region == "NORTHERN_IRELAND"
+    out = {"households_m": round(float(np.sum(w)) / 1e6, 2)}
+    for f, col in (("elec", "electricity"), ("gas", "gas")):
+        kwh, spend = data[f"{f}_kwh"], data[f"{f}_spend"]
+        connected = data[f"has_{f}"]
+        residual = price_basis_residual(spend, kwh, region, f)
+        out[f] = {
+            "twh": round(float(np.sum(kwh * w)) / 1e9, 2),
+            "spend_bn": round(float(np.sum(spend * w)) / 1e9, 2),
+            "max_abs_price_basis_residual_gbp": float(np.max(np.abs(residual))),
+            "records": len(kwh),
+            "connected_zero_kwh_records": int(np.sum(connected & (kwh == 0))),
+            "connected_zero_kwh_pct": round(
+                float(np.sum(w * (connected & (kwh == 0))) / np.sum(w)) * 100, 2
+            ),
+            "not_connected_records": int(np.sum(~connected)),
+            "not_connected_pct": round(
+                float(np.sum(w * ~connected) / np.sum(w)) * 100, 2
+            ),
+            "not_connected_northern_ireland_records": int(np.sum(~connected & is_ni)),
+            "kwh_without_spend_records": int(np.sum((kwh > 0) & (spend == 0))),
+            "spend_above_fixed_without_kwh_records": int(
+                np.sum((kwh == 0) & (np.abs(residual) > 0.01))
+            ),
+        }
+        if out[f]["max_abs_price_basis_residual_gbp"] > 0.01:
+            raise AssertionError(f"{col} export is not on the documented price basis")
+        if out[f]["kwh_without_spend_records"]:
+            raise AssertionError(f"{col} kWh without spending")
+    out["release_levels"] = DATASET_ENERGY_LEVELS
+    poverty = sim.calculate("in_relative_poverty_ahc", DATASET_YEAR, map_to="person")
+    out["relative_poverty_ahc_pct"] = round(float(poverty.mean()) * 100, 2)
+    out["household_id_aligned"] = bool(
+        np.array_equal(_hh_array(sim, "household_id"), data["household_id"])
+    )
+    return out
 
 
 def _sha256(path):
@@ -91,7 +138,7 @@ def _git(*args):
         return None
 
 
-def write_receipt(prov):
+def write_receipt(prov, dataset_path):
     """Reproducibility receipt: code, runtime, data and output hashes."""
     status = _git("status", "--porcelain")
     receipt = {
@@ -112,29 +159,26 @@ def write_receipt(prov):
             "bundle_model_version": prov.get("model_version"),
         },
         "dataset": {
-            "repo": DATASET_REPO,
-            "file": DATASET_FILE,
-            "revision": DATASET_REVISION,
-            "release": DATASET_RELEASE,
-            "sha256_pinned": DATASET_SHA256,
-            "sha256_verified": _sha256(dataset_path()),
+            "managed": prov.get("managed"),
+            "name": prov.get("dataset"),
+            "uri": prov.get("dataset_uri"),
+            "build_id": prov.get("dataset_build_id"),
+            "revision": prov.get("dataset_revision"),
+            "sha256_certified": prov.get("certified_dataset_sha256"),
+            "sha256_verified": _sha256(dataset_path),
         },
         "model_choices": {
-            "kwh_basis": prov.get("kwh_basis"),
+            "baseline_policy": prov.get("baseline_policy"),
             "consumption_profile": prov.get("consumption_profile"),
+            "kwh_source": prov.get("kwh_source"),
         },
         "outputs": {
             f"src/data/{p.name}": _sha256(p) for p in sorted(OUT.glob("*.json"))
         },
     }
-    if receipt["dataset"]["sha256_verified"] != DATASET_SHA256:
-        raise RuntimeError("dataset SHA-256 does not match the pin")
+    if receipt["dataset"]["sha256_verified"] != receipt["dataset"]["sha256_certified"]:
+        raise RuntimeError("dataset SHA-256 does not match the certified bundle")
     _dump(receipt, ROOT / "reproducibility.json")
-
-
-OFG = "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges"
-CI = "https://www.cornwall-insight.com/press-releases/16-price-cap-rise-forecast-in-january/"
-EON = "https://www.eonnext.com/electricity-and-gas/price-cap/predictions"
 
 
 def bill(rates, f, kwh):
@@ -142,82 +186,59 @@ def bill(rates, f, kwh):
     return (u * kwh + s * 365) / 100
 
 
-def write_tables(r):
-    base = {f: fuel_bill("apr_jun_2026", f) for f in ("elec", "gas")}
-
+def price_rows():
+    """The price path as shown: rates at post-Budget GB law, with sources."""
+    base = quarter_rates("apr_jun_2026")
+    base_bill = {
+        f: bill(base, f, TDCV_ELEC_KWH if f == "elec" else TDCV_GAS_KWH) for f in FUELS
+    }
     rows = []
-
-    def add(period, fy, kind, source, link, rates, published):
-        e = bill(rates, "elec", 2700)
-        g = bill(rates, "gas", 11500)
+    for q in PRICE_PATH:
+        rates = quarter_rates(q["key"])
+        pub = published_rates(q["key"])
+        e = bill(rates, "elec", TDCV_ELEC_KWH)
+        g = bill(rates, "gas", TDCV_GAS_KWH)
         rows.append(
             {
-                "period": period,
-                "fy": fy,
-                "kind": kind,
-                "source": source,
-                "link": link,
-                "published_cap": published,
+                "key": q["key"],
+                "period": q["period"],
+                "fy": f"{q['fy']}-{str(q['fy'] + 1)[2:]}",
+                "kind": q["kind"],
+                "source": q["source"],
+                "source_date": q["source_date"],
+                "link": q["link"],
+                "published_cap": q["published_cap"],
+                "published_tdcv": q["published_tdcv"],
+                "published_elec_vat_pct": round(q["embedded_elec_vat"] * 100),
+                "elec_vat_gb_pct": round(ELEC_VAT["post_budget"]["GB"][q["key"]] * 100),
+                "elec_vat_ni_pct": round(ELEC_VAT["post_budget"]["NI"][q["key"]] * 100),
+                "elec_vat_gb_pre_budget_pct": round(
+                    ELEC_VAT["pre_budget"]["GB"][q["key"]] * 100
+                ),
                 "elec_unit_p": round(rates["elec"][0], 2),
                 "elec_standing_p": round(rates["elec"][1], 2),
                 "gas_unit_p": round(rates["gas"][0], 2),
                 "gas_standing_p": round(rates["gas"][1], 2),
                 "bill_1641_basis": round(e + g),
-                # Typical bill on Ofgem's current (post-July 2026) consumption.
+                # Typical bill on Ofgem's current (post-July 2026) consumption,
+                # at post-Budget VAT; and as published.
                 "typical_bill": round(
-                    bill(rates, "elec", 2500) + bill(rates, "gas", 9500)
+                    bill(rates, "elec", NEW_TDCV["elec"])
+                    + bill(rates, "gas", NEW_TDCV["gas"])
                 ),
-                "elec_change_pct": round((e / base["elec"] - 1) * 100, 1),
-                "gas_change_pct": round((g / base["gas"] - 1) * 100, 1),
+                "typical_bill_as_published": round(
+                    bill(pub, "elec", NEW_TDCV["elec"])
+                    + bill(pub, "gas", NEW_TDCV["gas"])
+                ),
+                "elec_change_pct": round((e / base_bill["elec"] - 1) * 100, 1),
+                "gas_change_pct": round((g / base_bill["gas"] - 1) * 100, 1),
             }
         )
+    return rows
 
-    add(
-        "Apr–Jun 2026",
-        "2026-27",
-        "Announced",
-        "Ofgem cap",
-        OFG,
-        TARIFFS["apr_jun_2026"],
-        1641,
-    )
-    add(
-        "Jul–Sep 2026",
-        "2026-27",
-        "Announced",
-        "Ofgem cap",
-        OFG,
-        TARIFFS["jul_sep_2026"],
-        1663,
-    )
-    add(
-        "Oct–Dec 2026",
-        "2026-27",
-        "Announced",
-        "Ofgem cap (electricity VAT-free)",
-        "https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026",
-        TARIFFS["oct_dec_2026"],
-        1723,
-    )
-    add(
-        "Jan–Mar 2027",
-        "2026-27",
-        "Forecast",
-        "Cornwall Insight, 30 Sep 2026",
-        CI,
-        TARIFFS["jan_mar_2027_cornwall"],
-        1999,
-    )
-    for q in FORECAST_2027_28:
-        add(
-            q["period"],
-            "2027-28",
-            q["kind"],
-            q["source"],
-            q["link"],
-            _quarter_rates_2027_28(q["target"], q["elec_vat_in_target"]),
-            q["target"] if q["kind"] == "Forecast" else None,
-        )
+
+def write_tables(r):
+    rows = price_rows()
     _dump(rows, OUT / "price_path.json")
 
     yrs = []
@@ -230,13 +251,12 @@ def write_tables(r):
         "cost_of_living_payment": "£300 Cost of Living Payment",
         "whd_top_up": "Warm Home Discount +£100 (proxy)",
         "remove_levies": "Remove remaining levies",
-        "extend_vat_cut": "Extend electricity VAT cut",
+        "extend_vat_cut": "Extend VAT cut to March 2028",
         "flat_400": "£400 to every household",
         "cap_freeze": "Cap freeze at April–June 2026 tariffs",
     }
-    for fy, v in r.items():
-        if fy == "provenance":
-            continue
+    measures = []
+    for fy, v in _years(r).items():
         b = v["baseline"]
         p = b["poverty"]
         yrs.append(
@@ -245,7 +265,7 @@ def write_tables(r):
                 "elec_change_pct": b["elec_price_vs_apr_jun_2026_pct"],
                 "gas_change_pct": b["gas_price_vs_apr_jun_2026_pct"],
                 "consumption_profile": b["consumption_profile"],
-                "kwh_basis": b["kwh_basis"],
+                "policy": b["policy"],
                 "typical_bill_1641_basis": b["typical_bill_old_tdcv"],
                 "mean_bill": b["mean_bill"],
                 "mean_bill_apr_jun_2026_prices": b["mean_bill_apr_jun_2026_prices"],
@@ -268,8 +288,35 @@ def write_tables(r):
                 "child_poverty_ahc_pct": p["child_ahc"],
                 "absolute_poverty_ahc_pct": p["absolute_ahc"],
                 "absolute_child_poverty_ahc_pct": p["absolute_child_ahc"],
+                "connected_zero_elec_kwh_pct": b["connected_zero_kwh_pct"]["elec"],
+                "pre_budget_typical_bill_1641_basis": v["pre_budget"][
+                    "typical_bill_old_tdcv"
+                ],
+                "pre_budget_mean_bill": v["pre_budget"]["mean_bill"],
+                "pre_budget_mean_extra_cost": v["pre_budget"]["mean_extra_cost"],
+                "pre_budget_total_extra_cost_bn": v["pre_budget"][
+                    "total_extra_cost_bn"
+                ],
             }
         )
+        for k, m in v["budget_measures"].items():
+            pc = m.get("poverty_change_pp")
+            measures.append(
+                {
+                    "fy": fy,
+                    "measure_id": k,
+                    "measure": m["label"],
+                    "cost_bn": m["cost_bn"],
+                    "avg_per_household": m["avg_per_household"],
+                    "share_receiving_pct": m["share_receiving_pct"],
+                    "recipients_m": m["recipients_m"],
+                    "counted_in_hbai_income": m.get("counted_in_hbai_income"),
+                    "poverty_ahc_change_pp": pc and pc["ahc"],
+                    "child_poverty_ahc_change_pp": pc and pc["child_ahc"],
+                    "poverty_bhc_change_pp": pc and pc["bhc"],
+                    "deciles": m["deciles"],
+                }
+            )
         for k, o in v["options"].items():
             q = o["poverty"]
             opts.append(
@@ -301,6 +348,7 @@ def write_tables(r):
                     "poverty_bhc_change_pp": None
                     if q is None
                     else round(q["bhc"] - p["bhc"], 2),
+                    "bill_cut_pct": o.get("bill_cut_pct"),
                     "decile_1_gain": o["deciles"][0],
                     "decile_10_gain": o["deciles"][9],
                 }
@@ -345,9 +393,17 @@ def write_tables(r):
         ("hh_types", hh),
         ("regions", regs),
         ("notes", notes),
+        ("budget_measures", measures),
     ]:
         _dump(data, OUT / f"{name}.json")
     _dump(r["provenance"], OUT / "provenance.json")
+    _dump(
+        {
+            "dataset": r["validation"],
+            **{fy: v["validation"] for fy, v in _years(r).items()},
+        },
+        OUT / "validation.json",
+    )
     print(
         {
             k: len(v)
@@ -362,12 +418,19 @@ def write_tables(r):
     )
 
 
+def _years(r):
+    return {fy: v for fy, v in r.items() if fy not in ("provenance", "validation")}
+
+
 def build_notes(r):
     """Method notes, with versions and caseloads taken from the results."""
     prov = r["provenance"]
-    years = {fy: v for fy, v in r.items() if fy != "provenance"}
+    checks = r["validation"]
+    years = _years(r)
     whd = {fy: v["options"]["whd_top_up"]["recipients_m"] for fy, v in years.items()}
     whd_text = ", ".join(f"{m:.1f}m in {fy}" for fy, m in whd.items())
+    hep = years["2026-27"]["budget_measures"]["household_energy_payment"]
+    vat = years["2027-28"]["budget_measures"]["electricity_vat_extension"]
     sens = {fy: v["baseline"]["sensitivities"] for fy, v in years.items()}
     eq = {fy: s.get("profile_equal", {}) for fy, s in sens.items()}
     profile_text = "; ".join(
@@ -377,49 +440,35 @@ def build_notes(r):
         f"£{eq[fy].get('total_extra_cost_bn', float('nan'))}bn"
         for fy, v in years.items()
     )
-    zero_kwh = next(iter(years.values()))["baseline"]["connected_zero_kwh_pct"]["elec"]
-    basis_key = next(
-        (k for k in next(iter(sens.values())) if k.startswith("kwh_basis_")), None
-    )
-    basis_text = (
-        "; ".join(
-            f"{fy}: extra cost £{s[basis_key]['total_extra_cost_bn']}bn, mean bill £{s[basis_key]['mean_bill']:,}"
-            for fy, s in sens.items()
-        )
-        if basis_key
-        else ""
-    )
+    zero_kwh = checks["elec"]["connected_zero_kwh_pct"]
+    no_gas = checks["gas"]["not_connected_pct"]
     return [
         {
             "id": "data",
             "topic": "Data and model",
             "detail": (
                 f"policyengine.py {prov['policyengine_version']} (policyengine-uk "
-                f"{prov['model_version']}, bundle {prov['bundle_id']}) on Microcosm UK "
-                f"2024-25, release {prov['dataset_release']}. The release is not in the "
-                "certified bundle, so it runs with allow_unmanaged=True, pinned by "
-                "repository revision and SHA-256."
+                f"{prov['model_version']}, bundle {prov['bundle_id']}) on its certified "
+                f"Microcosm UK 2024-25 national dataset, release {prov['dataset_build_id']}, "
+                "loaded through the package's managed loader and checked against the "
+                "bundle's SHA-256."
             ),
-            "link": "https://github.com/PolicyEngine/policyengine.py",
+            "link": "https://github.com/PolicyEngine/policyengine.py/releases/tag/"
+            + str(prov["policyengine_version"]),
         },
         {
             "id": "kwh",
-            "topic": "Usage and price basis",
+            "topic": "Energy use",
             "detail": (
-                "Microcosm builds each household's energy spend as kWh priced at DESNZ "
-                "Quarterly Energy Prices for FY2024-25 (regional unit cost plus fixed cost, "
-                "VAT included), then reweights households to ONS 2025 spending. Each "
-                "household's kWh are recovered as (spend − fixed cost) ÷ unit rate and "
-                "every scenario is costed from those kWh: unit rate × kWh plus the standing "
-                "charge. Households with no spend on a fuel pay no standing charge for it. "
-                f"In the data, {zero_kwh:.1f}% of households have electricity spend exactly "
-                "equal to their region's fixed cost, so zero electricity kWh: only the "
-                "standing charge moves for them, which understates their bill change."
-                + (
-                    f" Sensitivity with CY2025 Ofgem cap tariffs as the reference ({basis_text})."
-                    if basis_text
-                    else ""
-                )
+                "Each household's annual electricity and gas use in kWh comes from the "
+                "dataset's export (calendar 2024: gas levelled to DESNZ Energy Trends "
+                "domestic volumes, electricity to ONS 2024 spending) and is held fixed. "
+                "The dataset's spending columns are those kWh priced at DESNZ Quarterly "
+                "Energy Prices CY2024 (regional unit cost plus fixed cost, 5% VAT "
+                "included); the pipeline checks that basis but costs every scenario from "
+                f"kWh. {zero_kwh:.1f}% of households use no electricity and pay only the "
+                f"standing charge; {no_gas:.1f}% have no mains gas and pay no gas standing "
+                "charge."
             ),
             "link": "https://github.com/PolicyEngine/microcosm/issues/1113",
         },
@@ -445,8 +494,26 @@ def build_notes(r):
         {
             "id": "baseline",
             "topic": "Baseline",
-            "detail": "Current law at forecast prices. Each household's kWh are costed at each quarter's tariffs and the resulting electricity and gas bills are loaded into PolicyEngine. The Energy Price Guarantee ended in April 2024, so it pays nothing.",
-            "link": "https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026",
+            "detail": "Post-Budget law at forecast prices: the Household Energy Payment and the electricity VAT extension announced in Budget 2026 are in the baseline. Each household's kWh are costed at each quarter's tariffs and the resulting electricity and gas bills are loaded into PolicyEngine. The Energy Price Guarantee ended in April 2024, so it pays nothing.",
+            "link": "https://www.gov.uk/government/news/what-the-autumn-budget-2026-means-for-your-energy-bills",
+        },
+        {
+            "id": "budget_measures",
+            "topic": "Budget energy measures",
+            "detail": (
+                "Their effect is measured against a counterfactual with the same prices, data "
+                "and other policies but no Household Energy Payment and electricity VAT as "
+                "under SI 2026/987 alone. The payment reaches "
+                f"{hep['recipients_m']:.1f}m households in 2026-27 at £{hep['cost_bn']:.2f}bn; "
+                f"the VAT extension saves households £{vat['cost_bn']:.2f}bn in 2027-28."
+            ),
+            "link": "https://www.gov.uk/government/news/what-the-autumn-budget-2026-means-for-your-energy-bills",
+        },
+        {
+            "id": "hep",
+            "topic": "Household Energy Payment",
+            "detail": "£100 to households in council tax bands A–D in England in 2026-27, paid by local authorities from January 2027. policyengine-uk pays every household in those bands (it cannot identify landlords liable for council tax) and counts the payment in household and HBAI income, as DWP counted the 2022 Council Tax Rebate, so it moves poverty. The devolved governments' Barnett share is not allocated.",
+            "link": "https://www.gov.uk/government/publications/budget-2026-document/budget-2026-html",
         },
         {
             "id": "tariffs",
@@ -457,13 +524,13 @@ def build_notes(r):
         {
             "id": "vat",
             "topic": "Electricity VAT",
-            "detail": "VAT on domestic electricity is 0% for supplies in England, Wales and Scotland from 1 Oct 2026 to 31 Mar 2027 (SI 2026/987), then returns to 5%. Northern Ireland keeps the 5% reduced rate, so its electricity carries VAT in every quarter. The 2027-28 baseline includes the return.",
+            "detail": "VAT on domestic electricity is 0% in England, Wales and Scotland from 1 Oct 2026 (SI 2026/987). Budget 2026 extends the zero rate to 30 June 2027 and expects it to apply in Northern Ireland from 1 April 2027; this is announced policy, not yet law. The rate is 5% from 1 July 2027. Each quarter's published electricity rates are taken back to their VAT-exclusive level and priced at the rate in force for that quarter and nation, so the April–June 2027 supplier forecast, made at 5%, is reduced. policyengine-uk's own energy VAT (a fiscal-year day-weighted rate on bills ÷ 1.05) is not used: no simulation changes a VAT rate, so it never reaches income and VAT savings are counted once.",
             "link": "https://www.legislation.gov.uk/uksi/2026/987/made",
         },
         {
             "id": "forecast2728",
             "topic": "2027-28 prices",
-            "detail": "April–September 2027 use the average of supplier forecasts (EDF, British Gas, E.ON Next); October–December 2027 uses OVO's forecast with 5% electricity VAT restored, and January–March 2028 holds that level. Forecasts give no fuel split, so Cornwall Insight's January unit rates and standing charges are scaled to each total.",
+            "detail": "April–September 2027 use the average of supplier forecasts (EDF, British Gas, E.ON Next); October–December 2027 uses OVO's forecast, and January–March 2028 holds that level. Forecasts give no fuel split, so Cornwall Insight's January 2027 rates as forecast on 30 Sep 2026 are scaled to each total. These forecasts predate the Budget and are unchanged.",
             "link": "https://www.eonnext.com/electricity-and-gas/price-cap/predictions",
         },
         {
@@ -471,6 +538,12 @@ def build_notes(r):
             "topic": "Cap freeze",
             "detail": "Electricity and gas unit rates and standing charges are held at April–June 2026 levels. The cost is each household's forecast bill minus its bill at those tariffs for the same kWh, floored at zero. It is a price restoration, so it sits outside HBAI income and has no poverty effect.",
             "link": "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges",
+        },
+        {
+            "id": "extend_vat_cut",
+            "topic": "Extend VAT cut",
+            "detail": "Keeps 0% VAT on domestic electricity from 1 July 2027 to 31 March 2028, UK-wide like the Budget's extension. Its cost is the additional relief beyond the extension to June 2027, which is already in the baseline.",
+            "link": "https://www.legislation.gov.uk/uksi/2026/987/made",
         },
         {
             "id": "rf",
@@ -499,14 +572,14 @@ def build_notes(r):
         {
             "id": "poverty",
             "topic": "Poverty",
-            "detail": "Relative poverty: people in households below 60% of median equivalised HBAI income (PolicyEngine UK in_relative_poverty_bhc/ahc, the DWP headline measure). Absolute poverty (in_poverty_*, a fixed FYE 2025 line) is also exported. Child rates (child_*) are under-18 rates (age < 18), not DWP's dependent-child cohort, which includes some 16-19-year-olds in full-time non-advanced education. DWP counts the Warm Home Discount, a bill credit, as HBAI income, so the top-up moves poverty; the RF discount is counted the same way by assumption. Price cuts (cap freeze, VAT, levies) lower bills rather than raise income, so they do not move HBAI poverty.",
+            "detail": "Relative poverty: people in households below 60% of median equivalised HBAI income (PolicyEngine UK in_relative_poverty_bhc/ahc, the DWP headline measure). Absolute poverty (in_poverty_*, a fixed FYE 2025 line) is also exported. Child rates (child_*) are under-18 rates (age < 18), not DWP's dependent-child cohort, which includes some 16-19-year-olds in full-time non-advanced education. HBAI income counts the Household Energy Payment, the Warm Home Discount and (as DWP did for the 2022 Energy Bills Support Scheme) the £400 credit, so they move poverty; the RF discount is counted the same way by assumption. Price cuts (VAT, cap freeze, levies) lower bills rather than raise income, so they do not move HBAI poverty.",
             "link": "https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2025/households-below-average-income-background-information-and-methodology-report-fye-2025",
         },
         {
             "id": "deciles",
             "topic": "Income deciles",
-            "detail": "Deciles of equivalised HBAI household income before housing costs, person-weighted (household weight × household size), as PolicyEngine UK defines household_income_decile. Households with negative income are excluded from the ten deciles. Gains shown are household-weighted means within each decile.",
-            "link": "https://github.com/PolicyEngine/policyengine-uk/blob/2.125.1/policyengine_uk/variables/household/income/household_income_decile.py",
+            "detail": "Deciles of equivalised HBAI household income before housing costs, person-weighted (household weight × household size), as PolicyEngine UK defines household_income_decile. As in HBAI, negative incomes are reset to zero and ranked in the bottom decile. Gains shown are household-weighted means within each decile.",
+            "link": f"https://github.com/PolicyEngine/policyengine-uk/blob/{prov['model_version']}/policyengine_uk/variables/household/income/household_income_decile.py",
         },
         {
             "id": "hh_types",
@@ -522,8 +595,8 @@ def build_notes(r):
         },
         {
             "id": "budget",
-            "topic": "Budget date",
-            "detail": "Autumn Budget and OBR forecast, Wednesday 28 October 2026. The OBR's March 2026 forecast closed before the conflict.",
-            "link": "https://obr.uk/autumn-2026-forecast-date-announced/",
+            "topic": "Budget and forecasts",
+            "detail": "Autumn Budget 2026 and the OBR's forecast were published on 28 October 2026. The energy price forecasts used here were made before the Budget and are unchanged; Ofgem's January–March 2027 cap can replace Cornwall Insight's forecast separately.",
+            "link": "https://www.gov.uk/government/publications/budget-2026-document/budget-2026-html",
         },
     ]

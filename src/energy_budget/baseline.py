@@ -1,20 +1,17 @@
 """Shared baseline: run the microsimulation once, extract all household arrays.
 
-Energy is electricity_consumption + gas_consumption. Each household's spend
-is converted to annual kWh at the dataset's reference tariff (``KWH_BASIS``,
-QEP FY2024-25 regional unit rate + fixed cost by default) and re-costed at
-April-June 2026 Ofgem cap tariffs, the start of the analysis baseline.
-
-Runs on Microcosm UK through ``policyengine.py``'s managed
-``pe.uk.managed_microsimulation``. The dataset is outside the release
-bundle, so it is passed with ``allow_unmanaged=True`` and pinned by
-revision and SHA-256 here.
+Runs on the certified Microcosm UK national dataset through
+``policyengine.py``'s managed ``pe.uk.managed_microsimulation`` with no
+dataset argument, so the bundle chooses and verifies the file. Each
+household's annual electricity and gas kWh are read from that same file's
+``electricity_kwh`` / ``gas_kwh`` export (they are not model variables) and
+aligned to the simulation by ``household_id``.
 """
 
 from __future__ import annotations
 
 import hashlib
-from functools import lru_cache
+import os
 
 import numpy as np
 import pandas as pd
@@ -24,48 +21,102 @@ import pandas as pd
 # (``weighted_mean``, ``decile_means``, ``filter_by_country``) cheap to
 # import for the unit tests.
 from .config import (
+    BASELINE_LAW,
     CONSUMPTION_PROFILE,
-    DATASET_FILE,
-    DATASET_RELEASE,
-    DATASET_REPO,
-    DATASET_REVISION,
-    DATASET_SHA256,
-    KWH_BASIS,
+    DATASET_ENERGY_LEVELS,
+    DATASET_PRICE_BASIS,
+    DATASET_YEAR,
     REGION_TO_COUNTRY,
     TARIFFS,
     WINTER_SHARE,
     YEAR,
 )
 
+ENERGY_COLUMNS = [
+    "household_id",
+    "region",
+    "electricity_kwh",
+    "gas_kwh",
+    "electricity_consumption",
+    "gas_consumption",
+]
 
-@lru_cache(maxsize=1)
-def dataset_path() -> str:
-    """Local path of the pinned Microcosm file, verified by SHA-256."""
-    from huggingface_hub import hf_hub_download
 
-    path = hf_hub_download(
-        DATASET_REPO, DATASET_FILE, repo_type="dataset", revision=DATASET_REVISION
-    )
+def _ensure_hf_token():
+    """Expose the saved Hugging Face login to policyengine.py's downloader.
+
+    The token is read from huggingface_hub's store and placed in the process
+    environment only; it is never printed or written.
+    """
+    if os.environ.get("HUGGING_FACE_TOKEN"):
+        return
+    try:
+        from huggingface_hub import get_token
+    except ImportError:
+        return
+    token = get_token()
+    if token:
+        os.environ["HUGGING_FACE_TOKEN"] = token
+
+
+def _build_simulation(reform: dict | None = None, scenario=None):
+    """A managed ``policyengine_uk`` Microsimulation on the certified dataset.
+
+    Reform dicts use the country package's parameter paths and date-keyed
+    values; ``scenario`` is a policyengine-uk ``Scenario``.
+    """
+    import policyengine as pe
+
+    _ensure_hf_token()
+    kwargs = {}
+    if reform:
+        kwargs["reform"] = reform
+    if scenario is not None:
+        kwargs["scenario"] = scenario
+    return pe.uk.managed_microsimulation(**kwargs)
+
+
+def _sha256(path) -> str:
     digest = hashlib.sha256()
     with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(1 << 20), b""):
             digest.update(chunk)
-    if digest.hexdigest() != DATASET_SHA256:
-        raise RuntimeError(f"{DATASET_FILE} does not match the pinned SHA-256")
+    return digest.hexdigest()
+
+
+def dataset_file(sim) -> str:
+    """Local path of the certified dataset, verified against the bundle."""
+    bundle = sim.policyengine_bundle
+    path = bundle["runtime_dataset_source"]
+    expected = bundle.get("runtime_dataset_sha256")
+    certified = bundle.get("certified_data_artifact_sha256")
+    if not expected or expected != certified or _sha256(path) != expected:
+        raise RuntimeError(f"{path} does not match the certified SHA-256")
     return path
 
 
-def _build_simulation(reform: dict | None = None):
-    """Construct a managed ``policyengine_uk`` Microsimulation on Microcosm.
+def read_energy_export(path, household_ids) -> pd.DataFrame:
+    """The dataset's annual kWh and spending, in the simulation's row order.
 
-    Reform dicts use the country package's parameter paths and date-keyed
-    values.
+    Raises if household ids are not unique or the dataset and simulation do
+    not hold exactly the same households.
     """
-    import policyengine as pe
-
-    return pe.uk.managed_microsimulation(
-        dataset=dataset_path(), allow_unmanaged=True, reform=reform
-    )
+    table = pd.read_hdf(path, "household", columns=ENERGY_COLUMNS)
+    ids = np.asarray(household_ids)
+    if ids.dtype.kind == "f":
+        if not np.array_equal(ids, np.round(ids)):
+            raise ValueError("household_id is not integral")
+        ids = ids.astype(np.int64)
+    if table["household_id"].duplicated().any() or len(set(ids)) != len(ids):
+        raise ValueError("household_id is not unique")
+    if len(table) != len(ids) or set(table["household_id"]) != set(ids):
+        raise ValueError("dataset and simulation hold different households")
+    out = table.set_index("household_id").loc[ids].reset_index()
+    for col in ENERGY_COLUMNS[2:]:
+        values = out[col].to_numpy(dtype=float)
+        if not np.isfinite(values).all() or (values < 0).any():
+            raise ValueError(f"{col} has missing or negative values")
+    return out
 
 
 def provenance(sim) -> dict:
@@ -75,18 +126,18 @@ def provenance(sim) -> dict:
         "policyengine_version": bundle.get("policyengine_version"),
         "bundle_id": bundle.get("bundle_id"),
         "model_version": bundle.get("model_version"),
-        "dataset": DATASET_FILE,
-        "dataset_repo": DATASET_REPO,
-        "dataset_release": DATASET_RELEASE,
-        "dataset_revision": DATASET_REVISION,
-        "dataset_sha256": DATASET_SHA256,
-        "managed": False,
-        "kwh_basis": KWH_BASIS,
-        "kwh_basis_source": (
-            "Microcosm build stage price_domestic_energy: DESNZ QEP FY2024-25 "
-            "regional unit cost + fixed cost, incl. VAT, all payment methods "
-            "(PolicyEngine/microcosm#1113)"
-        ),
+        "dataset": bundle.get("runtime_dataset"),
+        "dataset_uri": bundle.get("runtime_dataset_uri"),
+        "dataset_revision": bundle.get("runtime_dataset_revision"),
+        "dataset_sha256": bundle.get("runtime_dataset_sha256"),
+        "dataset_build_id": bundle.get("certified_data_build_id"),
+        "certified_dataset_sha256": bundle.get("certified_data_artifact_sha256"),
+        "managed": bundle.get("managed_by") == "policyengine.py",
+        "dataset_year": DATASET_YEAR,
+        "kwh_source": "dataset export: household electricity_kwh and gas_kwh (annual, calendar 2024)",
+        "expenditure_price_basis": DATASET_PRICE_BASIS,
+        "dataset_energy_levels": DATASET_ENERGY_LEVELS,
+        "baseline_policy": BASELINE_LAW,
         "consumption_profile": CONSUMPTION_PROFILE,
         "winter_share_oct_mar": dict(WINTER_SHARE),
         "tariff_coverage": (
@@ -97,9 +148,9 @@ def provenance(sim) -> dict:
     }
 
 
-def _hh_array(sim, var: str) -> np.ndarray:
+def _hh_array(sim, var: str, year: int = YEAR) -> np.ndarray:
     """Pull a household-level variable as a numpy array."""
-    series = sim.calculate(var, YEAR)
+    series = sim.calculate(var, year)
     return series.values if hasattr(series, "values") else np.asarray(series)
 
 
@@ -113,36 +164,38 @@ def _benunit_array(sim, var: str) -> np.ndarray:
     return series.values if hasattr(series, "values") else np.asarray(series)
 
 
-def _weights(sim) -> np.ndarray:
+def _weights(sim, year: int = YEAR) -> np.ndarray:
     """Household weights as a raw numpy array (skip the MicroSeries)."""
-    series = sim.calculate("household_weight", YEAR, unweighted=True)
+    series = sim.calculate("household_weight", year, unweighted=True)
     return series.values if hasattr(series, "values") else np.asarray(series)
 
 
 def run_baseline():
-    """Run baseline simulation and return dict of household-level arrays.
+    """Run the baseline simulation and return household-level arrays.
 
     ``elec`` and ``gas`` are each household's annual bill at April-June 2026
     tariffs for its kWh; ``elec_kwh``/``gas_kwh`` and ``has_elec``/
     ``has_gas`` carry the usage and connection used to cost every scenario.
     """
-    from .bills import annual_bill, household_kwh
+    from .bills import annual_bill, connections
 
     sim = _build_simulation()
+    path = dataset_file(sim)
+    household_id = _hh_array(sim, "household_id")
+    energy = read_energy_export(path, household_id)
 
     region = _hh_array(sim, "region")
     region_str = pd.Series(region).astype(str).to_numpy()
-    elec_spend = _hh_array(sim, "electricity_consumption")
-    gas_spend = _hh_array(sim, "gas_consumption")
-    elec_kwh, has_elec = household_kwh(elec_spend, region_str, "elec")
-    gas_kwh, has_gas = household_kwh(gas_spend, region_str, "gas")
-    elec = annual_bill(
-        elec_kwh, has_elec, [TARIFFS["apr_jun_2026"]["elec"]] * 4, (0.25,) * 4
-    )
-    gas = annual_bill(
-        gas_kwh, has_gas, [TARIFFS["apr_jun_2026"]["gas"]] * 4, (0.25,) * 4
-    )
-    energy = elec + gas
+    if not (energy["region"].astype(str).to_numpy() == region_str).all():
+        raise ValueError("dataset and simulation regions disagree")
+    elec_spend = energy["electricity_consumption"].to_numpy(dtype=float)
+    gas_spend = energy["gas_consumption"].to_numpy(dtype=float)
+    elec_kwh = energy["electricity_kwh"].to_numpy(dtype=float)
+    gas_kwh = energy["gas_kwh"].to_numpy(dtype=float)
+    connected = connections(elec_spend, gas_spend)
+    held = {f: [TARIFFS["apr_jun_2026"][f]] * 4 for f in ("elec", "gas")}
+    elec = annual_bill(elec_kwh, connected["elec"], held["elec"], (0.25,) * 4)
+    gas = annual_bill(gas_kwh, connected["gas"], held["gas"], (0.25,) * 4)
 
     income = _hh_array(sim, "household_net_income")
     weights = _weights(sim)
@@ -158,15 +211,17 @@ def run_baseline():
 
     return {
         "sim": sim,
+        "dataset_path": path,
+        "household_id": household_id,
         "elec": elec,
         "gas": gas,
-        "energy": energy,
+        "energy": elec + gas,
         "elec_spend": elec_spend,
         "gas_spend": gas_spend,
         "elec_kwh": elec_kwh,
         "gas_kwh": gas_kwh,
-        "has_elec": has_elec,
-        "has_gas": has_gas,
+        "has_elec": connected["elec"],
+        "has_gas": connected["gas"],
         "income": income,
         "weights": weights,
         "decile": decile,
