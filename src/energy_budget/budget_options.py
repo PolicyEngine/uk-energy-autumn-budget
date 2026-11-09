@@ -404,7 +404,10 @@ def _hep_checks(sim, year, w, hep, gains):
     off = {k: np.abs(v - hep) for k, v in gains.items()}
     out = {
         "paid_outside_england_bands_a_to_d": int(np.sum((hep > 0) & ~eligible)),
-        "eligible_not_paid": int(np.sum((hep == 0) & eligible)),
+        # Meaningful only in a year the payment is made.
+        "eligible_not_paid": int(np.sum((hep == 0) & eligible))
+        if np.any(hep)
+        else None,
         "amounts_paid": sorted({float(x) for x in np.unique(hep[hep > 0])}),
         "recipients_m": round(float(np.sum((hep > 0) * w)) / 1e6, 2),
         "cost_bn": _bn(hep, w),
@@ -414,6 +417,13 @@ def _hep_checks(sim, year, w, hep, gains):
             for k, v in off.items()
         },
         **{f"{k}_records_gain_differs": int(np.sum(v > 0.01)) for k, v in off.items()},
+        "note": (
+            "Benefits and HBAI income before the reset to zero rise by exactly the "
+            "payment. HBAI income after the reset gains less for households that stay "
+            "at or below zero. Household net income differs by a few pounds on a "
+            "handful of very high-income records through float32 rounding; the "
+            "weighted total of that difference is shown in pounds."
+        ),
         "net_income_gain_minus_payment_total_gbp": round(
             float(np.sum((gains["household_net_income"] - hep) * w)), 2
         ),
