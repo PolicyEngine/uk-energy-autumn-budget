@@ -434,7 +434,7 @@ function PriceSection() {
       </p>
       <MoreDetail label="Where each quarter's prices come from">
       <p className="section-description">
-        The baseline is current law at forecast prices. <a href="https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026" target="_blank" rel="noopener noreferrer">Ofgem has announced the cap</a> to December 2026
+        The baseline is the law after Budget 2026 at forecast prices. <a href="https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026" target="_blank" rel="noopener noreferrer">Ofgem has announced the cap</a> to December 2026
         (<a href="https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener noreferrer">unit rates and standing charges</a>); <a href="https://www.cornwall-insight.com/press-releases/16-price-cap-rise-forecast-in-january/" target="_blank" rel="noopener noreferrer">Cornwall Insight forecasts</a> January–March 2027,
         the <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener noreferrer">average of EDF, British Gas and E.ON Next forecasts</a> covers April–September 2027,
         and <a href="https://www.ovoenergy.com/price-cap" target="_blank" rel="noopener noreferrer">OVO's forecast</a> covers October–December 2027. No forecaster publishes January–March 2028,
@@ -522,14 +522,14 @@ function BudgetMeasuresSection() {
                 <th scope="col" className="num">Cost</th>
                 <th scope="col" className="num">Households receiving</th>
                 <th scope="col" className="num">Average over all households</th>
-                <th scope="col" className="num">Relative poverty, AHC</th>
+                <th scope="col" className="num">Change in relative poverty (AHC)</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((m) => (
                 <tr key={`${m.fy}-${m.measure_id}`}>
                   <th scope="row">{m.measure_id === "household_energy_payment" ? "£100 Household Energy Payment" : "Electricity VAT at 0% to June 2027"}</th>
-                  <td className="num">{m.fy}</td>
+                  <td className="num" style={{ whiteSpace: "nowrap" }}>{m.fy}</td>
                   <td className="num">£{m.cost_bn.toFixed(2)}bn</td>
                   <td className="num">{m.recipients_m.toFixed(1)}m ({m.share_receiving_pct.toFixed(0)}%)</td>
                   <td className="num">{fmt(m.avg_per_household)}</td>
@@ -940,7 +940,7 @@ const REFERENCES = [
   ["Resolution Foundation, “Billing me softly”, 10 August 2026.", "https://www.resolutionfoundation.org/publications/billing-me-softly/"],
   ["DWP, Households Below Average Income: background information and methodology report, FYE 2025.", "https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2025/households-below-average-income-background-information-and-methodology-report-fye-2025"],
   ["Priesmann, J. and Praktiknjo, A. (2025), income-specific price elasticities of household energy demand, as used in PolicyEngine's energy price shock analysis.", "https://github.com/PolicyEngine/energy-price-shock"],
-  ["HM Treasury, Budget 2026, 28 October 2026 (paragraph 3.5 and 6.24: Household Energy Payment; paragraph 6.210: electricity VAT).", BUDGET_LINK],
+  ["HM Treasury, Budget 2026, 28 October 2026 (paragraphs 3.5 and 6.24: Household Energy Payment; paragraph 6.210: electricity VAT).", BUDGET_LINK],
   ["policyengine.py release on PyPI.", "https://pypi.org/project/policyengine/"],
   ["OVO, “Energy price cap” forecast table, 7 October 2026.", "https://www.ovoenergy.com/price-cap"],
   ["Ofgem, price cap methodology appendix 4: wholesale costs (winter shares of annual demand, page 6), November 2018.", "https://www.ofgem.gov.uk/sites/default/files/docs/2018/11/appendix_4_-_wholesale_costs.pdf#page=6"],
@@ -1022,7 +1022,7 @@ function MethodologySection() {
             <div className="model-card">
               <div className="model-card-name">£400 bill credit</div>
               <p>PolicyEngine UK&apos;s energy bills credit set to £400.</p>
-              <span className="model-tag no">Not counted as income</span>
+              <span className="model-tag yes">Counted as income, as DWP counted the 2022 scheme</span>
             </div>
           </div>
         </div>
@@ -1180,7 +1180,7 @@ export default function Dashboard() {
             <a href={`https://pypi.org/project/policyengine/${provenance.policyengine_version}/`} target="_blank" rel="noopener noreferrer">
               policyengine.py {provenance.policyengine_version}
             </a>
-            {" "}(policyengine-uk {provenance.model_version}) · Microcosm UK {provenance.dataset.replace(".h5", "").replace("microcosm_uk_", "")}
+            {" "}(policyengine-uk {provenance.model_version}) · Microcosm UK {provenance.dataset.replace("microcosm_uk_", "").replace("_", "-")}
           </p>
         </footer>
       </main>

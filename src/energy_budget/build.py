@@ -572,7 +572,7 @@ def build_notes(r):
         {
             "id": "poverty",
             "topic": "Poverty",
-            "detail": "Relative poverty: people in households below 60% of median equivalised HBAI income (PolicyEngine UK in_relative_poverty_bhc/ahc, the DWP headline measure). Absolute poverty (in_poverty_*, a fixed FYE 2025 line) is also exported. Child rates (child_*) are under-18 rates (age < 18), not DWP's dependent-child cohort, which includes some 16-19-year-olds in full-time non-advanced education. HBAI income counts the Household Energy Payment and the Warm Home Discount, so both move poverty; the RF discount is counted the same way by assumption. Price cuts (VAT, cap freeze, levies) lower bills rather than raise income, so they do not move HBAI poverty.",
+            "detail": "Relative poverty: people in households below 60% of median equivalised HBAI income (PolicyEngine UK in_relative_poverty_bhc/ahc, the DWP headline measure). Absolute poverty (in_poverty_*, a fixed FYE 2025 line) is also exported. Child rates (child_*) are under-18 rates (age < 18), not DWP's dependent-child cohort, which includes some 16-19-year-olds in full-time non-advanced education. HBAI income counts the Household Energy Payment, the Warm Home Discount and (as DWP did for the 2022 Energy Bills Support Scheme) the £400 credit, so they move poverty; the RF discount is counted the same way by assumption. Price cuts (VAT, cap freeze, levies) lower bills rather than raise income, so they do not move HBAI poverty.",
             "link": "https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2025/households-below-average-income-background-information-and-methodology-report-fye-2025",
         },
         {

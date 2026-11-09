@@ -1,5 +1,10 @@
 """Run the dashboard pipeline on whichever policyengine-uk is installed.
 
+Historical: written for the unmanaged-dataset pipeline before policyengine
+6.16.1 (#10), which now runs the certified model/data pair. It calls
+``baseline.dataset_path()``, which no longer exists; check out a commit
+before #10 to re-run it.
+
 Purpose: compatibility evidence for the pinned Microcosm release
 ``microcosm-uk-2024-25-national-20261002T230158Z-5c6b3f68``, whose
 ``release_manifest.json`` declares ``policyengine-uk==2.100.0`` and
