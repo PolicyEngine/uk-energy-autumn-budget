@@ -389,33 +389,55 @@ def _pre_budget_option_costs(year, cf, held, kwh, connected, is_ni, w):
     return out
 
 
-def _hep_checks(sim, year, w, hep, net_gain, hbai_gain):
-    """The payment reaches only English bands A-D and enters income once."""
+def _hep_checks(sim, year, w, hep, gains):
+    """The payment reaches only English bands A-D and enters income once.
+
+    ``gains`` maps an income variable to baseline minus counterfactual.
+    Benefits must rise by exactly the payment. Household net income does
+    too, up to float32 rounding on very large incomes. HBAI income resets
+    negative incomes to zero, so households that stay at or below zero gain
+    less; the check uses the figure before that reset.
+    """
     band = pd.Series(_arr(sim, "council_tax_band", year)).astype(str).to_numpy()
     country = pd.Series(_arr(sim, "country", year)).astype(str).to_numpy()
     eligible = (country == "ENGLAND") & np.isin(band, ["A", "B", "C", "D"])
+    off = {k: np.abs(v - hep) for k, v in gains.items()}
     out = {
         "paid_outside_england_bands_a_to_d": int(np.sum((hep > 0) & ~eligible)),
         "eligible_not_paid": int(np.sum((hep == 0) & eligible)),
         "amounts_paid": sorted({float(x) for x in np.unique(hep[hep > 0])}),
         "recipients_m": round(float(np.sum((hep > 0) * w)) / 1e6, 2),
         "cost_bn": _bn(hep, w),
-        "net_income_gain_bn": _bn(net_gain, w),
-        "hbai_income_gain_bn": _bn(hbai_gain, w),
-        "max_abs_net_gain_minus_payment": round(
-            float(np.max(np.abs(net_gain - hep))), 4
-        ),
-        "max_abs_hbai_gain_minus_payment": round(
-            float(np.max(np.abs(hbai_gain - hep))), 4
+        **{f"{k}_gain_bn": _bn(v, w) for k, v in gains.items()},
+        **{
+            f"{k}_max_abs_gain_minus_payment": round(float(v.max()), 2)
+            for k, v in off.items()
+        },
+        **{f"{k}_records_gain_differs": int(np.sum(v > 0.01)) for k, v in off.items()},
+        "net_income_gain_minus_payment_total_gbp": round(
+            float(np.sum((gains["household_net_income"] - hep) * w)), 2
         ),
     }
     if year == 2026 and (
         out["paid_outside_england_bands_a_to_d"]
-        or out["max_abs_net_gain_minus_payment"] > 0.01
-        or out["max_abs_hbai_gain_minus_payment"] > 0.01
+        or out["eligible_not_paid"]
+        or out["household_benefits_max_abs_gain_minus_payment"] > 0.01
+        or out[
+            "hbai_household_net_income_before_reset_to_zero_max_abs_gain_minus_payment"
+        ]
+        > 0.01
+        or abs(out["net_income_gain_minus_payment_total_gbp"]) > 1e4
     ):
         raise AssertionError(f"Household Energy Payment check failed: {out}")
     return out
+
+
+HEP_INCOME_VARS = [
+    "household_benefits",
+    "household_net_income",
+    "hbai_household_net_income_before_reset_to_zero",
+    "hbai_household_net_income",
+]
 
 
 def _vat_reconciliation(sim, year, fc, kwh, connected, is_ni, w):
@@ -465,7 +487,6 @@ def run_budget_options(data):
         base = _sim(year, elec, gas)
         w = _arr(base, "household_weight", year, unweighted=True)
         base_net = _arr(base, "household_net_income", year)
-        base_hbai = _arr(base, "hbai_household_net_income", year)
         hep = _arr(base, "household_energy_payment", year)
         decile = _arr(base, "household_income_decile", year)
         base_poverty = _poverty(base, year)
@@ -525,6 +546,7 @@ def run_budget_options(data):
             }
 
         # ── The Budget's energy measures, against the counterfactual ──
+        base_income = {v: _arr(base, v, year) for v in HEP_INCOME_VARS}
         if np.any(hep != 0):
             period = f"{year}-01-01.{year}-12-31"
             cf_sim = _sim(year, cf["elec"], cf["gas"], {HEP_PARAMETER: {period: 0}})
@@ -532,8 +554,7 @@ def run_budget_options(data):
                 raise AssertionError(
                     "counterfactual still pays the Household Energy Payment"
                 )
-            cf_net = _arr(cf_sim, "household_net_income", year)
-            cf_hbai = _arr(cf_sim, "hbai_household_net_income", year)
+            cf_income = {v: _arr(cf_sim, v, year) for v in HEP_INCOME_VARS}
             cf_poverty = _poverty(cf_sim, year)
             vat_change["counterfactual"] = _vat_change_gbp(cf_sim, year, w)
             del cf_sim
@@ -541,9 +562,10 @@ def run_budget_options(data):
         else:
             # No payment this year, so the counterfactual's income is the
             # baseline's; only bills differ.
-            cf_net, cf_hbai, cf_poverty = base_net, base_hbai, base_poverty
-        hep_gain = base_net - cf_net
-        hep_check = _hep_checks(base, year, w, hep, hep_gain, base_hbai - cf_hbai)
+            cf_income, cf_poverty = base_income, base_poverty
+        gains = {v: base_income[v] - cf_income[v] for v in HEP_INCOME_VARS}
+        hep_gain = gains["household_net_income"]
+        hep_check = _hep_checks(base, year, w, hep, gains)
         vat_ext = vat_saving(
             year,
             kwh,
