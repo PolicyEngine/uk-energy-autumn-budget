@@ -600,6 +600,8 @@ def run_budget_options(data):
         ).items():
             meta = ANALYTIC_OPTIONS[key]
             rows[key] = summarise(meta["label"], support, note=meta["note"])
+            if key == "remove_levies":
+                rows[key]["bill_cut_pct"] = round(levy_share() * 100, 1)
         rows = {k: rows[k] for k in OPTION_ORDER if k in rows}
 
         if max(vat_change.values()) > 1.0:

@@ -103,6 +103,10 @@ def read_energy_export(path, household_ids) -> pd.DataFrame:
     """
     table = pd.read_hdf(path, "household", columns=ENERGY_COLUMNS)
     ids = np.asarray(household_ids)
+    if ids.dtype.kind == "f":
+        if not np.array_equal(ids, np.round(ids)):
+            raise ValueError("household_id is not integral")
+        ids = ids.astype(np.int64)
     if table["household_id"].duplicated().any() or len(set(ids)) != len(ids):
         raise ValueError("household_id is not unique")
     if len(table) != len(ids) or set(table["household_id"]) != set(ids):

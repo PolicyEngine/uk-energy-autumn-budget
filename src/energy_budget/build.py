@@ -348,6 +348,7 @@ def write_tables(r):
                     "poverty_bhc_change_pp": None
                     if q is None
                     else round(q["bhc"] - p["bhc"], 2),
+                    "bill_cut_pct": o.get("bill_cut_pct"),
                     "decile_1_gain": o["deciles"][0],
                     "decile_10_gain": o["deciles"][9],
                 }
@@ -396,6 +397,13 @@ def write_tables(r):
     ]:
         _dump(data, OUT / f"{name}.json")
     _dump(r["provenance"], OUT / "provenance.json")
+    _dump(
+        {
+            "dataset": r["validation"],
+            **{fy: v["validation"] for fy, v in _years(r).items()},
+        },
+        OUT / "validation.json",
+    )
     print(
         {
             k: len(v)
