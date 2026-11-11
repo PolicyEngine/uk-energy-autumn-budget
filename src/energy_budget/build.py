@@ -15,7 +15,12 @@ import numpy as np
 
 from .baseline import _hh_array, _weights, provenance, run_baseline
 from .bills import FUELS, price_basis_residual
-from .budget_options import WHD_IA_LINK, WHD_LINKS, run_budget_options
+from .budget_options import (
+    WHD_IA_LINK,
+    WHD_IA_SENSITIVITY_LINK,
+    WHD_LINKS,
+    run_budget_options,
+)
 from .config import (
     DATASET_ENERGY_LEVELS,
     DATASET_YEAR,
@@ -249,7 +254,7 @@ def write_tables(r):
     LABEL = {
         "rf_targeted_discount": "Targeted discount (RF, simplified)",
         "cost_of_living_payment": "£300 Cost of Living Payment",
-        "whd_top_up": "Warm Home Discount +£100 (proxy)",
+        "whd_top_up": "Warm Home Discount +£100",
         "remove_levies": "Remove remaining levies",
         "extend_vat_cut": "Extend VAT cut to March 2028",
         "flat_400": "£400 to every household",
@@ -330,6 +335,11 @@ def write_tables(r):
                     "share_receiving_pct": o["share_receiving_pct"],
                     "recipients_m": o["recipients_m"],
                     "eligible_m": o.get("eligible_m"),
+                    "expected_recipients_m": o.get("expected_recipients_m"),
+                    "eligible_scotland_core_group_m": o.get(
+                        "eligible_scotland_core_group_m"
+                    ),
+                    "sensitivities": o.get("sensitivities"),
                     "share_of_shock_covered_pct": o["share_of_shock_offset_pct"],
                     "note": o["note"],
                     "assumptions": o.get("assumptions"),
@@ -560,24 +570,35 @@ def build_notes(r):
             "id": "whd",
             "topic": "Warm Home Discount top-up",
             "detail": (
-                "£100 to GB households where any member receives a listed means-tested "
-                "benefit during the year, at DESNZ's receipt rates: around 85% of Pension "
-                "Credit households and 70% of other qualifying households go on to receive "
-                "the Warm Home Discount, because the claimant or partner must be named on a "
-                "participating supplier's electricity account and matched to DWP records "
-                "(DESNZ, Continuing the Warm Home Discount 2026-2031: final stage impact "
-                "assessment, January 2026, para. 40; Table 8 applies the same rates to "
-                "Scotland). Each eligible household gets a seeded random draw, the same "
-                "hash as policyengine-uk#2616. The qualifying date and Scotland's broader "
-                f"group are not modelled. {whd_text}. DESNZ estimates around 6 million "
-                "recipient households across Great Britain in winter 2025/26 (DESNZ, "
-                "Continuing the Warm Home Discount Scheme: Government Response, January "
+                "An extra £100 on the Warm Home Discount rebate, paid from taxation (the "
+                "£150 rebate itself stays funded by suppliers through bills and is in the "
+                "baseline's HBAI income through policyengine-uk). Eligibility follows the "
+                "scheme: in England and Wales, households where anyone receives Pension "
+                "Credit, Universal Credit, Housing Benefit or income-related ESA (the "
+                "eligibility statement for 2026-27, read from policyengine-uk); in "
+                "Scotland, the core group that receives the rebate without applying "
+                "(Pension Credit; Universal Credit with a disability or health element; "
+                "income-related ESA with a disability premium; a child under 5 with "
+                "Universal Credit and no earnings, or income-related ESA). Scotland's "
+                "broader group applies to suppliers under supplier-set criteria and is "
+                "shown only as a sensitivity. Receipt follows DESNZ's rates (85% of "
+                "Pension Credit households, 70% of others; impact assessment para. 40, "
+                "with Table 8 applying them to Scotland) through policyengine-uk's own "
+                "seeded draw, so in England and Wales the top-up reaches the same "
+                "households as the model's £150 rebate. Timing: paid with the rebate, by "
+                "31 March of the scheme year (qualifying date 23 August 2026 for 2026-27); "
+                "the model uses benefit receipt over the year, not on the qualifying date. "
+                f"{whd_text}. Sensitivities in options.json: full receipt, the impact "
+                "assessment's 60% and 80% other-benefits rates, England and Wales only, "
+                "Scotland's broader group, and DESNZ's estimate of around 6 million "
+                "recipient households in winter 2025/26 (Government Response, January "
                 "2026, p. 5)."
             ),
             "link": WHD_IA_LINK,
             "links": WHD_LINKS
             + [
                 WHD_IA_LINK,
+                WHD_IA_SENSITIVITY_LINK,
                 "https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf",
             ],
         },

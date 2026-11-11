@@ -7,7 +7,6 @@ then follows a schedule by the household's assessed income.
 """
 
 from policyengine_uk.model_api import *
-from policyengine_uk.utils.stochastic import splitmix64_uniform
 from policyengine_uk.variables.gov.gov_spending import (
     gov_spending as _baseline_gov_spending,
 )
@@ -112,6 +111,37 @@ class targeted_energy_discount_tested_income(Variable):
         return household("targeted_energy_discount_highest_income", period)
 
 
+class targeted_energy_discount_scotland_core_group(Variable):
+    label = "Household is in the Scottish Warm Home Discount core group"
+    documentation = (
+        "Someone in the household receives Pension Credit; Universal Credit with a "
+        "disability or health condition element (LCWRA or a disabled child element); "
+        "income-related ESA with a disability premium; or has a child under 5 in the "
+        "family and receives Universal Credit with no earnings, or income-related ESA. "
+        "Support for Mortgage Interest routes are not modelled (GOV.UK, the Warm Home "
+        "Discount Scheme: if you live in Scotland, winter 2026 to 2027)."
+    )
+    entity = Household
+    definition_period = YEAR
+    value_type = bool
+
+    def formula(household, period, parameters):
+        benunit = household.simulation.populations["benunit"]
+        pc = benunit("pension_credit", period) > 0
+        uc = benunit("universal_credit", period) > 0
+        esa = benunit("esa_income", period) > 0
+        uc_disability = uc & (benunit("uc_disability_elements", period) > 0)
+        esa_disability = esa & (benunit("disability_premium", period) > 0)
+        child_under_5 = benunit.any(benunit.members("age", period) < 5)
+        earnings = benunit.sum(
+            benunit.members("employment_income", period)
+            + benunit.members("self_employment_income", period)
+        )
+        young_child = child_under_5 & ((uc & (earnings <= 0)) | esa)
+        in_group = pc | uc_disability | esa_disability | young_child
+        return household.any(benunit.project(in_group))
+
+
 class targeted_energy_discount_passported(Variable):
     label = (
         "Household receives a benefit that passports it to the targeted energy discount"
@@ -124,7 +154,13 @@ class targeted_energy_discount_passported(Variable):
         p = _params(period, parameters).passport
         if not p.in_effect:
             return household.empty_array() > 0
-        return add(household, period, p.benefits) > 0
+        on_list = add(household, period, p.benefits) > 0
+        if not p.scotland_core_group_only:
+            return on_list
+        region = household("region", period)
+        scotland = region == region.possible_values.SCOTLAND
+        core = household("targeted_energy_discount_scotland_core_group", period)
+        return where(scotland, core, on_list)
 
 
 class targeted_energy_discount_assessed_income(Variable):
@@ -180,10 +216,10 @@ class targeted_energy_discount_receipt_draw(Variable):
     label = "Targeted energy discount receipt random draw"
     documentation = (
         "Uniform draw on [0, 1) that decides whether a passported household receives "
-        "the support. The same hash as policyengine-uk's warm_home_discount_random_draw "
-        "(policyengine-uk#2616): splitmix64 of the household id with salt 2 in "
-        "representative data, and 0 in single-household simulations so calculators "
-        "show the support unless this is set."
+        "the support. It is policyengine-uk's warm_home_discount_random_draw "
+        "(splitmix64 of the household id with salt 2 in simulations built from data, "
+        "0 in household situations), so a Warm-Home-Discount-style top-up reaches the "
+        "same households as the model's Warm Home Discount at the same rates."
     )
     entity = Household
     definition_period = YEAR
@@ -191,10 +227,7 @@ class targeted_energy_discount_receipt_draw(Variable):
     default_value = 0.0
 
     def formula(household, period, parameters):
-        if household("household_weight", period).sum() < 1e6:
-            return np.zeros(household.count)
-        ids = household("household_id", period)
-        return splitmix64_uniform(ids, salt=2)
+        return household("warm_home_discount_random_draw", period)
 
 
 class receives_targeted_energy_discount_if_passported(Variable):
@@ -271,6 +304,7 @@ NEW_VARIABLES = [
     targeted_energy_discount_person_income,
     targeted_energy_discount_highest_income,
     targeted_energy_discount_tested_income,
+    targeted_energy_discount_scotland_core_group,
     targeted_energy_discount_passported,
     targeted_energy_discount_assessed_income,
     targeted_energy_discount_income_route,
