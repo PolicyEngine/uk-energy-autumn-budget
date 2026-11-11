@@ -7,6 +7,7 @@ then follows a schedule by the household's assessed income.
 """
 
 from policyengine_uk.model_api import *
+from policyengine_uk.utils.stochastic import splitmix64_uniform
 from policyengine_uk.variables.gov.gov_spending import (
     gov_spending as _baseline_gov_spending,
 )
@@ -175,6 +176,45 @@ class targeted_energy_discount_eligible(Variable):
         return in_scope & (passported | income_route)
 
 
+class targeted_energy_discount_receipt_draw(Variable):
+    label = "Targeted energy discount receipt random draw"
+    documentation = (
+        "Uniform draw on [0, 1) that decides whether a passported household receives "
+        "the support. The same hash as policyengine-uk's warm_home_discount_random_draw "
+        "(policyengine-uk#2616): splitmix64 of the household id with salt 2 in "
+        "representative data, and 0 in single-household simulations so calculators "
+        "show the support unless this is set."
+    )
+    entity = Household
+    definition_period = YEAR
+    value_type = float
+    default_value = 0.0
+
+    def formula(household, period, parameters):
+        if household("household_weight", period).sum() < 1e6:
+            return np.zeros(household.count)
+        ids = household("household_id", period)
+        return splitmix64_uniform(ids, salt=2)
+
+
+class receives_targeted_energy_discount_if_passported(Variable):
+    label = "Passported household receives the targeted energy discount"
+    documentation = (
+        "The household's receipt draw is below its group's receipt rate: the Pension "
+        "Credit rate if anyone in the household receives Pension Credit, otherwise the "
+        "rate for other passporting benefits (DESNZ's Warm Home Discount groups)."
+    )
+    entity = Household
+    definition_period = YEAR
+    value_type = bool
+
+    def formula(household, period, parameters):
+        p = _params(period, parameters).receipt_rate
+        receives_pension_credit = add(household, period, ["pension_credit"]) > 0
+        rate = where(receives_pension_credit, p.pension_credit, p.other_benefits)
+        return household("targeted_energy_discount_receipt_draw", period) < rate
+
+
 class targeted_energy_discount(Variable):
     label = "Targeted energy discount"
     documentation = (
@@ -191,10 +231,14 @@ class targeted_energy_discount(Variable):
         eligible = household("targeted_energy_discount_eligible", period)
         passported = household("targeted_energy_discount_passported", period)
         claims = household("claims_targeted_energy_discount", period)
+        receives = household("receives_targeted_energy_discount_if_passported", period)
         income = household("targeted_energy_discount_assessed_income", period)
         bill = household("targeted_energy_discount_bill", period)
         support = _schedule(p, income, bill)
-        return where(eligible & (passported | claims), support, 0)
+        # Passported households are enrolled without a claim but subject to the
+        # receipt rate; income-route households must claim.
+        enrolled = where(passported, receives, claims)
+        return where(eligible & enrolled, support, 0)
 
 
 class household_benefits(_baseline_household_benefits):
@@ -231,6 +275,8 @@ NEW_VARIABLES = [
     targeted_energy_discount_assessed_income,
     targeted_energy_discount_income_route,
     targeted_energy_discount_eligible,
+    targeted_energy_discount_receipt_draw,
+    receives_targeted_energy_discount_if_passported,
     targeted_energy_discount,
 ]
 

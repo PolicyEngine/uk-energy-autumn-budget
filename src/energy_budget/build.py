@@ -15,7 +15,7 @@ import numpy as np
 
 from .baseline import _hh_array, _weights, provenance, run_baseline
 from .bills import FUELS, price_basis_residual
-from .budget_options import WHD_LINKS, run_budget_options
+from .budget_options import WHD_IA_LINK, WHD_LINKS, run_budget_options
 from .config import (
     DATASET_ENERGY_LEVELS,
     DATASET_YEAR,
@@ -329,6 +329,7 @@ def write_tables(r):
                     "avg_per_household": o["avg_per_household"],
                     "share_receiving_pct": o["share_receiving_pct"],
                     "recipients_m": o["recipients_m"],
+                    "eligible_m": o.get("eligible_m"),
                     "share_of_shock_covered_pct": o["share_of_shock_offset_pct"],
                     "note": o["note"],
                     "assumptions": o.get("assumptions"),
@@ -427,8 +428,12 @@ def build_notes(r):
     prov = r["provenance"]
     checks = r["validation"]
     years = _years(r)
-    whd = {fy: v["options"]["whd_top_up"]["recipients_m"] for fy, v in years.items()}
-    whd_text = ", ".join(f"{m:.1f}m in {fy}" for fy, m in whd.items())
+    whd = {fy: v["options"]["whd_top_up"] for fy, v in years.items()}
+    whd_text = "; ".join(
+        f"{fy}: {o['eligible_m']:.1f}m eligible, {o['recipients_m']:.1f}m receive it, "
+        f"£{o['cost_bn']:.2f}bn"
+        for fy, o in whd.items()
+    )
     hep = years["2026-27"]["budget_measures"]["household_energy_payment"]
     vat = years["2027-28"]["budget_measures"]["electricity_vat_extension"]
     sens = {fy: v["baseline"]["sensitivities"] for fy, v in years.items()}
@@ -555,18 +560,25 @@ def build_notes(r):
             "id": "whd",
             "topic": "Warm Home Discount top-up",
             "detail": (
-                "Means-tested-household proxy: £100 to every GB household where any member "
-                "receives a listed means-tested benefit during the year. The scheme's actual "
-                "rules (qualifying date, participating supplier, account holder; core and "
-                "broader groups in Scotland) are not modelled. Modelled caseload "
-                f"{whd_text}. DESNZ estimates around 6 million recipient households across Great "
-                "Britain in winter 2025/26 (DESNZ, Continuing the Warm Home Discount Scheme: "
-                "Government Response, January 2026, p. 5)."
+                "£100 to GB households where any member receives a listed means-tested "
+                "benefit during the year, at DESNZ's receipt rates: around 85% of Pension "
+                "Credit households and 70% of other qualifying households go on to receive "
+                "the Warm Home Discount, because the claimant or partner must be named on a "
+                "participating supplier's electricity account and matched to DWP records "
+                "(DESNZ, Continuing the Warm Home Discount 2026-2031: final stage impact "
+                "assessment, January 2026, para. 40; Table 8 applies the same rates to "
+                "Scotland). Each eligible household gets a seeded random draw, the same "
+                "hash as policyengine-uk#2616. The qualifying date and Scotland's broader "
+                f"group are not modelled. {whd_text}. DESNZ estimates around 6 million "
+                "recipient households across Great Britain in winter 2025/26 (DESNZ, "
+                "Continuing the Warm Home Discount Scheme: Government Response, January "
+                "2026, p. 5)."
             ),
-            "link": WHD_LINKS[0],
+            "link": WHD_IA_LINK,
             "links": WHD_LINKS
             + [
-                "https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf"
+                WHD_IA_LINK,
+                "https://assets.publishing.service.gov.uk/media/697b454bf8f4a746d9572efe/continuing-the-warm-home-discount-scheme-government-response.pdf",
             ],
         },
         {
