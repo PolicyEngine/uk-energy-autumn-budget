@@ -28,9 +28,9 @@ in Northern Ireland).
 
 Options. The targeted discount (RF, simplified), Warm Home Discount top-up,
 Cost of Living Payment and £400 payment are PolicyEngine reforms against the
-post-Budget baseline. The cap freeze, the further VAT extension and levy
-removal are price cuts costed from each household's bills, outside HBAI
-income.
+post-Budget baseline. The cap freeze, the National Energy Guarantee, the
+further VAT extension and levy removal are price cuts costed from each
+household's bills, outside HBAI income.
 """
 
 from __future__ import annotations
@@ -48,9 +48,14 @@ from .config import (
     COUNTERFACTUAL_LAW,
     CURRENT_CAP,
     HEP_PARAMETER,
+    NEG_BLOCK_KWH,
+    NEG_GAS_TO_ELEC_FACTOR,
+    NEG_PRICE_MULTIPLE,
+    NEG_SOURCE_UNIT_RATE,
     NEW_TDCV,
     TDCV_ELEC_KWH,
     TDCV_GAS_KWH,
+    quarter_shares,
 )
 from .prices import HELD_QUARTERS, year_quarters
 
@@ -157,12 +162,67 @@ def levy_share(profile=CONSUMPTION_PROFILE):
     return LEVY_SAVING_TYPICAL / float(typical_elec)
 
 
+def neg_blocks(connected):
+    """Annual block kWh per fuel; homes without gas port half the gas block."""
+    no_gas = ~np.asarray(connected["gas"], dtype=bool)
+    port = NEG_BLOCK_KWH["gas"] * NEG_GAS_TO_ELEC_FACTOR
+    elec = np.where(
+        connected["elec"], NEG_BLOCK_KWH["elec"] + np.where(no_gas, port, 0.0), 0.0
+    )
+    gas = np.where(no_gas, 0.0, NEG_BLOCK_KWH["gas"])
+    return {"elec": elec, "gas": gas}
+
+
+def neg_unit_rate(
+    year, fuel, nation="GB", profile=CONSUMPTION_PROFILE, law=BASELINE_LAW
+):
+    """Consumption-weighted unit rate (£/kWh) over a year's four quarters."""
+    q = year_quarters(year, nation, law)[fuel]
+    return sum(s * u for s, (u, _) in zip(quarter_shares(fuel, profile), q)) / 100
+
+
+def neg_support(year, kwh, connected, is_ni, profile=CONSUMPTION_PROFILE):
+    """National Energy Guarantee saving: block kWh at a discounted unit rate.
+
+    The block is profiled through the year like consumption, so in each
+    quarter a household gets that quarter's share of its block at the
+    discount. Summed over quarters, the saving is min(kWh, block) times the
+    discount on the consumption-weighted unit rate, at the quarter's
+    post-Budget VAT. Northern Ireland is priced at its own VAT on GB rates.
+    """
+    blocks = neg_blocks(connected)
+    out = 0.0
+    for f in FUELS:
+        unit = np.where(
+            is_ni,
+            neg_unit_rate(year, f, "NI", profile),
+            neg_unit_rate(year, f, "GB", profile),
+        )
+        covered = np.minimum(np.asarray(kwh[f], dtype=float), blocks[f])
+        out = out + covered * unit * (1 - NEG_PRICE_MULTIPLE[f])
+    return out
+
+
+def neg_support_at_source_prices(kwh, connected):
+    """The same saving at the source workbook's flat 31p / 10p unit rates."""
+    blocks = neg_blocks(connected)
+    return sum(
+        np.minimum(np.asarray(kwh[f], dtype=float), blocks[f])
+        * NEG_SOURCE_UNIT_RATE[f]
+        * (1 - NEG_PRICE_MULTIPLE[f])
+        for f in FUELS
+    )
+
+
 def analytic_supports(
     year, forecast, held, kwh, connected, is_ni, profile=CONSUMPTION_PROFILE
 ):
     """Supports for the options costed directly from bills."""
     gb = ~is_ni
-    out = {"cap_freeze": cap_freeze_support(forecast, held)}
+    out = {
+        "cap_freeze": cap_freeze_support(forecast, held),
+        "national_energy_guarantee": neg_support(year, kwh, connected, is_ni, profile),
+    }
     if year == 2027:
         out["extend_vat_cut"] = vat_saving(
             year, kwh, connected, is_ni, profile, BASELINE_LAW, "extend_2027_28"
@@ -258,6 +318,21 @@ ANALYTIC_OPTIONS = {
             "Ireland on GB prices as a proxy."
         ),
     },
+    "national_energy_guarantee": {
+        "label": (
+            f"National Energy Guarantee: the first {NEG_BLOCK_KWH['elec']:,} kWh of "
+            f"electricity and {NEG_BLOCK_KWH['gas']:,} kWh of gas a year at "
+            f"{1 - NEG_PRICE_MULTIPLE['elec']:.0%} and "
+            f"{1 - NEG_PRICE_MULTIPLE['gas']:.0%} below the unit rate"
+        ),
+        "note": (
+            "Costed from each household's kWh at the forecast unit rates for each "
+            "quarter; households with no gas add "
+            f"{NEG_BLOCK_KWH['gas'] * NEG_GAS_TO_ELEC_FACTOR:,.0f} kWh to their "
+            "electricity block. Standing charges unchanged. UK-wide, with Northern "
+            "Ireland on GB prices as a proxy. " + NOT_HBAI
+        ),
+    },
     "extend_vat_cut": {
         "label": (
             "Keep 0% VAT on domestic electricity from July 2027 to March 2028, beyond "
@@ -283,6 +358,7 @@ OPTION_ORDER = [
     "cost_of_living_payment",
     "flat_400",
     "cap_freeze",
+    "national_energy_guarantee",
     "extend_vat_cut",
     "remove_levies",
 ]
@@ -634,6 +710,15 @@ def run_budget_options(data):
             rows[key] = summarise(meta["label"], support, note=meta["note"])
             if key == "remove_levies":
                 rows[key]["bill_cut_pct"] = round(levy_share() * 100, 1)
+            if key == "national_energy_guarantee":
+                # Like-for-like check against the source workbook: the same
+                # blocks and discounts at its flat 31p / 10p unit rates.
+                rows[key]["cost_at_source_prices_bn"] = _bn(
+                    neg_support_at_source_prices(kwh, connected), w
+                )
+                rows[key]["unit_rate_p"] = {
+                    f: round(neg_unit_rate(year, f) * 100, 2) for f in FUELS
+                }
         rows = {k: rows[k] for k in OPTION_ORDER if k in rows}
 
         if max(vat_change.values()) > 1.0:

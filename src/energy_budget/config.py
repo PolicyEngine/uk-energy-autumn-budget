@@ -404,12 +404,20 @@ CT_REBATE = 300
 ELEC_RATE = TARIFFS["apr_jun_2026"]["elec"][0] / 100  # £/kWh
 GAS_RATE = TARIFFS["apr_jun_2026"]["gas"][0] / 100  # £/kWh
 
-# NEG electricity threshold per Bangham (2026) Substack proposal: matches
-# Austria and the Netherlands' 2022 "first N kWh at the old price" relief
-# schemes. 2,900 kWh is close to but not identical to the Ofgem TDCV for
-# electricity (≈ 2,700 kWh for the medium-consumption band).
-NEG_ELEC_KWH = 2_900
-NEG_ELEC_SPEND = NEG_ELEC_KWH * ELEC_RATE
+# National Energy Guarantee, two-tier version (source costing workbook
+# RBT_model_2024_25_v10.5.xlsx, sheet "Inputs 2-tier"): each household's
+# first block of kWh a year is charged at a fraction of the unit rate; use
+# above it pays the normal rate. Households with no mains gas add half the
+# gas block to their electricity block. Standing charges are unchanged; no
+# child or disability allowances; no third tier.
+NEG_BLOCK_KWH = {"elec": 1_800, "gas": 6_100}
+NEG_PRICE_MULTIPLE = {"elec": 0.75, "gas": 0.6}
+NEG_GAS_TO_ELEC_FACTOR = 0.5
+# The workbook's flat reference unit rates (£/kWh, VAT included; sheet
+# "Results 2-tier"), at which it costs the scheme at £9.73bn a year on LCFS
+# 2024-25. Used only for a like-for-like check on Microcosm.
+NEG_SOURCE_UNIT_RATE = {"elec": 0.31, "gas": 0.10}
+NEG_SOURCE_COST_BN = 9.73
 
 # ── Data ────────────────────────────────────────────────────────────────
 #
