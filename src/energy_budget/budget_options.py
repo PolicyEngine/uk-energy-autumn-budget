@@ -51,6 +51,17 @@ from .config import (
     NEW_TDCV,
     TDCV_ELEC_KWH,
     TDCV_GAS_KWH,
+    quarter_shares,
+)
+from .losses import (
+    HIGH_SHARE,
+    MIN_RECORDS,
+    WORSE_OFF_GBP,
+    quarter_bill,
+    remaining_losses,
+    tenure_group,
+    use_quintiles,
+    weighted_quantile,
 )
 from .prices import HELD_QUARTERS, year_quarters
 
@@ -475,6 +486,144 @@ def _vat_reconciliation(sim, year, fc, kwh, connected, is_ni, w):
     }
 
 
+def _jan_mar(year, kwh, connected, is_ni):
+    """January-March bills at the year's prices and at April-June 2026 rates."""
+    gb_q, ni_q = (
+        _quarters(year, False, BASELINE_LAW),
+        _quarters(year, True, BASELINE_LAW),
+    )
+    bill = 0.0
+    ref = 0.0
+    for f in FUELS:
+        share = quarter_shares(f)[3]
+        gb = quarter_bill(kwh[f], connected[f], gb_q[f][3], share)
+        ni = quarter_bill(kwh[f], connected[f], ni_q[f][3], share)
+        bill = bill + np.where(is_ni, ni, gb)
+        ref = ref + quarter_bill(kwh[f], connected[f], HELD_QUARTERS[f][3], share)
+    return bill, ref
+
+
+def _remaining_losses(
+    base,
+    year,
+    w,
+    hit,
+    hep,
+    bill,
+    decile,
+    hh_type,
+    types,
+    region_arr,
+    regions,
+    kwh,
+    connected,
+    is_ni,
+    supports,
+):
+    """Remaining losses after support, energy-cost shares and Jan-Mar spending."""
+    income_ahc = _arr(base, "hbai_household_net_income_ahc", year)
+    whd = _arr(base, "warm_home_discount", year)
+    disability = (
+        sum(
+            _arr(base, v, year, map_to="household")
+            for v in ("pip", "dla", "attendance_allowance")
+        )
+        > 0
+    )
+    tenure = tenure_group(
+        pd.Series(_arr(base, "tenure_type", year)).astype(str).to_numpy()
+    )
+    use_q = use_quintiles(kwh["elec"] + kwh["gas"], w)
+    groups = {
+        "decile": decile.astype(int).astype(str),
+        "hh_type": np.asarray(hh_type).astype(str),
+        "region": region_arr,
+        "disability": np.where(
+            disability, "Receives a disability benefit", "No disability benefit"
+        ),
+        "tenure": tenure,
+        "energy_use": np.char.add("Quintile ", use_q.astype(str)),
+        "heating": np.where(connected["gas"], "Mains gas", "No mains gas"),
+    }
+    order = {
+        "decile": [str(d) for d in range(1, 11)],
+        "hh_type": types,
+        "region": regions,
+        "disability": ["Receives a disability benefit", "No disability benefit"],
+        "tenure": [
+            "Owned outright",
+            "Owned with a mortgage",
+            "Social rent",
+            "Private rent",
+            "Other",
+        ],
+        "energy_use": [f"Quintile {q}" for q in range(1, 6)],
+        "heating": ["Mains gas", "No mains gas"],
+    }
+    scenarios = remaining_losses(
+        hit, hep, bill, hep + whd, income_ahc, w, groups, order, supports
+    )
+    jm_bill, jm_ref = _jan_mar(year, kwh, connected, is_ni)
+    jm_hit = jm_bill - jm_ref
+
+    def jan_mar(mask):
+        ww = w * mask
+        total = float(np.sum(ww))
+        fy_hit = float(np.sum(hit * ww))
+        return {
+            "mean_bill": round(float(np.sum(jm_bill * ww)) / total),
+            "mean_extra_cost": round(float(np.sum(jm_hit * ww)) / total),
+            "total_extra_cost_bn": round(float(np.sum(jm_hit * ww)) / 1e9, 2),
+            "share_of_year_extra_cost_pct": round(
+                float(np.sum(jm_hit * ww)) / fy_hit * 100, 1
+            )
+            if fy_hit
+            else None,
+            "median_extra_cost": round(weighted_quantile(jm_hit[mask], w[mask], 0.5))
+            if int(np.sum(mask)) >= MIN_RECORDS
+            else None,
+        }
+
+    all_hh = np.ones_like(w, dtype=bool)
+    return {
+        "definitions": {
+            "reference": (
+                "The same household's energy use priced for a whole year at "
+                "April-June 2026 cap rates."
+            ),
+            "remaining_loss": (
+                "Price rise against the reference, minus new support: the "
+                "Household Energy Payment in the baseline, plus the option's "
+                "support (cash or bill cut, pound for pound)."
+            ),
+            "worse_off_threshold_gbp": WORSE_OFF_GBP,
+            "energy_cost_share": (
+                "Bill minus energy support (Household Energy Payment, Warm Home "
+                "Discount, the option's support) over HBAI income after housing "
+                "costs minus the energy support counted in it."
+            ),
+            "high_share_threshold_pct": HIGH_SHARE * 100,
+            "min_records_for_medians": MIN_RECORDS,
+        },
+        "data_support": {
+            name: {g: int(np.sum(np.asarray(labels) == g)) for g in order[name]}
+            for name, labels in groups.items()
+        },
+        "scenarios": scenarios,
+        "jan_mar": {
+            "all": jan_mar(all_hh),
+            "by": {
+                name: {
+                    g: jan_mar(np.asarray(labels) == g)
+                    for g in order[name]
+                    if np.any(np.asarray(labels) == g)
+                }
+                for name, labels in groups.items()
+            },
+        },
+    }
+
+
 def run_budget_options(data):
     """Score the Budget measures and every option against each year's baseline."""
     kwh = {"elec": data["elec_kwh"], "gas": data["gas_kwh"]}
@@ -610,9 +759,11 @@ def run_budget_options(data):
 
         # ── Further options, against the post-Budget baseline ──
         rows = {}
+        supports = {}
         for key, p in _policies(year).items():
             ref = _sim(year, elec, gas, p.get("params"), p.get("scenario"))
             support = _arr(ref, "household_net_income", year) - base_net
+            supports[key] = support
             vat_change[key] = _vat_change_gbp(ref, year, w)
             rows[key] = summarise(
                 p["label"],
@@ -631,6 +782,7 @@ def run_budget_options(data):
             year, fc, held, kwh, connected, is_ni
         ).items():
             meta = ANALYTIC_OPTIONS[key]
+            supports[key] = support
             rows[key] = summarise(meta["label"], support, note=meta["note"])
             if key == "remove_levies":
                 rows[key]["bill_cut_pct"] = round(levy_share() * 100, 1)
@@ -638,6 +790,24 @@ def run_budget_options(data):
 
         if max(vat_change.values()) > 1.0:
             raise AssertionError(f"policyengine-uk VAT reached income: {vat_change}")
+
+        losses = _remaining_losses(
+            base,
+            year,
+            w,
+            hit,
+            hep,
+            elec + gas,
+            decile,
+            hh_type,
+            types,
+            region_arr,
+            regions,
+            kwh,
+            connected,
+            is_ni,
+            {k: supports[k] for k in OPTION_ORDER if k in supports},
+        )
 
         zero_kwh = {
             f: round(
@@ -715,6 +885,7 @@ def run_budget_options(data):
             },
             "budget_measures": measures,
             "options": rows,
+            "remaining_losses": losses,
             "validation": {
                 "household_energy_payment": hep_check,
                 "vat_change_abs_gbp_by_simulation": {

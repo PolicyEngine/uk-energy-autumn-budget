@@ -9,6 +9,7 @@ import years from "../data/years.json";
 import budgetMeasures from "../data/budget_measures.json";
 import validation from "../data/validation.json";
 import { resolvePolicySelection, yearsForOption } from "../lib/policySelection";
+import RemainingLossesSection from "./RemainingLosses";
 import "./Dashboard.css";
 
 const YEAR_OPTIONS = [
@@ -1166,6 +1167,15 @@ export default function Dashboard() {
         {activeTab === "households" && (
           <div className="tab-content">
             <HouseholdSection fy={fy} setFy={setFy} sel={sel} setOpt={setOpt} />
+            <hr className="section-divider" />
+            <RemainingLossesSection
+              fy={fy}
+              setFy={setFy}
+              sel={sel}
+              setOpt={setOpt}
+              optionName={policyName(sel.id)}
+              ui={{ ColumnChart, ExpandablePillRow, YearOptionPills, MoreDetail, Legend, ChartValuesTable, FallbackNote }}
+            />
           </div>
         )}
         {activeTab === "methodology" && <MethodologySection />}

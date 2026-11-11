@@ -385,6 +385,7 @@ def write_tables(r):
             for k, o in v["options"].items():
                 row[k] = o["by_hh_type"][t]
             hh.append(row)
+    _dump(losses_table(r), OUT / "losses.json")
     notes = build_notes(r)
     for name, data in [
         ("years", yrs),
@@ -416,6 +417,49 @@ def write_tables(r):
             ]
         }
     )
+
+
+def _group_label(breakdown, g):
+    if breakdown == "region":
+        return REGION_LABELS.get(g, g)
+    if breakdown == "hh_type":
+        return HH_TYPE_LABELS.get(g, g.replace("_", " ").capitalize())
+    return g
+
+
+def losses_table(r):
+    """Remaining losses by year, scenario and breakdown, with display labels."""
+    out = {"years": {}}
+    for fy, v in _years(r).items():
+        rl = v["remaining_losses"]
+        out["definitions"] = rl["definitions"]
+        out["years"][fy] = {
+            "scenarios": {
+                key: {
+                    **{k: val for k, val in sc.items() if k != "by"},
+                    "by": {
+                        name: [
+                            {"group": _group_label(name, g), **stats}
+                            for g, stats in groups.items()
+                        ]
+                        for name, groups in sc["by"].items()
+                    },
+                }
+                for key, sc in rl["scenarios"].items()
+            },
+            "jan_mar": {
+                "all": rl["jan_mar"]["all"],
+                "by": {
+                    name: [
+                        {"group": _group_label(name, g), **stats}
+                        for g, stats in groups.items()
+                    ]
+                    for name, groups in rl["jan_mar"]["by"].items()
+                },
+            },
+            "data_support": rl["data_support"],
+        }
+    return out
 
 
 def _years(r):
@@ -574,6 +618,26 @@ def build_notes(r):
             "topic": "Poverty",
             "detail": "Relative poverty: people in households below 60% of median equivalised HBAI income (PolicyEngine UK in_relative_poverty_bhc/ahc, the DWP headline measure). Absolute poverty (in_poverty_*, a fixed FYE 2025 line) is also exported. Child rates (child_*) are under-18 rates (age < 18), not DWP's dependent-child cohort, which includes some 16-19-year-olds in full-time non-advanced education. HBAI income counts the Household Energy Payment, the Warm Home Discount and (as DWP did for the 2022 Energy Bills Support Scheme) the £400 credit, so they move poverty; the RF discount is counted the same way by assumption. Price cuts (VAT, cap freeze, levies) lower bills rather than raise income, so they do not move HBAI poverty.",
             "link": "https://www.gov.uk/government/statistics/households-below-average-income-for-financial-years-ending-1995-to-2025/households-below-average-income-background-information-and-methodology-report-fye-2025",
+        },
+        {
+            "id": "remaining_losses",
+            "topic": "Remaining losses",
+            "detail": (
+                "Each household's remaining loss is its price rise against a whole year at "
+                "April–June 2026 cap rates, minus new support: the Household Energy Payment "
+                "in the baseline (the VAT extension is already in its bills), plus the "
+                "option's support. Cash payments and bill cuts count pound for pound. A "
+                "household is still worse off when the loss is at least £1. The energy cost "
+                "share is the bill minus energy support (Household Energy Payment, Warm Home "
+                "Discount, the option's support) over HBAI income after housing costs minus "
+                "the energy support counted in it; households with no positive income after "
+                "housing costs have no share and are reported separately. Disability "
+                "benefits: anyone in the household receives PIP, DLA or Attendance "
+                "Allowance. Medians and percentiles are suppressed for groups with fewer "
+                "than 100 survey records. January–March figures are spending in that "
+                "quarter at seasonal use; payments are annual and are not split by quarter."
+            ),
+            "link": "https://github.com/PolicyEngine/uk-energy-autumn-budget/issues/11",
         },
         {
             "id": "deciles",

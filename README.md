@@ -50,6 +50,19 @@ The payment is £0 in 2027-28 and the VAT extension changes nothing in 2026-27 (
 
 All are scored against the post-Budget baseline. The first four are PolicyEngine reforms; the last three are price cuts costed from each household's bill. Poverty is PolicyEngine's HBAI relative measure: the WHD top-up counts as income (as DWP treats the Warm Home Discount), as does the £400 credit (policyengine-uk 2.174.1 follows DWP's treatment of the 2022 Energy Bills Support Scheme), and the RF discount is counted the same way by assumption; price cuts do not move it.
 
+## Remaining losses after support
+
+`src/energy_budget/losses.py` and `src/data/losses.json` (issue #11, section B), for the baseline and every option:
+
+- **Reference period.** Each financial year against the same household's energy use priced for a whole year at April–June 2026 cap rates (the dashboard's price rise).
+- **Remaining loss.** Price rise minus new support: the Household Energy Payment in the baseline (the VAT extension is already in its bills), plus the option's support. Cash payments and bill cuts count pound for pound. Still worse off: a remaining loss of at least £1. The £150 Warm Home Discount was paid in both periods, so it does not enter the loss.
+- **Outputs.** Number and share still worse off; median and mean remaining loss; the 50th, 75th, 90th and 95th percentiles among the worse-off; the share in each loss band.
+- **Energy cost share.** Bill minus energy support (Household Energy Payment, Warm Home Discount, the option's support) over HBAI income after housing costs (`hbai_household_net_income_ahc`) minus the energy support counted in it, so a payment and an equal bill cut give the same share. High share: above 10%. Households with no positive income after housing costs have no share and are counted separately.
+- **Breakdowns.** Income decile, household type, region, disability benefits (anyone receives PIP, DLA or Attendance Allowance), tenure, quintile of total kWh, and mains gas or not. Medians and percentiles are left out for groups with fewer than 100 survey records; `data_support` gives the record counts.
+- **January–March.** Spending in the winter quarter at seasonal use, against the same quarter at April–June 2026 rates, next to its share of the year's rise. Payments are annual and are not split by quarter.
+
+HBAI poverty stays a separate measure.
+
 ## Limitations
 
 - Every household is modelled on the capped variable tariff. Around 35% of households are on fixed tariffs and will not see the October 2026 cap rise ([Ofgem](https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026)); tariff type, payment method and contract expiry are not modelled, and no correction is inferred from the 35% share.
