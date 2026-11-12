@@ -645,27 +645,16 @@ function WhdSensitivities({ fy }) {
   const o = optionRow(fy, "whd_top_up");
   if (!o?.sensitivities) return null;
   return (
-    <div className="chart-values-scroll">
-      <table className="scenario-table">
-        <caption className="sr-only">Warm Home Discount top-up: caseload and take-up sensitivities, {fy}</caption>
-        <thead>
-          <tr>
-            <th scope="col">Assumption ({fy})</th>
-            <th scope="col" className="num">Households receiving</th>
-            <th scope="col" className="num">Cost</th>
-          </tr>
-        </thead>
-        <tbody>
-          {o.sensitivities.map((r) => (
-            <tr key={r.label}>
-              <th scope="row">{r.label}</th>
-              <td className="num">{r.recipients_m.toFixed(1)}m</td>
-              <td className="num">£{r.cost_bn.toFixed(2)}bn</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+      <p style={{ margin: "0 0 6px" }}>Households receiving the top-up and its cost in {fy} under each assumption:</p>
+      <ul style={{ margin: 0, paddingLeft: 18, listStyle: "disc" }}>
+        {o.sensitivities.map((r) => (
+          <li key={r.label}>
+            {r.label}: <strong>{r.recipients_m.toFixed(1)}m</strong>, £{r.cost_bn.toFixed(2)}bn
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
