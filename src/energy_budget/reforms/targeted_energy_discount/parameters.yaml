@@ -68,6 +68,23 @@ passport:
           href: https://assets.publishing.service.gov.uk/media/67bda7d4b0d253f92e213c25/expanding-the-warm-home-discount-scheme-2025-to-2026.pdf
         - title: GOV.UK, Warm Home Discount Scheme, eligibility in England and Wales (winter 2026 to 2027)
           href: https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales
+  scotland_core_group_only:
+    description: >-
+      In Scotland, passport only households in the Warm Home Discount's core group,
+      which receives the rebate without applying: Pension Credit; Universal Credit
+      with an extra amount for a disability or health condition (the LCWRA or
+      disabled child elements); income-related ESA with a disability premium; or
+      a child under 5 in the family together with Universal Credit and no earnings,
+      or income-related ESA. Support for Mortgage Interest routes are not modelled.
+      The broader group, which applies to a supplier under supplier-set criteria,
+      is not passported. False applies the benefit list in Scotland as elsewhere.
+    values:
+      2000-01-01: false
+    metadata:
+      unit: bool
+      reference:
+        - title: GOV.UK, Warm Home Discount Scheme, if you live in Scotland (winter 2026 to 2027)
+          href: https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland
   assessed_income:
     description: >-
       Passported households are placed on the support schedule at the lower of their own
@@ -77,6 +94,36 @@ passport:
       2000-01-01: 0
     metadata:
       unit: currency-GBP
+receipt_rate:
+  description: >-
+    Share of passported households that actually receive the support. Passported
+    households are enrolled without a claim, but a Warm-Home-Discount-style payment
+    reaches only households matched to a supplier account with the claimant, partner
+    or appointee named on the bill. Defaults of 1 mean every passported household
+    receives it (RF's full take-up assumption). Households eligible only through the
+    income test are governed by claims_targeted_energy_discount instead.
+  pension_credit:
+    description: >-
+      Receipt rate for passported households where anyone receives Pension Credit.
+      DESNZ's delivery experience of the Warm Home Discount is around 85%.
+    values:
+      2000-01-01: 1
+    metadata:
+      unit: /1
+      reference:
+        - title: "DESNZ, Continuing the Warm Home Discount 2026-2031: final stage impact assessment (DESNZ002(F)-26-EAC, 30 January 2026), para. 40 (page 11) and Table 8"
+          href: https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11
+  other_benefits:
+    description: >-
+      Receipt rate for other passported households. DESNZ's delivery experience of the
+      Warm Home Discount is around 70%.
+    values:
+      2000-01-01: 1
+    metadata:
+      unit: /1
+      reference:
+        - title: "DESNZ, Continuing the Warm Home Discount 2026-2031: final stage impact assessment (DESNZ002(F)-26-EAC, 30 January 2026), para. 40 (page 11) and Table 8"
+          href: https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11
 income_test:
   in_effect:
     description: Households can qualify through the highest-individual-income test.

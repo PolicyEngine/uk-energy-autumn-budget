@@ -384,63 +384,129 @@
     ]
    },
    "whd_top_up": {
-    "label": "Warm Home Discount top-up (means-tested-household proxy): an extra \u00a3100 to GB households where anyone receives a listed means-tested benefit, paid from taxation",
-    "cost_bn": 0.76,
-    "avg_per_household": 26,
-    "share_receiving_pct": 26.0,
-    "recipients_m": 7.57,
-    "share_of_shock_offset_pct": 7.7,
+    "label": "Warm Home Discount top-up: an extra \u00a3100 to households that receive the rebate under the scheme's rules (England and Wales qualifying benefits, Scotland's core group), paid from taxation",
+    "cost_bn": 0.52,
+    "avg_per_household": 18,
+    "share_receiving_pct": 17.9,
+    "recipients_m": 5.2,
+    "share_of_shock_offset_pct": 5.3,
     "deciles": [
-     44,
-     45,
-     43,
-     37,
-     29,
-     21,
+     30,
+     30,
+     31,
+     27,
      19,
-     9,
-     4,
-     3
+     16,
+     13,
+     6,
+     3,
+     2
     ],
     "by_hh_type": {
-     "COUPLE_NO_CHILDREN": 5,
-     "COUPLE_PENSIONER": 5,
-     "COUPLE_WITH_CHILDREN": 16,
-     "LONE_PARENT": 87,
-     "MULTI_UNIT": 37,
-     "SINGLE_PENSIONER": 32,
-     "SINGLE_WORKING_AGE": 33
+     "COUPLE_NO_CHILDREN": 3,
+     "COUPLE_PENSIONER": 4,
+     "COUPLE_WITH_CHILDREN": 10,
+     "LONE_PARENT": 58,
+     "MULTI_UNIT": 25,
+     "SINGLE_PENSIONER": 24,
+     "SINGLE_WORKING_AGE": 23
     },
     "by_region": {
-     "EAST_MIDLANDS": 23,
-     "EAST_OF_ENGLAND": 23,
-     "LONDON": 32,
+     "EAST_MIDLANDS": 15,
+     "EAST_OF_ENGLAND": 16,
+     "LONDON": 25,
      "NORTHERN_IRELAND": 0,
-     "NORTH_EAST": 35,
-     "NORTH_WEST": 33,
-     "SCOTLAND": 24,
-     "SOUTH_EAST": 22,
-     "SOUTH_WEST": 22,
-     "WALES": 30,
-     "WEST_MIDLANDS": 28,
-     "YORKSHIRE": 27
+     "NORTH_EAST": 26,
+     "NORTH_WEST": 23,
+     "SCOTLAND": 10,
+     "SOUTH_EAST": 15,
+     "SOUTH_WEST": 15,
+     "WALES": 23,
+     "WEST_MIDLANDS": 17,
+     "YORKSHIRE": 20
     },
     "poverty": {
-     "bhc": 13.33,
-     "child_bhc": 17.14,
-     "absolute_bhc": 11.37,
-     "absolute_child_bhc": 14.19,
-     "ahc": 17.86,
-     "child_ahc": 25.21,
-     "absolute_ahc": 16.65,
-     "absolute_child_ahc": 23.37
+     "bhc": 13.38,
+     "child_bhc": 17.3,
+     "absolute_bhc": 11.38,
+     "absolute_child_bhc": 14.21,
+     "ahc": 17.88,
+     "child_ahc": 25.25,
+     "absolute_ahc": 16.68,
+     "absolute_child_ahc": 23.41
     },
-    "note": "Proxy for Warm Home Discount recipients: every GB household where any member receives Universal Credit, Pension Credit, Housing Benefit, income-related ESA, income-based JSA or Income Support during the year. The actual scheme also requires the qualifying date, a participating supplier and the claimant or partner named on the electricity account (England and Wales), and has core/broader groups with application conditions in Scotland. Modelled caseload 7.6m households against about 6m in official estimates.",
+    "note": "Eligible (7.3m households): in England and Wales, households where anyone receives Pension Credit, Universal Credit, Housing Benefit, income-related ESA (the scheme year's eligibility statement); in Scotland, the core group that receives the rebate without applying. Not every eligible household receives the rebate: the claimant or partner must be named on a participating supplier's electricity account and matched to DWP records. DESNZ's receipt rates are applied by policyengine-uk's seeded draw per household: 85% of households with Pension Credit and 70% of other eligible households (5.2m recipients, against about 6m in DESNZ's estimate for winter 2025/26).",
     "assumptions": null,
     "links": [
      "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",
-     "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland"
-    ]
+     "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland",
+     "https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11"
+    ],
+    "eligible_m": 7.3,
+    "eligible_pension_credit_m": 1.36,
+    "eligible_scotland_core_group_m": 0.34,
+    "scotland_on_qualifying_benefit_m": 0.61,
+    "scotland_core_group_records": 621,
+    "expected_recipients_m": 5.31,
+    "scheme_rules": {
+     "qualifying_benefits": [
+      "pension_credit",
+      "universal_credit",
+      "housing_benefit",
+      "esa_income"
+     ],
+     "rebate": 150.0,
+     "receipt_rate_pension_credit": 0.85,
+     "receipt_rate_other": 0.7
+    },
+    "sensitivities": [
+     {
+      "label": "Every eligible household receives it",
+      "recipients_m": 7.3,
+      "cost_bn": 0.73
+     },
+     {
+      "label": "Receipt rates (85% Pension Credit, 70% other), expected value",
+      "recipients_m": 5.31,
+      "cost_bn": 0.53
+     },
+     {
+      "label": "Receipt rates, seeded draw (central)",
+      "recipients_m": 5.2,
+      "cost_bn": 0.52
+     },
+     {
+      "label": "Other-benefits receipt rate 60% (impact assessment sensitivity), expected value",
+      "recipients_m": 4.72,
+      "cost_bn": 0.47
+     },
+     {
+      "label": "Other-benefits receipt rate 80% (impact assessment sensitivity), expected value",
+      "recipients_m": 5.91,
+      "cost_bn": 0.59
+     },
+     {
+      "label": "England and Wales only (no Scottish top-up)",
+      "recipients_m": 4.95,
+      "cost_bn": 0.49
+     },
+     {
+      "label": "Scotland: every household on a qualifying benefit, as if the broader group were paid like the core group",
+      "recipients_m": 5.4,
+      "cost_bn": 0.54
+     },
+     {
+      "label": "Caseload set to DESNZ's estimate of about 6m recipient households",
+      "recipients_m": 6.0,
+      "cost_bn": 0.6
+     }
+    ],
+    "check_against_model_rebate": {
+     "england_wales_rebate_recipients_m": 4.95,
+     "england_wales_top_up_recipients_m": 4.95,
+     "records_differ": 0,
+     "households_differ_m": 0.0
+    }
    },
    "cost_of_living_payment": {
     "label": "\u00a3300 Cost of Living Payment to households on means-tested benefits",
@@ -1029,63 +1095,129 @@
     ]
    },
    "whd_top_up": {
-    "label": "Warm Home Discount top-up (means-tested-household proxy): an extra \u00a3100 to GB households where anyone receives a listed means-tested benefit, paid from taxation",
-    "cost_bn": 0.76,
-    "avg_per_household": 26,
-    "share_receiving_pct": 26.0,
-    "recipients_m": 7.58,
-    "share_of_shock_offset_pct": 5.4,
+    "label": "Warm Home Discount top-up: an extra \u00a3100 to households that receive the rebate under the scheme's rules (England and Wales qualifying benefits, Scotland's core group), paid from taxation",
+    "cost_bn": 0.52,
+    "avg_per_household": 18,
+    "share_receiving_pct": 17.8,
+    "recipients_m": 5.2,
+    "share_of_shock_offset_pct": 3.7,
     "deciles": [
-     43,
-     44,
-     43,
-     39,
      29,
-     22,
-     19,
-     10,
-     4,
-     3
+     30,
+     31,
+     27,
+     20,
+     17,
+     12,
+     6,
+     3,
+     2
     ],
     "by_hh_type": {
-     "COUPLE_NO_CHILDREN": 5,
-     "COUPLE_PENSIONER": 6,
-     "COUPLE_WITH_CHILDREN": 16,
-     "LONE_PARENT": 87,
-     "MULTI_UNIT": 37,
-     "SINGLE_PENSIONER": 32,
-     "SINGLE_WORKING_AGE": 33
+     "COUPLE_NO_CHILDREN": 3,
+     "COUPLE_PENSIONER": 4,
+     "COUPLE_WITH_CHILDREN": 10,
+     "LONE_PARENT": 58,
+     "MULTI_UNIT": 25,
+     "SINGLE_PENSIONER": 24,
+     "SINGLE_WORKING_AGE": 23
     },
     "by_region": {
-     "EAST_MIDLANDS": 23,
-     "EAST_OF_ENGLAND": 23,
-     "LONDON": 32,
+     "EAST_MIDLANDS": 15,
+     "EAST_OF_ENGLAND": 16,
+     "LONDON": 25,
      "NORTHERN_IRELAND": 0,
-     "NORTH_EAST": 35,
-     "NORTH_WEST": 33,
-     "SCOTLAND": 24,
-     "SOUTH_EAST": 22,
-     "SOUTH_WEST": 22,
-     "WALES": 30,
-     "WEST_MIDLANDS": 29,
-     "YORKSHIRE": 27
+     "NORTH_EAST": 26,
+     "NORTH_WEST": 23,
+     "SCOTLAND": 10,
+     "SOUTH_EAST": 15,
+     "SOUTH_WEST": 15,
+     "WALES": 23,
+     "WEST_MIDLANDS": 18,
+     "YORKSHIRE": 20
     },
     "poverty": {
-     "bhc": 13.35,
-     "child_bhc": 16.77,
-     "absolute_bhc": 12.01,
-     "absolute_child_bhc": 14.73,
-     "ahc": 18.11,
-     "child_ahc": 25.36,
-     "absolute_ahc": 17.56,
-     "absolute_child_ahc": 24.35
+     "bhc": 13.36,
+     "child_bhc": 16.81,
+     "absolute_bhc": 12.02,
+     "absolute_child_bhc": 14.76,
+     "ahc": 18.14,
+     "child_ahc": 25.39,
+     "absolute_ahc": 17.59,
+     "absolute_child_ahc": 24.4
     },
-    "note": "Proxy for Warm Home Discount recipients: every GB household where any member receives Universal Credit, Pension Credit, Housing Benefit, income-related ESA, income-based JSA or Income Support during the year. The actual scheme also requires the qualifying date, a participating supplier and the claimant or partner named on the electricity account (England and Wales), and has core/broader groups with application conditions in Scotland. Modelled caseload 7.6m households against about 6m in official estimates.",
+    "note": "Eligible (7.3m households): in England and Wales, households where anyone receives Pension Credit, Universal Credit, Housing Benefit, income-related ESA (the scheme year's eligibility statement); in Scotland, the core group that receives the rebate without applying. Not every eligible household receives the rebate: the claimant or partner must be named on a participating supplier's electricity account and matched to DWP records. DESNZ's receipt rates are applied by policyengine-uk's seeded draw per household: 85% of households with Pension Credit and 70% of other eligible households (5.2m recipients, against about 6m in DESNZ's estimate for winter 2025/26).",
     "assumptions": null,
     "links": [
      "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",
-     "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland"
-    ]
+     "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland",
+     "https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11"
+    ],
+    "eligible_m": 7.3,
+    "eligible_pension_credit_m": 1.34,
+    "eligible_scotland_core_group_m": 0.34,
+    "scotland_on_qualifying_benefit_m": 0.61,
+    "scotland_core_group_records": 619,
+    "expected_recipients_m": 5.31,
+    "scheme_rules": {
+     "qualifying_benefits": [
+      "pension_credit",
+      "universal_credit",
+      "housing_benefit",
+      "esa_income"
+     ],
+     "rebate": 150.0,
+     "receipt_rate_pension_credit": 0.85,
+     "receipt_rate_other": 0.7
+    },
+    "sensitivities": [
+     {
+      "label": "Every eligible household receives it",
+      "recipients_m": 7.3,
+      "cost_bn": 0.73
+     },
+     {
+      "label": "Receipt rates (85% Pension Credit, 70% other), expected value",
+      "recipients_m": 5.31,
+      "cost_bn": 0.53
+     },
+     {
+      "label": "Receipt rates, seeded draw (central)",
+      "recipients_m": 5.2,
+      "cost_bn": 0.52
+     },
+     {
+      "label": "Other-benefits receipt rate 60% (impact assessment sensitivity), expected value",
+      "recipients_m": 4.71,
+      "cost_bn": 0.47
+     },
+     {
+      "label": "Other-benefits receipt rate 80% (impact assessment sensitivity), expected value",
+      "recipients_m": 5.91,
+      "cost_bn": 0.59
+     },
+     {
+      "label": "England and Wales only (no Scottish top-up)",
+      "recipients_m": 4.95,
+      "cost_bn": 0.49
+     },
+     {
+      "label": "Scotland: every household on a qualifying benefit, as if the broader group were paid like the core group",
+      "recipients_m": 5.4,
+      "cost_bn": 0.54
+     },
+     {
+      "label": "Caseload set to DESNZ's estimate of about 6m recipient households",
+      "recipients_m": 6.0,
+      "cost_bn": 0.6
+     }
+    ],
+    "check_against_model_rebate": {
+     "england_wales_rebate_recipients_m": 4.95,
+     "england_wales_top_up_recipients_m": 4.95,
+     "records_differ": 0,
+     "households_differ_m": 0.0
+    }
    },
    "cost_of_living_payment": {
     "label": "\u00a3300 Cost of Living Payment to households on means-tested benefits",

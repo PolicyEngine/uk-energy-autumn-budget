@@ -35,6 +35,7 @@ income.
 
 from __future__ import annotations
 
+import functools
 import gc
 
 import numpy as np
@@ -75,6 +76,25 @@ TARIFF_NOTE_LINK = (
 )
 
 WHD_OFFICIAL_HOUSEHOLDS_M = 6.0
+# Warm Home Discount receipt rates: around 85% of Pension Credit households and
+# 70% of other qualifying households go on to receive the rebate (DESNZ,
+# Continuing the Warm Home Discount 2026-2031: final stage impact assessment,
+# DESNZ002(F)-26-EAC, 30 January 2026, para. 40, p. 11; Table 8 applies the
+# same rates to Scotland). Drawn per household with the same hash as
+# policyengine-uk#2616.
+WHD_RECEIPT_RATE_PENSION_CREDIT = 0.85
+WHD_RECEIPT_RATE_OTHER = 0.70
+# The impact assessment's low and high sensitivities for the other-benefits
+# rate (para. 105, Table 13).
+WHD_OTHER_RATE_SENSITIVITIES = (0.60, 0.80)
+WHD_IA_SENSITIVITY_LINK = (
+    "https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/"
+    "continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=29"
+)
+WHD_IA_LINK = (
+    "https://assets.publishing.service.gov.uk/media/6978a8b51c24881f40a4d675/"
+    "continuing-the-warm-home-discount-scheme-impact-assessment.pdf#page=11"
+)
 WHD_LINKS = [
     "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-england-and-wales",
     "https://www.gov.uk/the-warm-home-discount-scheme/if-you-live-in-scotland",
@@ -182,7 +202,6 @@ def _policies(year):
     from energy_budget.reforms.targeted_energy_discount.presets import PRESETS
     from energy_budget.reforms.targeted_energy_discount.reform import scenario
 
-    tp = "gov.contrib.targeted_energy_discount"
     return {
         "rf_targeted_discount": {
             "label": (
@@ -202,18 +221,12 @@ def _policies(year):
             # Reported Treasury plan: £150 to £250, taxpayer-funded, about
             # £600m for 6m households (FT, 11 Oct 2026; Guardian, 6 Oct 2026).
             "label": (
-                "Warm Home Discount top-up (means-tested-household proxy): an extra "
-                f"£{WHD_TOP_UP} to GB households where anyone receives a listed "
-                "means-tested benefit, paid from taxation"
+                f"Warm Home Discount top-up: an extra £{WHD_TOP_UP} to households that "
+                "receive the rebate under the scheme's rules (England and Wales "
+                "qualifying benefits, Scotland's core group), paid from taxation"
             ),
-            "scenario": scenario(
-                {
-                    **PRESETS["passport_only"],
-                    f"{tp}.amount[0].amount": WHD_TOP_UP,
-                    f"{tp}.amount[1].amount": WHD_TOP_UP,
-                }
-            ),
-            "links": WHD_LINKS,
+            "scenario": scenario(whd_top_up_changes(year)),
+            "links": [*WHD_LINKS, WHD_IA_LINK],
         },
         "cost_of_living_payment": {
             "label": "£300 Cost of Living Payment to households on means-tested benefits",
@@ -232,16 +245,128 @@ def _policies(year):
     }
 
 
-def _whd_note(recipients_m):
+@functools.cache
+def whd_scheme(year):
+    """The Warm Home Discount's rules for a scheme year, from policyengine-uk.
+
+    Read at 1 April of the scheme year (the eligibility statement's start):
+    the England and Wales qualifying benefits, the rebate and DESNZ's receipt
+    rates. The model calculates no Scottish scheme.
+    """
+    from policyengine_uk import CountryTaxBenefitSystem
+
+    p = CountryTaxBenefitSystem().parameters.gov.ofgem.warm_home_discount
+    at = f"{year}-04-01"
+    return {
+        "qualifying_benefits": list(p.qualifying_benefits(at)),
+        "rebate": float(p.amount(at)),
+        "receipt_rate_pension_credit": float(p.receipt_rate.pension_credit(at)),
+        "receipt_rate_other": float(p.receipt_rate.other_benefits(at)),
+    }
+
+
+def whd_top_up_changes(year):
+    """Reform changes for the top-up: the scheme's eligibility and receipt rates."""
+    from energy_budget.reforms.targeted_energy_discount.presets import PRESETS
+
+    tp = "gov.contrib.targeted_energy_discount"
+    rules = whd_scheme(year)
+    return {
+        **PRESETS["passport_only"],
+        f"{tp}.amount[0].amount": WHD_TOP_UP,
+        f"{tp}.amount[1].amount": WHD_TOP_UP,
+        f"{tp}.passport.benefits": rules["qualifying_benefits"],
+        f"{tp}.passport.scotland_core_group_only": True,
+        f"{tp}.receipt_rate.pension_credit": rules["receipt_rate_pension_credit"],
+        f"{tp}.receipt_rate.other_benefits": rules["receipt_rate_other"],
+    }
+
+
+def whd_sensitivities(w, eligible, pc, draw, scotland, scotland_list, rules):
+    """Caseload and take-up sensitivities for the top-up, in households and £bn.
+
+    ``eligible`` is the central eligibility (England and Wales qualifying
+    benefits, Scotland's core group); ``scotland_list`` marks Scottish
+    households on a qualifying benefit, for the broader-group variant.
+    Expected values use the rates directly; drawn values use the seeded draw.
+    """
+    rate_pc = rules["receipt_rate_pension_credit"]
+    rate_other = rules["receipt_rate_other"]
+
+    def row(label, recipients):
+        m = float(np.sum(recipients * w)) / 1e6
+        return {
+            "label": label,
+            "recipients_m": round(m, 2),
+            "cost_bn": round(m * WHD_TOP_UP / 1e3, 2),
+        }
+
+    def expected(elig, other=rate_other):
+        return elig * np.where(pc, rate_pc, other)
+
+    def drawn(elig, other=rate_other):
+        return elig & (draw < np.where(pc, rate_pc, other))
+
+    rows = [
+        row("Every eligible household receives it", eligible.astype(float)),
+        row(
+            f"Receipt rates ({rate_pc:.0%} Pension Credit, {rate_other:.0%} other), "
+            "expected value",
+            expected(eligible),
+        ),
+        row("Receipt rates, seeded draw (central)", drawn(eligible)),
+    ]
+    for other in WHD_OTHER_RATE_SENSITIVITIES:
+        rows.append(
+            row(
+                f"Other-benefits receipt rate {other:.0%} (impact assessment "
+                "sensitivity), expected value",
+                expected(eligible, other),
+            )
+        )
+    rows += [
+        row("England and Wales only (no Scottish top-up)", drawn(eligible & ~scotland)),
+        row(
+            "Scotland: every household on a qualifying benefit, as if the broader "
+            "group were paid like the core group",
+            drawn(eligible | (scotland & scotland_list)),
+        ),
+    ]
+    rows.append(
+        {
+            "label": (
+                f"Caseload set to DESNZ's estimate of about "
+                f"{WHD_OFFICIAL_HOUSEHOLDS_M:.0f}m recipient households"
+            ),
+            "recipients_m": WHD_OFFICIAL_HOUSEHOLDS_M,
+            "cost_bn": round(WHD_OFFICIAL_HOUSEHOLDS_M * WHD_TOP_UP / 1e3, 2),
+        }
+    )
+    return rows
+
+
+def _whd_note(o, rules):
+    benefits = {
+        "pension_credit": "Pension Credit",
+        "universal_credit": "Universal Credit",
+        "housing_benefit": "Housing Benefit",
+        "esa_income": "income-related ESA",
+        "jsa_income": "income-based JSA",
+        "income_support": "Income Support",
+    }
+    listed = ", ".join(benefits.get(b, b) for b in rules["qualifying_benefits"])
     return (
-        "Proxy for Warm Home Discount recipients: every GB household where any member "
-        "receives Universal Credit, Pension Credit, Housing Benefit, income-related ESA, "
-        "income-based JSA or Income Support during the year. The actual scheme also "
-        "requires the qualifying date, a participating supplier and the claimant or "
-        "partner named on the electricity account (England and Wales), and has "
-        "core/broader groups with application conditions in Scotland. Modelled "
-        f"caseload {recipients_m:.1f}m households against about "
-        f"{WHD_OFFICIAL_HOUSEHOLDS_M:.0f}m in official estimates."
+        f"Eligible ({o['eligible_m']:.1f}m households): in England and Wales, "
+        f"households where anyone receives {listed} (the scheme year's "
+        "eligibility statement); in Scotland, the core group that receives the "
+        "rebate without applying. Not every eligible household receives the "
+        "rebate: the claimant or partner must be named on a participating "
+        "supplier's electricity account and matched to DWP records. DESNZ's "
+        "receipt rates are applied by policyengine-uk's seeded draw per household: "
+        f"{rules['receipt_rate_pension_credit']:.0%} of households with Pension "
+        f"Credit and {rules['receipt_rate_other']:.0%} of other eligible households "
+        f"({o['recipients_m']:.1f}m recipients, against about "
+        f"{WHD_OFFICIAL_HOUSEHOLDS_M:.0f}m in DESNZ's estimate for winter 2025/26)."
     )
 
 
@@ -475,6 +600,56 @@ def _vat_reconciliation(sim, year, fc, kwh, connected, is_ni, w):
     }
 
 
+def _whd_details(ref, base, year, w, support, region_arr):
+    """Caseload, sensitivities and the check against the model's own rebate."""
+    rules = whd_scheme(year)
+    eligible = _arr(ref, "targeted_energy_discount_eligible", year)
+    pc = _arr(ref, "pension_credit", year, map_to="household") > 0
+    draw = _arr(ref, "warm_home_discount_random_draw", year)
+    scotland = region_arr == "SCOTLAND"
+    scotland_list = (
+        sum(
+            _arr(ref, b, year, map_to="household") for b in rules["qualifying_benefits"]
+        )
+        > 0
+    )
+    core = _arr(ref, "targeted_energy_discount_scotland_core_group", year)
+    rate = np.where(
+        pc, rules["receipt_rate_pension_credit"], rules["receipt_rate_other"]
+    )
+    # The top-up should reach exactly the households the model gives the
+    # £150 rebate in England and Wales: same benefits, rates and draw.
+    rebate = _arr(base, "warm_home_discount", year)
+    ew = ~scotland & (region_arr != "NORTHERN_IRELAND")
+    differ = ew & ((support > 0) != (rebate > 0))
+    return {
+        "eligible_m": round(float(np.sum(eligible * w)) / 1e6, 2),
+        "eligible_pension_credit_m": round(float(np.sum((eligible & pc) * w)) / 1e6, 2),
+        "eligible_scotland_core_group_m": round(
+            float(np.sum((eligible & scotland) * w)) / 1e6, 2
+        ),
+        "scotland_on_qualifying_benefit_m": round(
+            float(np.sum((scotland & scotland_list) * w)) / 1e6, 2
+        ),
+        "scotland_core_group_records": int(np.sum(scotland & core)),
+        "expected_recipients_m": round(float(np.sum(eligible * rate * w)) / 1e6, 2),
+        "scheme_rules": rules,
+        "sensitivities": whd_sensitivities(
+            w, eligible, pc, draw, scotland, scotland_list, rules
+        ),
+        "check_against_model_rebate": {
+            "england_wales_rebate_recipients_m": round(
+                float(np.sum((ew & (rebate > 0)) * w)) / 1e6, 2
+            ),
+            "england_wales_top_up_recipients_m": round(
+                float(np.sum((ew & (support > 0)) * w)) / 1e6, 2
+            ),
+            "records_differ": int(np.sum(differ)),
+            "households_differ_m": round(float(np.sum(differ * w)) / 1e6, 3),
+        },
+    }
+
+
 def run_budget_options(data):
     """Score the Budget measures and every option against each year's baseline."""
     kwh = {"elec": data["elec_kwh"], "gas": data["gas_kwh"]}
@@ -622,10 +797,12 @@ def run_budget_options(data):
                 assumptions=p.get("assumptions"),
                 links=p.get("links"),
             )
+            if key == "whd_top_up":
+                rows[key].update(_whd_details(ref, base, year, w, support, region_arr))
             del ref
             gc.collect()
         whd = rows["whd_top_up"]
-        whd["note"] = _whd_note(whd["recipients_m"])
+        whd["note"] = _whd_note(whd, whd_scheme(year))
 
         for key, support in analytic_supports(
             year, fc, held, kwh, connected, is_ni

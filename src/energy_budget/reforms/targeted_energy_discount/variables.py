@@ -111,6 +111,37 @@ class targeted_energy_discount_tested_income(Variable):
         return household("targeted_energy_discount_highest_income", period)
 
 
+class targeted_energy_discount_scotland_core_group(Variable):
+    label = "Household is in the Scottish Warm Home Discount core group"
+    documentation = (
+        "Someone in the household receives Pension Credit; Universal Credit with a "
+        "disability or health condition element (LCWRA or a disabled child element); "
+        "income-related ESA with a disability premium; or has a child under 5 in the "
+        "family and receives Universal Credit with no earnings, or income-related ESA. "
+        "Support for Mortgage Interest routes are not modelled (GOV.UK, the Warm Home "
+        "Discount Scheme: if you live in Scotland, winter 2026 to 2027)."
+    )
+    entity = Household
+    definition_period = YEAR
+    value_type = bool
+
+    def formula(household, period, parameters):
+        benunit = household.simulation.populations["benunit"]
+        pc = benunit("pension_credit", period) > 0
+        uc = benunit("universal_credit", period) > 0
+        esa = benunit("esa_income", period) > 0
+        uc_disability = uc & (benunit("uc_disability_elements", period) > 0)
+        esa_disability = esa & (benunit("disability_premium", period) > 0)
+        child_under_5 = benunit.any(benunit.members("age", period) < 5)
+        earnings = benunit.sum(
+            benunit.members("employment_income", period)
+            + benunit.members("self_employment_income", period)
+        )
+        young_child = child_under_5 & ((uc & (earnings <= 0)) | esa)
+        in_group = pc | uc_disability | esa_disability | young_child
+        return household.any(benunit.project(in_group))
+
+
 class targeted_energy_discount_passported(Variable):
     label = (
         "Household receives a benefit that passports it to the targeted energy discount"
@@ -123,7 +154,13 @@ class targeted_energy_discount_passported(Variable):
         p = _params(period, parameters).passport
         if not p.in_effect:
             return household.empty_array() > 0
-        return add(household, period, p.benefits) > 0
+        on_list = add(household, period, p.benefits) > 0
+        if not p.scotland_core_group_only:
+            return on_list
+        region = household("region", period)
+        scotland = region == region.possible_values.SCOTLAND
+        core = household("targeted_energy_discount_scotland_core_group", period)
+        return where(scotland, core, on_list)
 
 
 class targeted_energy_discount_assessed_income(Variable):
@@ -175,6 +212,42 @@ class targeted_energy_discount_eligible(Variable):
         return in_scope & (passported | income_route)
 
 
+class targeted_energy_discount_receipt_draw(Variable):
+    label = "Targeted energy discount receipt random draw"
+    documentation = (
+        "Uniform draw on [0, 1) that decides whether a passported household receives "
+        "the support. It is policyengine-uk's warm_home_discount_random_draw "
+        "(splitmix64 of the household id with salt 2 in simulations built from data, "
+        "0 in household situations), so a Warm-Home-Discount-style top-up reaches the "
+        "same households as the model's Warm Home Discount at the same rates."
+    )
+    entity = Household
+    definition_period = YEAR
+    value_type = float
+    default_value = 0.0
+
+    def formula(household, period, parameters):
+        return household("warm_home_discount_random_draw", period)
+
+
+class receives_targeted_energy_discount_if_passported(Variable):
+    label = "Passported household receives the targeted energy discount"
+    documentation = (
+        "The household's receipt draw is below its group's receipt rate: the Pension "
+        "Credit rate if anyone in the household receives Pension Credit, otherwise the "
+        "rate for other passporting benefits (DESNZ's Warm Home Discount groups)."
+    )
+    entity = Household
+    definition_period = YEAR
+    value_type = bool
+
+    def formula(household, period, parameters):
+        p = _params(period, parameters).receipt_rate
+        receives_pension_credit = add(household, period, ["pension_credit"]) > 0
+        rate = where(receives_pension_credit, p.pension_credit, p.other_benefits)
+        return household("targeted_energy_discount_receipt_draw", period) < rate
+
+
 class targeted_energy_discount(Variable):
     label = "Targeted energy discount"
     documentation = (
@@ -191,10 +264,14 @@ class targeted_energy_discount(Variable):
         eligible = household("targeted_energy_discount_eligible", period)
         passported = household("targeted_energy_discount_passported", period)
         claims = household("claims_targeted_energy_discount", period)
+        receives = household("receives_targeted_energy_discount_if_passported", period)
         income = household("targeted_energy_discount_assessed_income", period)
         bill = household("targeted_energy_discount_bill", period)
         support = _schedule(p, income, bill)
-        return where(eligible & (passported | claims), support, 0)
+        # Passported households are enrolled without a claim but subject to the
+        # receipt rate; income-route households must claim.
+        enrolled = where(passported, receives, claims)
+        return where(eligible & enrolled, support, 0)
 
 
 class household_benefits(_baseline_household_benefits):
@@ -227,10 +304,13 @@ NEW_VARIABLES = [
     targeted_energy_discount_person_income,
     targeted_energy_discount_highest_income,
     targeted_energy_discount_tested_income,
+    targeted_energy_discount_scotland_core_group,
     targeted_energy_discount_passported,
     targeted_energy_discount_assessed_income,
     targeted_energy_discount_income_route,
     targeted_energy_discount_eligible,
+    targeted_energy_discount_receipt_draw,
+    receives_targeted_energy_discount_if_passported,
     targeted_energy_discount,
 ]
 
