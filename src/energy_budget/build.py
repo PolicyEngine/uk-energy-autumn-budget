@@ -20,6 +20,11 @@ from .config import (
     DATASET_ENERGY_LEVELS,
     DATASET_YEAR,
     ELEC_VAT,
+    NEG_BLOCK_KWH,
+    NEG_GAS_TO_ELEC_FACTOR,
+    NEG_PRICE_MULTIPLE,
+    NEG_SOURCE_COST_BN,
+    NEG_SOURCE_UNIT_RATE,
     NEW_TDCV,
     PRICE_PATH,
     TDCV_ELEC_KWH,
@@ -254,6 +259,7 @@ def write_tables(r):
         "extend_vat_cut": "Extend VAT cut to March 2028",
         "flat_400": "£400 to every household",
         "cap_freeze": "Cap freeze at April–June 2026 tariffs",
+        "national_energy_guarantee": "National Energy Guarantee",
     }
     measures = []
     for fy, v in _years(r).items():
@@ -349,6 +355,8 @@ def write_tables(r):
                     if q is None
                     else round(q["bhc"] - p["bhc"], 2),
                     "bill_cut_pct": o.get("bill_cut_pct"),
+                    "cost_at_source_prices_bn": o.get("cost_at_source_prices_bn"),
+                    "unit_rate_p": o.get("unit_rate_p"),
                     "decile_1_gain": o["deciles"][0],
                     "decile_10_gain": o["deciles"][9],
                 }
@@ -440,6 +448,13 @@ def build_notes(r):
         f"£{eq[fy].get('total_extra_cost_bn', float('nan'))}bn"
         for fy, v in years.items()
     )
+    neg = {fy: v["options"]["national_energy_guarantee"] for fy, v in years.items()}
+    neg_text = "; ".join(
+        f"{fy}: £{o['cost_bn']:.2f}bn at {o['unit_rate_p']['elec']:.1f}p electricity and "
+        f"{o['unit_rate_p']['gas']:.1f}p gas"
+        for fy, o in neg.items()
+    )
+    neg_source = neg["2026-27"]["cost_at_source_prices_bn"]
     zero_kwh = checks["elec"]["connected_zero_kwh_pct"]
     no_gas = checks["gas"]["not_connected_pct"]
     return [
@@ -538,6 +553,27 @@ def build_notes(r):
             "topic": "Cap freeze",
             "detail": "Electricity and gas unit rates and standing charges are held at April–June 2026 levels. The cost is each household's forecast bill minus its bill at those tariffs for the same kWh, floored at zero. It is a price restoration, so it sits outside HBAI income and has no poverty effect.",
             "link": "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges",
+        },
+        {
+            "id": "national_energy_guarantee",
+            "topic": "National Energy Guarantee",
+            "detail": (
+                f"Two-tier version: each household's first {NEG_BLOCK_KWH['elec']:,} kWh of "
+                f"electricity and {NEG_BLOCK_KWH['gas']:,} kWh of gas a year at "
+                f"{NEG_PRICE_MULTIPLE['elec']:.2f} and {NEG_PRICE_MULTIPLE['gas']:.2f} times "
+                "the unit rate; households with no mains gas add "
+                f"{NEG_BLOCK_KWH['gas'] * NEG_GAS_TO_ELEC_FACTOR:,.0f} kWh to their electricity "
+                "block. Standing charges are unchanged, with no premium tier and no child or "
+                "disability allowances. The saving is min(kWh, block) times the discount on "
+                "each year's consumption-weighted forecast unit rate at post-Budget VAT, "
+                f"UK-wide with Northern Ireland on GB prices: {neg_text}. A price cut, outside "
+                "HBAI income. The source costing model prices the scheme at flat "
+                f"{NEG_SOURCE_UNIT_RATE['elec'] * 100:.0f}p and "
+                f"{NEG_SOURCE_UNIT_RATE['gas'] * 100:.0f}p unit rates on LCFS 2024-25 and puts "
+                f"the cost at £{NEG_SOURCE_COST_BN:.2f}bn; the same rates on Microcosm give "
+                f"£{neg_source:.2f}bn."
+            ),
+            "link": "https://neweconomics.org/2023/04/the-national-energy-guarantee",
         },
         {
             "id": "extend_vat_cut",

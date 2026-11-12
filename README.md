@@ -45,10 +45,11 @@ The payment is £0 in 2027-28 and the VAT extension changes nothing in 2026-27 (
 | Cost of Living Payment | £300 to households on means-tested benefits |
 | £400 to every household | The 2022 Energy Bills Support Scheme design |
 | Cap freeze | Electricity and gas unit rates and standing charges held at April–June 2026 levels. Each household's subsidy is its forecast bill minus its bill at April–June 2026 tariffs for the same kWh, floored at zero, costed directly from bills. A price restoration, outside HBAI income. |
+| National Energy Guarantee | Two-tier design from the source costing model (`RBT_model_2024_25_v10.5.xlsx`, sheet "Inputs 2-tier"): each household's first 1,800 kWh of electricity and 6,100 kWh of gas a year at 0.75x and 0.6x the unit rate; households with no gas add 3,050 kWh to the electricity block. Saving = min(kWh, block) × the discount on that year's consumption-weighted forecast unit rate at post-Budget VAT. Standing charges unchanged; no premium tier or allowances; UK-wide with Northern Ireland on GB prices; outside HBAI income. The source model prices it at flat 31p / 10p unit rates for £9.73bn; `results.json` records the same rates on Microcosm (`cost_at_source_prices_bn`). |
 | Extend the electricity VAT cut | 0% VAT on domestic electricity from July 2027 to March 2028, UK-wide; costed from bills as the relief beyond the Budget's extension to June 2027 |
 | Remove remaining levies | £120 off a typical electricity bill, applied as a share of each GB electricity bill (2027-28) |
 
-All are scored against the post-Budget baseline. The first four are PolicyEngine reforms; the last three are price cuts costed from each household's bill. Poverty is PolicyEngine's HBAI relative measure: the WHD top-up counts as income (as DWP treats the Warm Home Discount), as does the £400 credit (policyengine-uk 2.174.1 follows DWP's treatment of the 2022 Energy Bills Support Scheme), and the RF discount is counted the same way by assumption; price cuts do not move it.
+All are scored against the post-Budget baseline. The first four are PolicyEngine reforms; the last four are price cuts costed from each household's bill. Poverty is PolicyEngine's HBAI relative measure: the WHD top-up counts as income (as DWP treats the Warm Home Discount), as does the £400 credit (policyengine-uk 2.174.1 follows DWP's treatment of the 2022 Energy Bills Support Scheme), and the RF discount is counted the same way by assumption; price cuts do not move it.
 
 ## Limitations
 

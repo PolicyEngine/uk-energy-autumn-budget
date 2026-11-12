@@ -66,6 +66,12 @@
   "link": "https://www.ofgem.gov.uk/your-energy-supply/your-energy-bill/energy-price-cap-unit-rates-and-standing-charges"
  },
  {
+  "id": "national_energy_guarantee",
+  "topic": "National Energy Guarantee",
+  "detail": "Two-tier version: each household's first 1,800 kWh of electricity and 6,100 kWh of gas a year at 0.75 and 0.60 times the unit rate; households with no mains gas add 3,050 kWh to their electricity block. Standing charges are unchanged, with no premium tier and no child or disability allowances. The saving is min(kWh, block) times the discount on each year's consumption-weighted forecast unit rate at post-Budget VAT, UK-wide with Northern Ireland on GB prices: 2026-27: \u00a37.36bn at 27.1p electricity and 8.3p gas; 2027-28: \u00a38.11bn at 29.7p electricity and 9.1p gas. A price cut, outside HBAI income. The source costing model prices the scheme at flat 31p and 10p unit rates on LCFS 2024-25 and puts the cost at \u00a39.73bn; the same rates on Microcosm give \u00a38.68bn.",
+  "link": "https://neweconomics.org/2023/04/the-national-energy-guarantee"
+ },
+ {
   "id": "extend_vat_cut",
   "topic": "Extend VAT cut",
   "detail": "Keeps 0% VAT on domestic electricity from 1 July 2027 to 31 March 2028, UK-wide like the Budget's extension. Its cost is the additional relief beyond the extension to June 2027, which is already in the baseline.",

@@ -602,6 +602,15 @@ const POLICY_INFO = [
     model: "PolicyEngine UK's energy bills credit parameter set to £400.",
   },
   {
+    id: "national_energy_guarantee",
+    name: "National Energy Guarantee",
+    summary: "First 1,800 kWh of electricity and 6,100 kWh of gas cheaper, all households.",
+    eligibility: "Every household.",
+    how: "Each household's first 1,800 kWh of electricity and 6,100 kWh of gas a year are charged 25% and 40% below the normal unit rate. Use above that pays the normal rate. Households with no gas get an extra 3,050 kWh of cheaper electricity instead. Standing charges do not change.",
+    source: <>Proposed in 2023 as a <a href="https://neweconomics.org/2023/04/the-national-energy-guarantee" target="_blank" rel="noopener noreferrer">National Energy Guarantee</a>. We cost a simpler two-tier version from a costing model shared with us in October 2026: no premium tier for high use, and no extra allowances for children or disability.</>,
+    model: `Costed from each household's kWh: the discount applies to the kWh it uses up to its block, at our forecast unit rate for each quarter at post-Budget VAT, with use and the block spread over the year by season. UK-wide, with Northern Ireland on GB prices. The source model prices the scheme at flat 31p electricity and 10p gas unit rates and puts the cost at £9.7bn a year; the same rates on our data give £${optionRow("2026-27", "national_energy_guarantee").cost_at_source_prices_bn.toFixed(1)}bn. Our forecast unit rates are lower, so our cost is lower.`,
+  },
+  {
     id: "cap_freeze",
     name: "Cap freeze",
     summary: "April–June 2026 tariffs restored.",
@@ -726,8 +735,8 @@ function BudgetSection({ fy, setFy, sel, setOpt }) {
       <p className="section-description">
         Four options are payments simulated as <a href="https://pypi.org/project/policyengine/" target="_blank" rel="noopener noreferrer">PolicyEngine</a> reforms against the {fy} post-Budget baseline
         (targeted discount, Cost of Living Payment, Warm Home Discount top-up and £400 credit); their cost is the
-        change in household net income summed over all households. Three are price reductions calculated
-        directly from each household's bills (cap freeze, VAT extension and levy removal); their cost is the
+        change in household net income summed over all households. Four are price reductions calculated
+        directly from each household's bills (cap freeze, National Energy Guarantee, VAT extension and levy removal); their cost is the
         total reduction in bills. Gains are averaged per household.
       </p>
       </MoreDetail>
@@ -1040,6 +1049,12 @@ function MethodologySection() {
               <span className="model-tag no">Not counted as income</span>
             </div>
             <div className="model-card">
+              <div className="model-card-name">National Energy Guarantee</div>
+              <p>The first 1,800 kWh of electricity and 6,100 kWh of gas a year at 25% and 40% off the unit rate (4,850 kWh of
+                electricity for homes without gas), costed from each household&apos;s kWh.</p>
+              <span className="model-tag no">Not counted as income</span>
+            </div>
+            <div className="model-card">
               <div className="model-card-name">Extend VAT cut</div>
               <p>0% VAT on electricity from July 2027 to March 2028, UK-wide, costed from each household&apos;s electricity bill. Only the
                 relief beyond the Budget&apos;s extension to June 2027 counts.</p>
@@ -1127,7 +1142,7 @@ export default function Dashboard() {
           the Autumn Budget 2026, what the Budget&apos;s energy measures are worth, and what further support options would cost and who
           they would reach. We model every household&apos;s bill at the prices{" "}
           <a href="https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026" target="_blank" rel="noopener noreferrer">Ofgem has set</a>{" "}
-          and forecasters expect, and score seven options against that baseline using PolicyEngine.
+          and forecasters expect, and score eight options against that baseline using PolicyEngine.
         </p>
         <MoreDetail label="Proposals behind the options">
           <p className="section-description">

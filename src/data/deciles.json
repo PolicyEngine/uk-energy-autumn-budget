@@ -9,7 +9,8 @@
   "whd_top_up": 44,
   "cost_of_living_payment": 147,
   "flat_400": 400,
-  "cap_freeze": 251
+  "cap_freeze": 251,
+  "national_energy_guarantee": 233
  },
  {
   "fy": "2026-27",
@@ -21,7 +22,8 @@
   "whd_top_up": 45,
   "cost_of_living_payment": 149,
   "flat_400": 400,
-  "cap_freeze": 273
+  "cap_freeze": 273,
+  "national_energy_guarantee": 252
  },
  {
   "fy": "2026-27",
@@ -33,7 +35,8 @@
   "whd_top_up": 43,
   "cost_of_living_payment": 137,
   "flat_400": 400,
-  "cap_freeze": 257
+  "cap_freeze": 257,
+  "national_energy_guarantee": 247
  },
  {
   "fy": "2026-27",
@@ -45,7 +48,8 @@
   "whd_top_up": 37,
   "cost_of_living_payment": 120,
   "flat_400": 400,
-  "cap_freeze": 267
+  "cap_freeze": 267,
+  "national_energy_guarantee": 246
  },
  {
   "fy": "2026-27",
@@ -57,7 +61,8 @@
   "whd_top_up": 29,
   "cost_of_living_payment": 97,
   "flat_400": 400,
-  "cap_freeze": 285
+  "cap_freeze": 285,
+  "national_energy_guarantee": 252
  },
  {
   "fy": "2026-27",
@@ -69,7 +74,8 @@
   "whd_top_up": 21,
   "cost_of_living_payment": 66,
   "flat_400": 400,
-  "cap_freeze": 279
+  "cap_freeze": 279,
+  "national_energy_guarantee": 256
  },
  {
   "fy": "2026-27",
@@ -81,7 +87,8 @@
   "whd_top_up": 19,
   "cost_of_living_payment": 63,
   "flat_400": 400,
-  "cap_freeze": 289
+  "cap_freeze": 289,
+  "national_energy_guarantee": 257
  },
  {
   "fy": "2026-27",
@@ -93,7 +100,8 @@
   "whd_top_up": 9,
   "cost_of_living_payment": 26,
   "flat_400": 400,
-  "cap_freeze": 297
+  "cap_freeze": 297,
+  "national_energy_guarantee": 256
  },
  {
   "fy": "2026-27",
@@ -105,7 +113,8 @@
   "whd_top_up": 4,
   "cost_of_living_payment": 12,
   "flat_400": 400,
-  "cap_freeze": 332
+  "cap_freeze": 332,
+  "national_energy_guarantee": 260
  },
  {
   "fy": "2026-27",
@@ -117,7 +126,8 @@
   "whd_top_up": 3,
   "cost_of_living_payment": 11,
   "flat_400": 400,
-  "cap_freeze": 386
+  "cap_freeze": 386,
+  "national_energy_guarantee": 268
  },
  {
   "fy": "2027-28",
@@ -130,6 +140,7 @@
   "cost_of_living_payment": 142,
   "flat_400": 400,
   "cap_freeze": 375,
+  "national_energy_guarantee": 256,
   "extend_vat_cut": 34,
   "remove_levies": 115
  },
@@ -144,6 +155,7 @@
   "cost_of_living_payment": 145,
   "flat_400": 400,
   "cap_freeze": 408,
+  "national_energy_guarantee": 278,
   "extend_vat_cut": 37,
   "remove_levies": 124
  },
@@ -158,6 +170,7 @@
   "cost_of_living_payment": 137,
   "flat_400": 400,
   "cap_freeze": 389,
+  "national_energy_guarantee": 272,
   "extend_vat_cut": 36,
   "remove_levies": 120
  },
@@ -172,6 +185,7 @@
   "cost_of_living_payment": 123,
   "flat_400": 400,
   "cap_freeze": 393,
+  "national_energy_guarantee": 272,
   "extend_vat_cut": 37,
   "remove_levies": 125
  },
@@ -186,6 +200,7 @@
   "cost_of_living_payment": 96,
   "flat_400": 400,
   "cap_freeze": 426,
+  "national_energy_guarantee": 277,
   "extend_vat_cut": 37,
   "remove_levies": 125
  },
@@ -200,6 +215,7 @@
   "cost_of_living_payment": 69,
   "flat_400": 400,
   "cap_freeze": 419,
+  "national_energy_guarantee": 281,
   "extend_vat_cut": 39,
   "remove_levies": 132
  },
@@ -214,6 +230,7 @@
   "cost_of_living_payment": 60,
   "flat_400": 400,
   "cap_freeze": 434,
+  "national_energy_guarantee": 283,
   "extend_vat_cut": 39,
   "remove_levies": 133
  },
@@ -228,6 +245,7 @@
   "cost_of_living_payment": 30,
   "flat_400": 400,
   "cap_freeze": 448,
+  "national_energy_guarantee": 284,
   "extend_vat_cut": 41,
   "remove_levies": 139
  },
@@ -242,6 +260,7 @@
   "cost_of_living_payment": 12,
   "flat_400": 400,
   "cap_freeze": 502,
+  "national_energy_guarantee": 287,
   "extend_vat_cut": 44,
   "remove_levies": 148
  },
@@ -256,6 +275,7 @@
   "cost_of_living_payment": 11,
   "flat_400": 400,
   "cap_freeze": 582,
+  "national_energy_guarantee": 295,
   "extend_vat_cut": 51,
   "remove_levies": 174
  }

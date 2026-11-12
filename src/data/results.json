@@ -133,7 +133,8 @@
      "total_extra_cost_bn": 6.82,
      "budget_vat_extension_bn": 0.0,
      "option_cost_bn": {
-      "cap_freeze": 6.82
+      "cap_freeze": 6.82,
+      "national_energy_guarantee": 7.04
      }
     }
    }
@@ -598,6 +599,56 @@
     },
     "poverty": null,
     "note": "Price restoration, not a payment: each household's forecast bill minus its bill at April\u2013June 2026 tariffs for the same kWh (seasonal profile), floored at zero. Outside HBAI income, so no poverty effect. UK-wide, with Northern Ireland on GB prices as a proxy."
+   },
+   "national_energy_guarantee": {
+    "label": "National Energy Guarantee: the first 1,800 kWh of electricity and 6,100 kWh of gas a year at 25% and 40% below the unit rate",
+    "cost_bn": 7.36,
+    "avg_per_household": 252,
+    "share_receiving_pct": 98.4,
+    "recipients_m": 28.67,
+    "share_of_shock_offset_pct": 70.0,
+    "deciles": [
+     233,
+     252,
+     247,
+     246,
+     252,
+     256,
+     257,
+     256,
+     260,
+     268
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 256,
+     "COUPLE_PENSIONER": 271,
+     "COUPLE_WITH_CHILDREN": 279,
+     "LONE_PARENT": 240,
+     "MULTI_UNIT": 273,
+     "SINGLE_PENSIONER": 225,
+     "SINGLE_WORKING_AGE": 207
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 260,
+     "EAST_OF_ENGLAND": 260,
+     "LONDON": 238,
+     "NORTHERN_IRELAND": 257,
+     "NORTH_EAST": 261,
+     "NORTH_WEST": 258,
+     "SCOTLAND": 250,
+     "SOUTH_EAST": 252,
+     "SOUTH_WEST": 240,
+     "WALES": 252,
+     "WEST_MIDLANDS": 260,
+     "YORKSHIRE": 254
+    },
+    "poverty": null,
+    "note": "Costed from each household's kWh at the forecast unit rates for each quarter; households with no gas add 3,050 kWh to their electricity block. Standing charges unchanged. UK-wide, with Northern Ireland on GB prices as a proxy. Price cut, costed from bills; not in HBAI income, so no poverty effect.",
+    "cost_at_source_prices_bn": 8.68,
+    "unit_rate_p": {
+     "elec": 27.05,
+     "gas": 8.28
+    }
    }
   },
   "validation": {
@@ -775,6 +826,7 @@
      "budget_vat_extension_bn": 0.41,
      "option_cost_bn": {
       "cap_freeze": 13.11,
+      "national_energy_guarantee": 8.18,
       "extend_vat_cut": 1.11,
       "remove_levies": 3.89
      }
@@ -1243,6 +1295,56 @@
     },
     "poverty": null,
     "note": "Price restoration, not a payment: each household's forecast bill minus its bill at April\u2013June 2026 tariffs for the same kWh (seasonal profile), floored at zero. Outside HBAI income, so no poverty effect. UK-wide, with Northern Ireland on GB prices as a proxy."
+   },
+   "national_energy_guarantee": {
+    "label": "National Energy Guarantee: the first 1,800 kWh of electricity and 6,100 kWh of gas a year at 25% and 40% below the unit rate",
+    "cost_bn": 8.11,
+    "avg_per_household": 278,
+    "share_receiving_pct": 98.4,
+    "recipients_m": 28.71,
+    "share_of_shock_offset_pct": 58.9,
+    "deciles": [
+     256,
+     278,
+     272,
+     272,
+     277,
+     281,
+     283,
+     284,
+     287,
+     295
+    ],
+    "by_hh_type": {
+     "COUPLE_NO_CHILDREN": 282,
+     "COUPLE_PENSIONER": 299,
+     "COUPLE_WITH_CHILDREN": 308,
+     "LONE_PARENT": 265,
+     "MULTI_UNIT": 300,
+     "SINGLE_PENSIONER": 248,
+     "SINGLE_WORKING_AGE": 228
+    },
+    "by_region": {
+     "EAST_MIDLANDS": 286,
+     "EAST_OF_ENGLAND": 287,
+     "LONDON": 263,
+     "NORTHERN_IRELAND": 278,
+     "NORTH_EAST": 287,
+     "NORTH_WEST": 285,
+     "SCOTLAND": 275,
+     "SOUTH_EAST": 278,
+     "SOUTH_WEST": 264,
+     "WALES": 278,
+     "WEST_MIDLANDS": 286,
+     "YORKSHIRE": 279
+    },
+    "poverty": null,
+    "note": "Costed from each household's kWh at the forecast unit rates for each quarter; households with no gas add 3,050 kWh to their electricity block. Standing charges unchanged. UK-wide, with Northern Ireland on GB prices as a proxy. Price cut, costed from bills; not in HBAI income, so no poverty effect.",
+    "cost_at_source_prices_bn": 8.69,
+    "unit_rate_p": {
+     "elec": 29.73,
+     "gas": 9.14
+    }
    },
    "extend_vat_cut": {
     "label": "Keep 0% VAT on domestic electricity from July 2027 to March 2028, beyond the Budget's extension to June 2027 (UK-wide)",
