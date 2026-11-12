@@ -23,6 +23,8 @@
   "child_poverty_ahc_change_pp": -0.18,
   "poverty_bhc_change_pp": -0.22,
   "bill_cut_pct": null,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 154,
   "decile_10_gain": 6
  },
@@ -47,6 +49,8 @@
   "child_poverty_ahc_change_pp": -0.07,
   "poverty_bhc_change_pp": -0.11,
   "bill_cut_pct": null,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 44,
   "decile_10_gain": 3
  },
@@ -68,6 +72,8 @@
   "child_poverty_ahc_change_pp": -0.15,
   "poverty_bhc_change_pp": -0.31,
   "bill_cut_pct": null,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 147,
   "decile_10_gain": 11
  },
@@ -89,6 +95,8 @@
   "child_poverty_ahc_change_pp": -0.37,
   "poverty_bhc_change_pp": -0.33,
   "bill_cut_pct": null,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 400,
   "decile_10_gain": 400
  },
@@ -112,8 +120,38 @@
   "child_poverty_ahc_change_pp": null,
   "poverty_bhc_change_pp": null,
   "bill_cut_pct": null,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 251,
   "decile_10_gain": 386
+ },
+ {
+  "fy": "2026-27",
+  "option_id": "national_energy_guarantee",
+  "option": "National Energy Guarantee",
+  "design": "National Energy Guarantee: the first 1,800 kWh of electricity and 6,100 kWh of gas a year at 25% and 40% below the unit rate",
+  "cost_bn": 7.36,
+  "avg_per_household": 252,
+  "share_receiving_pct": 98.4,
+  "recipients_m": 28.67,
+  "share_of_shock_covered_pct": 70.0,
+  "note": "Costed from each household's kWh at the forecast unit rates for each quarter; households with no gas add 3,050 kWh to their electricity block. Standing charges unchanged. UK-wide, with Northern Ireland on GB prices as a proxy. Price cut, costed from bills; not in HBAI income, so no poverty effect.",
+  "assumptions": null,
+  "links": null,
+  "sensitivity_cost_bn": {
+   "profile_equal": 7.04
+  },
+  "poverty_ahc_change_pp": null,
+  "child_poverty_ahc_change_pp": null,
+  "poverty_bhc_change_pp": null,
+  "bill_cut_pct": null,
+  "cost_at_source_prices_bn": 8.68,
+  "unit_rate_p": {
+   "elec": 27.05,
+   "gas": 8.28
+  },
+  "decile_1_gain": 233,
+  "decile_10_gain": 268
  },
  {
   "fy": "2027-28",
@@ -139,6 +177,8 @@
   "child_poverty_ahc_change_pp": -0.18,
   "poverty_bhc_change_pp": -0.2,
   "bill_cut_pct": null,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 153,
   "decile_10_gain": 6
  },
@@ -163,6 +203,8 @@
   "child_poverty_ahc_change_pp": -0.04,
   "poverty_bhc_change_pp": -0.09,
   "bill_cut_pct": null,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 43,
   "decile_10_gain": 3
  },
@@ -184,6 +226,8 @@
   "child_poverty_ahc_change_pp": -0.45,
   "poverty_bhc_change_pp": -0.3,
   "bill_cut_pct": null,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 142,
   "decile_10_gain": 11
  },
@@ -205,6 +249,8 @@
   "child_poverty_ahc_change_pp": -0.44,
   "poverty_bhc_change_pp": -0.32,
   "bill_cut_pct": null,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 400,
   "decile_10_gain": 400
  },
@@ -228,8 +274,38 @@
   "child_poverty_ahc_change_pp": null,
   "poverty_bhc_change_pp": null,
   "bill_cut_pct": null,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 375,
   "decile_10_gain": 582
+ },
+ {
+  "fy": "2027-28",
+  "option_id": "national_energy_guarantee",
+  "option": "National Energy Guarantee",
+  "design": "National Energy Guarantee: the first 1,800 kWh of electricity and 6,100 kWh of gas a year at 25% and 40% below the unit rate",
+  "cost_bn": 8.11,
+  "avg_per_household": 278,
+  "share_receiving_pct": 98.4,
+  "recipients_m": 28.71,
+  "share_of_shock_covered_pct": 58.9,
+  "note": "Costed from each household's kWh at the forecast unit rates for each quarter; households with no gas add 3,050 kWh to their electricity block. Standing charges unchanged. UK-wide, with Northern Ireland on GB prices as a proxy. Price cut, costed from bills; not in HBAI income, so no poverty effect.",
+  "assumptions": null,
+  "links": null,
+  "sensitivity_cost_bn": {
+   "profile_equal": 8.18
+  },
+  "poverty_ahc_change_pp": null,
+  "child_poverty_ahc_change_pp": null,
+  "poverty_bhc_change_pp": null,
+  "bill_cut_pct": null,
+  "cost_at_source_prices_bn": 8.69,
+  "unit_rate_p": {
+   "elec": 29.73,
+   "gas": 9.14
+  },
+  "decile_1_gain": 256,
+  "decile_10_gain": 295
  },
  {
   "fy": "2027-28",
@@ -251,6 +327,8 @@
   "child_poverty_ahc_change_pp": null,
   "poverty_bhc_change_pp": null,
   "bill_cut_pct": null,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 34,
   "decile_10_gain": 51
  },
@@ -274,6 +352,8 @@
   "child_poverty_ahc_change_pp": null,
   "poverty_bhc_change_pp": null,
   "bill_cut_pct": 12.8,
+  "cost_at_source_prices_bn": null,
+  "unit_rate_p": null,
   "decile_1_gain": 115,
   "decile_10_gain": 174
  }
