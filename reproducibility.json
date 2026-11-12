@@ -1,13 +1,17 @@
 {
- "generated_at": "2026-11-09T16:39:11+00:00",
+ "generated_at": "2026-11-12T10:21:15+00:00",
  "command": "HF_HUB_OFFLINE=1 .venv/bin/energy-budget",
  "git": {
-  "head": "5b3c0f64c14a7abbe669552deaeeb268bbd6922f",
-  "branch": "migrate/policyengine-6.16.1",
+  "head": "370cd5a7b27bc048a2a9104ea6ad88251a3a73f5",
+  "branch": "options/whd-eligibility-top-up",
   "uncommitted_changes": true,
   "uncommitted_paths": [
-   "M src/data/results.json",
-   " M src/data/validation.json"
+   "M src/data/deciles.json",
+   " M src/data/hh_types.json",
+   " M src/data/notes.json",
+   " M src/data/options.json",
+   " M src/data/regions.json",
+   " M src/data/results.json"
   ]
  },
  "runtime": {
@@ -34,14 +38,14 @@
  },
  "outputs": {
   "src/data/budget_measures.json": "57637cc68e4495f849483e2cce47a54ca97f4d9bcab78e294a75db35ad928564",
-  "src/data/deciles.json": "58db77189a28217af6fe4a8ec98364ee206737c67ca64c8d8e6039126b1cbaf3",
-  "src/data/hh_types.json": "a5c119621b47a775632186d8efbaca1d8234562ba2cf4f320f91aa1a69997705",
-  "src/data/notes.json": "fbbf6ea944bcbbc042f5f02164b81802634db7483c756999e54c61c7dc4dda28",
-  "src/data/options.json": "a0ea825f92697525158fb3629294ddbeb2df1e5109f850ffc762d60f42d62f00",
+  "src/data/deciles.json": "820d387b318284928f89a522f7c4754c88350b19f3839887d13057d9e4d71453",
+  "src/data/hh_types.json": "c4aed1bece7515ff57d0f7f27d5e601ceeffe8e056cee5c50e4a960c5cfdecbb",
+  "src/data/notes.json": "fddf6ca92b0f65ed448be7d677578a785f8f2e82a3d9d31885c960986c477edb",
+  "src/data/options.json": "a5618cd895c7a40666f90102863fa3b71fb331274e0b1b104cff9066d512183f",
   "src/data/price_path.json": "620489695e027ab3433c20a1fc7a9d595a5ee5730b4783548c5ec2f3d894a86d",
   "src/data/provenance.json": "d5b16d435d63a1728f10f2196ed12172dfa3bb6354bda71bab2aaf997b60053c",
-  "src/data/regions.json": "850ec31b088c97d079982434c892020f4137478e0be7116cb9b0412a6545ae5c",
-  "src/data/results.json": "37afe2c78d40694ea4bdcdfab48fa98f78ee481366b625d5c3ad76100f7af077",
+  "src/data/regions.json": "ea633f381af916f03de394ec5258753dabeac1c14c2a489cec5a4f0e181e957a",
+  "src/data/results.json": "6bbf47b6eb10566e451ab918d1f46aebb12c93b0617a51ae42d3054f41e05b09",
   "src/data/validation.json": "77e84f6c7f5fd83aa909ecf97f8ec99f1040a3c483b31bd7eb1b7b213d7bff5a",
   "src/data/years.json": "640d742ba4f13f797d72a0b5bc35c87c18f5808e0639b3a209d8e1ae6b8c784f"
  }
